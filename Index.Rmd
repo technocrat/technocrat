@@ -1,0 +1,55 @@
+--- 
+title: "Data Science Portfolio"
+author: "Richard Careaga"
+date: "`r Sys.Date()`"
+site: bookdown::bookdown_site
+output: bookdown::gitbook
+documentclass: book
+bibliography: [book.bib, packages.bib]
+biblio-style: apalike
+link-citations: yes
+github-repo: github/technocrat/technocrat.github.io
+description: "Landing site"
+---
+# Preface {#preface}
+
+
+This draft shows where Richard Careaga's data science skills stand in mid-2018. In 2007, I put much effort into acquiring the nuts-and-bolts, dusting off old statistial learning, and throwing them into the front line of the initial skirmishes of the Great Recession. This was not something in my job description at Washington Mutual Bank, the largest ever to fail in the U.S. Fortunately, I was senior enough to decide on my own how best to spend my time. 
+
+I spent a month split between data acquisition and acquiring the basics. (MySQL, R and Python). This is one of several cases studies in this document that I use to show what you can expect if you take me on as a data scientist.
+
+The cases range from spreadsheet sized (a few hundred records) to small (a thousand), middling (125,000) and largest (500,000). As the cases get larger, the number of fields grow, as well, along with the data clean-up.
+
+## The Cases
+
+Each of the cases is designed to illustrate one or more specific skill by presenting an example and explaining what motivated it, what it does, the tools used, and what its output accomplished.
+
+* 2015 Police Involved Homicides: Descriptive statistics, observational data hypothesis testing
+* The Financial Cash Flow Model: OOP Python, model derivation from narrative
+* Failure analysis of subprime Loans: MySQL,R, exploratory data analysis, high-dimensional data, clustering, regression, principal component analyis, machine learning
+* The Enron Email Corpus: Python, NLTK, social network analysis, de-duplication, stopwords, boilerplate stripping
+* Daycare Costs and Unexamined Assumptions: Data skepticism
+* Assorted examples of utility programming in Python, Haskell, Lua and Flex/Bison
+
+## Literate programming: the tight integration of code and text
+
+An analysis can have different audiences, and one of those may be peers, who may want to look under the hood to see exactly how the data were processed to produce the results given. This book is in that style and the RMarkdown files used to produce this portfolio are all available: 
+
+    git clone https://github.com/technocrat/technocrat.github.io
+
+## Credentials
+
+I've completed the following online courses, to consolidate and expand my previous training and experience in data science. My plan is to use these cases to apply the many new techniques that I have learned to date, and expect to learn as I complete the remaining courses in the series.
+
+!["BerkeleyX Data8.1x Certificate"](https://s3-us-west-2.amazonaws.com/tuva/BerkeleyX+Data8.1x+Certificate+%7C+edX.png)
+!["HarvardX PH125.1x Certificate"](https://s3-us-west-2.amazonaws.com/tuva/HarvardX+PH125.1x+Certificate+%7C+edX.png)
+![""HarvardX PH125.2x Certificat"](https://s3-us-west-2.amazonaws.com/tuva/HarvardX+PH125.2x+Certificate+%7C+edX.png)
+!["HarvardX PH125.3x Certificate"](https://s3-us-west-2.amazonaws.com/tuva/HarvardX+PH125.3x+Certificate+%7C+edX.png)
+!["HarvardX PH125.4x Certificate"](https://s3-us-west-2.amazonaws.com/tuva/HarvardX+PH125.4x+Certificate+%7C+edX.png)
+![Harvard PH125.5x, Productivity, certificate issuance pending](https://s3-us-west-2.amazonaws.com/tuva/HarvardX%3B+PH125.5x.png)
+ 
+![HarvardX PH559x Certificate](https://s3-us-west-2.amazonaws.com/tuva/HarvardX+PH559x+Certificate+%7C+edX.png)
+
+## Analytic and programming experience
+
+My prior analytic education and experience was in geology/geophysics (M.S.) and law (J.D.) I have been on *nix as my own sysadm since 1984, including Venix (a v7 derivative), Irix (SGI), Ubuntu and other Linux versions, and Mac OSx. My orientation is strongly CLI, rather than GUI, but I have used Excel and Word since their early release. I have non-PC experience with the IBM S/34 and implementation of payroll, general ledger and budgeting. During the mid-90s, I installed, configured and operated http, mail, news, proxy, certificate and LDAP servers. I am familiar with many of the important bash tools, C and Perl.
