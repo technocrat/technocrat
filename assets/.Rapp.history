@@ -1,0 +1,799 @@
+nextyear = 2.016e+03
+interval = nextyear-baseyear
+last_year = 110000
+predict = lastyear+ pricefactor
+predict = last_year+ pricefactor
+predict
+prices <- select(biz1, prices)
+prices <- select(biz1, Price)
+prices <- apply(prices, Price, Price + pricefactor)
+prices
+forecast <- apply(prices, Price, Price + pricefactor)
+forecast <- apply(prices, Price + pricefactor)
+forecast <- apply(prices, new = Price + pricefactor)
+?apply
+?dplyr::apply
+library(dplyr)
+forecast <- apply(prices, new = Price + pricefactor)
+help(apply)
+help(dplyr)
+forecast <- mutate(prices, new = Price + pricefactor)
+forecast
+pricefactor
+summary(model)
+summary(mod)
+forecast = mutate(biz1, next_year = (year - 2000))*Price
+forecast = mutate(biz1, next_year = (year - 2000))*price)
+forecast = mutate(biz1, next_year = (year - 2000)*price)
+forecast
+forecast = mutate(biz1, next_year = (year - 2000)*pricefactor)
+forecast
+forecast = mutate(biz1, next_year = Price + (year - 2000)*pricefactor)
+foreast
+forecast
+forecast = mutate(biz1, next_year = Price + (year - 2000)*pricefactor)*Price
+forecast = mutate(biz1, next_year = Price + (year - 2000)*pricefactor)*Price_
+forecast = mutate(biz1, next_year = Price + (year - 2000)*pricefactor)*Price)
+forecast = mutate(biz1, next_year = Price*(year - 2000)*pricefactor)
+forecast
+forecast = mutate(biz1, next_year = Price * (year - 2000)*pricefactor)
+forecast
+forecast = mutate(biz1, next_year = Price * (year - 2000)^2*pricefactor)
+forecast
+forecast = mutate(biz1, next_year = Price * (year - 2000)^5*pricefactor)
+forecast
+forecast = mutate(biz1, next_year = Price * (year - 2000)^3*pricefactor)
+forecast
+forecast = mutate(biz1, next_year = Price * (year - 2000)^4*pricefactor)
+forecast
+line(Price,Year)
+line(biz1$Price,biz1$Year)
+plot(line(biz1$Price,biz1$Year))
+l = ggplot(biz1) + geom_line(aes(y=Price,x=Year))
+l
+summary(mod)
+glm = (Price ~ Year)
+summary(glm)
+gmod = glm(Price ~ Year)
+gmod = glm(biz1$Price ~ biz1$Year)
+summary(glm)
+summary(gmod)
+plot(gmod)
+biz1 <- read.csv("house.csv")
+mod <- lm(biz1$Year, biz1$Price)
+mod <- lm(biz1$Year ~ biz1$Price)
+summary(mod)
+biz1 <- read.csv("house.csv")
+mod <- lm(biz1$Year ~ biz1$Price)
+summary(mod)
+par(mfrow=c(2,2))
+plot(mod)
+plot(biz1$Year,biz1$Price)
+biz1 <- read.csv("house.csv")
+plot(biz1$Year,biz1$Price)
+par(mfrow=c(2,2))
+mod <- lm(biz1$Year ~ biz1$Price)
+par(mfrow=c(2,2))
+summary(mod)
+plot(mod)
+110000+110000*1.700e-04
+plot(biz$Year,biz$Price)
+plot(biz1$Year,biz1$Price)
+biz1 <- read.csv("house.csv")
+plot(biz1$Year,biz1$Price)
+biz1 <- read.csv("house.csv")
+plot(biz1$Year,biz1$Price)
+mod <- lm(biz1$Year ~ biz1$Price)
+pane4
+par(mfrow=c(2,2))
+plot(mod)
+qqplot(biz1$Year,biz1$Price)
+abline(0,0)
+qqplot(biz1$Year,biz1$Price)
+abline(lm(biz1$Year,biz1$Price))
+abline(lm(biz1$Year ~ biz1$Price))
+plot(biz1$Year,biz1$Price)
+abline(lm(biz1$Year ~ biz1$Price))
+lm(biz1$Year ~ biz1$Price)
+update.packages()
+library(maptools)
+help(maptools)
+??maptools
+data(meuse)#
+coordinates(meuse) <- c("x", "y")#
+proj4string(meuse) <- CRS("+init=epsg:28992")#
+data(meuse.riv)#
+river_polygon <- Polygons(list(Polygon(meuse.riv)), ID="meuse")#
+rivers <- SpatialPolygons(list(river_polygon))#
+proj4string(rivers) <- CRS("+init=epsg:28992")#
+rivers1 <- elide(rivers, reflect=c(TRUE, TRUE), scale=TRUE)#
+meuse1 <- elide(meuse, bb=bbox(rivers), reflect=c(TRUE, TRUE), scale=TRUE)#
+opar <- par(mfrow=c(1,2))#
+plot(rivers, axes=TRUE)#
+plot(meuse, add=TRUE)#
+plot(rivers1, axes=TRUE)#
+plot(meuse1, add=TRUE)#
+par(opar)#
+meuse1 <- elide(meuse, shift=c(10000, -10000))#
+bbox(meuse)#
+bbox(meuse1)#
+rivers1 <- elide(rivers, shift=c(10000, -10000))#
+bbox(rivers)#
+bbox(rivers1)#
+meuse1 <- elide(meuse, rotate=-30, center=apply(bbox(meuse), 1, mean))#
+bbox(meuse)#
+bbox(meuse1)#
+plot(meuse1, axes=TRUE)
+coordinates(meuse) <- c("x", "y")#
+proj4string(meuse) <- CRS("+init=epsg:28992")#
+data(meuse.riv)#
+river_polygon <- Polygons(list(Polygon(meuse.riv)), ID="meuse")#
+rivers <- SpatialPolygons(list(river_polygon))#
+proj4string(rivers) <- CRS("+init=epsg:28992")#
+rivers1 <- elide(rivers, reflect=c(TRUE, TRUE), scale=TRUE)#
+meuse1 <- elide(meuse, bb=bbox(rivers), reflect=c(TRUE, TRUE), scale=TRUE)#
+opar <- par(mfrow=c(1,2))#
+plot(rivers, axes=TRUE)
+data(meuse)#
+coordinates(meuse) <- c("x", "y")#
+proj4string(meuse) <- CRS("+init=epsg:28992")#
+data(meuse.riv)#
+river_polygon <- Polygons(list(Polygon(meuse.riv)), ID="meuse")#
+rivers <- SpatialPolygons(list(river_polygon))#
+proj4string(rivers) <- CRS("+init=epsg:28992")#
+rivers1 <- elide(rivers, reflect=c(TRUE, TRUE), scale=TRUE)#
+meuse1 <- elide(meuse, bb=bbox(rivers), reflect=c(TRUE, TRUE), scale=TRUE)#
+opar <- par(mfrow=c(1,2))#
+plot(rivers, axes=TRUE)#
+plot(meuse, add=TRUE)#
+plot(rivers1, axes=TRUE)#
+plot(meuse1, add=TRUE)#
+par(opar)#
+meuse1 <- elide(meuse, shift=c(10000, -10000))#
+bbox(meuse)#
+bbox(meuse1)#
+rivers1 <- elide(rivers, shift=c(10000, -10000))#
+bbox(rivers)#
+bbox(rivers1)#
+meuse1 <- elide(meuse, rotate=-30, center=apply(bbox(meuse), 1, mean))#
+bbox(meuse)#
+bbox(meuse1)#
+plot(meuse1, axes=TRUE)
+coordinates(meuse) <- c("x", "y")#
+proj4string(meuse) <- CRS("+init=epsg:28992")#
+data(meuse.riv)#
+river_polygon <- Polygons(list(Polygon(meuse.riv)), ID="meuse")#
+rivers <- SpatialPolygons(list(river_polygon))#
+proj4string(rivers) <- CRS("+init=epsg:28992")#
+rivers1 <- elide(rivers, reflect=c(TRUE, TRUE), scale=TRUE)#
+meuse1 <- elide(meuse, bb=bbox(rivers), reflect=c(TRUE, TRUE), scale=2)#
+opar <- par(mfrow=c(1,2))#
+plot(rivers, axes=TRUE)
+coordinates(meuse) <- c("x", "y")#
+proj4string(meuse) <- CRS("+init=epsg:28992")#
+data(meuse.riv)#
+river_polygon <- Polygons(list(Polygon(meuse.riv)), ID="meuse")#
+rivers <- SpatialPolygons(list(river_polygon))#
+proj4string(rivers) <- CRS("+init=epsg:28992")#
+rivers1 <- elide(rivers, reflect=c(TRUE, TRUE), scale=2)#
+meuse1 <- elide(meuse, bb=bbox(rivers), reflect=c(TRUE, TRUE), scale=TRUE)#
+opar <- par(mfrow=c(1,2))#
+plot(rivers, axes=TRUE)
+quit()
+par(mfrow=c(2,1))
+data(meuse)#
+coordinates(meuse) <- c("x", "y")#
+proj4string(meuse) <- CRS("+init=epsg:28992")#
+data(meuse.riv)#
+river_polygon <- Polygons(list(Polygon(meuse.riv)), ID="meuse")#
+rivers <- SpatialPolygons(list(river_polygon))#
+proj4string(rivers) <- CRS("+init=epsg:28992")#
+rivers1 <- elide(rivers, reflect=c(TRUE, TRUE), scale=2)#
+meuse1 <- elide(meuse, bb=bbox(rivers), reflect=c(TRUE, TRUE), scale=TRUE)#
+opar <- par(mfrow=c(1,2))#
+plot(rivers, axes=TRUE)
+plot(rivers1, axes = TRUE)
+ls()
+??maptools
+data(meuse)#
+coordinates(meuse) <- c("x", "y")#
+proj4string(meuse) <- CRS("+init=epsg:28992")#
+data(meuse.riv)#
+river_polygon <- Polygons(list(Polygon(meuse.riv)), ID="meuse")#
+rivers <- SpatialPolygons(list(river_polygon))#
+proj4string(rivers) <- CRS("+init=epsg:28992")#
+rivers1 <- elide(rivers, reflect=c(TRUE, TRUE), scale=TRUE)#
+meuse1 <- elide(meuse, bb=bbox(rivers), reflect=c(TRUE, TRUE), scale=TRUE)#
+opar <- par(mfrow=c(1,2))#
+plot(rivers, axes=TRUE)#
+plot(meuse, add=TRUE)#
+plot(rivers1, axes=TRUE)#
+plot(meuse1, add=TRUE)#
+par(opar)#
+meuse1 <- elide(meuse, shift=c(10000, -10000))#
+bbox(meuse)#
+bbox(meuse1)#
+rivers1 <- elide(rivers, shift=c(10000, -10000))#
+bbox(rivers)#
+bbox(rivers1)#
+meuse1 <- elide(meuse, rotate=-30, center=apply(bbox(meuse), 1, mean))#
+bbox(meuse)#
+bbox(meuse1)#
+plot(meuse1, axes=TRUE)
+library(maptools)
+data(meuse)#
+coordinates(meuse) <- c("x", "y")#
+proj4string(meuse) <- CRS("+init=epsg:28992")#
+data(meuse.riv)#
+river_polygon <- Polygons(list(Polygon(meuse.riv)), ID="meuse")#
+rivers <- SpatialPolygons(list(river_polygon))#
+proj4string(rivers) <- CRS("+init=epsg:28992")#
+rivers1 <- elide(rivers, reflect=c(TRUE, TRUE), scale=TRUE)#
+meuse1 <- elide(meuse, bb=bbox(rivers), reflect=c(TRUE, TRUE), scale=TRUE)#
+opar <- par(mfrow=c(1,2))#
+plot(rivers, axes=TRUE)#
+plot(meuse, add=TRUE)#
+plot(rivers1, axes=TRUE)#
+plot(meuse1, add=TRUE)#
+par(opar)#
+meuse1 <- elide(meuse, shift=c(10000, -10000))#
+bbox(meuse)#
+bbox(meuse1)#
+rivers1 <- elide(rivers, shift=c(10000, -10000))#
+bbox(rivers)#
+bbox(rivers1)#
+meuse1 <- elide(meuse, rotate=-30, center=apply(bbox(meuse), 1, mean))#
+bbox(meuse)#
+bbox(meuse1)#
+plot(meuse1, axes=TRUE)
+par(mfrow=c(2,1))
+coordinates(meuse) <- c("x", "y")#
+proj4string(meuse) <- CRS("+init=epsg:28992")#
+data(meuse.riv)#
+river_polygon <- Polygons(list(Polygon(meuse.riv)), ID="meuse")#
+rivers <- SpatialPolygons(list(river_polygon))#
+proj4string(rivers) <- CRS("+init=epsg:28992")#
+rivers1 <- elide(rivers, reflect=c(TRUE, TRUE), scale=2)#
+meuse1 <- elide(meuse, bb=bbox(rivers), reflect=c(TRUE, TRUE), scale=TRUE)#
+opar <- par(mfrow=c(1,2))#
+plot(rivers, axes=TRUE)
+ivers1 <- elide(rivers, reflect=c(TRUE, TRUE), scale=10)#
+meuse1 <- elide(meuse, bb=bbox(rivers), reflect=c(TRUE, TRUE), scale=TRUE)#
+opar <- par(mfrow=c(1,2))#
+plot(rivers1, axes=TRUE)
+rivers1 <- elide(rivers, reflect=c(TRUE, TRUE), scale=10)#
+meuse1 <- elide(meuse, bb=bbox(rivers), reflect=c(TRUE, TRUE), scale=TRUE)#
+opar <- par(mfrow=c(1,2))#
+plot(rivers1, axes=TRUE)
+meuse1 <- elide(meuse, bb=bbox(rivers), reflect=c(TRUE, TRUE), scale=10)#
+opar <- par(mfrow=c(1,2))#
+plot(rivers1, axes=TRUE)
+meuse1 <- elide(meuse, bb=bbox(rivers), reflect=c(TRUE, TRUE), scale=10)#
+opar <- par(mfrow=c(1,2))#
+plot(rivers, axes=TRUE)
+library(ggplot2)
+ids <- factor(c("1.1", "2.1", "1.2", "2.2", "1.3", "2.3"))#
+#
+values <- data.frame(#
+  id = ids,#
+  value = c(3, 3.1, 3.1, 3.2, 3.15, 3.5)#
+)#
+#
+positions <- data.frame(#
+  id = rep(ids, each = 4),#
+  x = c(2, 1, 1.1, 2.2, 1, 0, 0.3, 1.1, 2.2, 1.1, 1.2, 2.5, 1.1, 0.3,#
+  0.5, 1.2, 2.5, 1.2, 1.3, 2.7, 1.2, 0.5, 0.6, 1.3),#
+  y = c(-0.5, 0, 1, 0.5, 0, 0.5, 1.5, 1, 0.5, 1, 2.1, 1.7, 1, 1.5,#
+  2.2, 2.1, 1.7, 2.1, 3.2, 2.8, 2.1, 2.2, 3.3, 3.2)#
+)#
+#
+ggplot(values) +#
+  geom_map(aes(map_id = id), map = positions) +#
+  expand_limits(positions)#
+ggplot(values, aes(fill = value)) +#
+  geom_map(aes(map_id = id), map = positions) +#
+  expand_limits(positions)#
+ggplot(values, aes(fill = value)) +#
+  geom_map(aes(map_id = id), map = positions) +#
+  expand_limits(positions) + ylim(0, 3)#
+#
+# Better example#
+crimes <- data.frame(state = tolower(rownames(USArrests)), USArrests)#
+crimesm <- reshape2::melt(crimes, id = 1)#
+if (require(maps)) {#
+  states_map <- map_data("state")#
+  ggplot(crimes, aes(map_id = state)) +#
+    geom_map(aes(fill = Murder), map = states_map) +#
+    expand_limits(x = states_map$long, y = states_map$lat)#
+#
+  last_plot() + coord_map()#
+  ggplot(crimesm, aes(map_id = state)) +#
+    geom_map(aes(fill = value), map = states_map) +#
+    expand_limits(x = states_map$long, y = states_map$lat) +#
+    facet_wrap( ~ variable)#
+}
+wine <- read.table("http://archive.ics.uci.edu/ml/machine-learning-databases/wine/wine.data",#
+          sep=",")
+library("car")
+install.packages("car")
+library(car)
+scatterplotMatrix(wine[2:6])
+plot(wine$V4, wine$V5)
+text(wine$V4, wine$V5, wine$V1, cex=0.7, pos=4, col="red")
+makeProfilePlot <- function(mylist,names) {#
+require(RColorBrewer)#
+# find out how many variables we want to include numvariables <- length(mylist)#
+# choose 'numvariables' random colours#
+colours <- brewer.pal(numvariables,"Set1")#
+# find out the minimum and maximum values of the variables: mymin <- 1e+20#
+mymax <- 1e-20#
+for (i in 1:numvariables)#
+{
+}
+makeProfilePlot <- function(mylist,names) {#
+require(RColorBrewer)#
+# find out how many variables we want to include numvariables <- length(mylist)#
+# choose 'numvariables' random colours#
+colours <- brewer.pal(numvariables,"Set1")#
+# find out the minimum and maximum values of the variables: mymin <- 1e+20#
+mymax <- 1e-20#
+for (i in 1:numvariables)#
+{#
+vectori <- mylist[[i]]#
+mini <- min(vectori)#
+maxi <- max(vectori)#
+if (mini < mymin) { mymin <- mini } if (maxi > mymax) { mymax <- maxi }#
+}#
+# plot the variables#
+for (i in 1:numvariables) {#
+vectori <- mylist[[i]]#
+namei <- names[i]#
+colouri <- colours[i]#
+if (i == 1) { plot(vectori,col=colouri,type="l",ylim=c(mymin,mymax)) } else { points(vectori, col=colouri,type="l")#
+lastxval <- length(vectori)#
+lastyval <- vectori[length(vectori)] text((lastxval-10),(lastyval),namei,col="black",cex=0.6)#
+   }#
+}
+makeProfilePlot <- function(mylist,names) {#
+require(RColorBrewer)#
+# find out how many variables we want to include numvariables <- length(mylist)#
+# choose 'numvariables' random colours#
+colours <- brewer.pal(numvariables,"Set1")#
+# find out the minimum and maximum values of the variables: mymin <- 1e+20#
+mymax <- 1e-20#
+for (i in 1:numvariables) {#
+    vectori <- mylist[[i]]#
+    mini <- min(vectori)#
+    maxi <- max(vectori)#
+    if (mini < mymin) { mymin <- mini } #
+    if (maxi > mymax) { mymax <- maxi }#
+}#
+# plot the variables#
+for (i in 1:numvariables) {#
+    vectori <- mylist[[i]]#
+    namei <- names[i]#
+    colouri <- colours[i]#
+    if (i == 1) { plot(vectori,col=colouri,type="l",ylim=c(mymin,mymax)) #
+    } #
+    else { points(vectori, col=colouri,type="l")#
+lastxval <- length(vectori)#
+lastyval <- vectori[length(vectori)] text((lastxval-10),(lastyval),namei,col="black",cex=0.6)#
+   }#
+}
+makeProfilePlot <- function(mylist,names)#
+  {#
+     require(RColorBrewer)#
+     # find out how many variables we want to include#
+     numvariables <- length(mylist)#
+     # choose 'numvariables' random colours#
+     colours <- brewer.pal(numvariables,"Set1")#
+     # find out the minimum and maximum values of the variables:#
+     mymin <- 1e+20#
+     mymax <- 1e-20#
+     for (i in 1:numvariables)#
+     {#
+        vectori <- mylist[[i]]#
+        mini <- min(vectori)#
+        maxi <- max(vectori)#
+        if (mini < mymin) { mymin <- mini }#
+        if (maxi > mymax) { mymax <- maxi }#
+     }#
+     # plot the variables#
+     for (i in 1:numvariables)#
+     {#
+        vectori <- mylist[[i]]#
+        namei <- names[i]#
+        colouri <- colours[i]#
+        if (i == 1) { plot(vectori,col=colouri,type="l",ylim=c(mymin,mymax)) }#
+        else         { points(vectori, col=colouri,type="l")                                     }#
+        lastxval <- length(vectori)#
+        lastyval <- vectori[length(vectori)]#
+        text((lastxval-10),(lastyval),namei,col="black",cex=0.6)#
+     }#
+  }
+library(RColorBrewer)#
+names <- c("V2","V3","V4","V5","V6")#
+mylist <- list(wine$V2,wine$V3,wine$V4,wine$V5,wine$V6)#
+makeProfilePlot(mylist,names)
+cultivar2wine <- wine[wine$V1=="2",]
+sapply(cultivar2wine[2:14],mean)
+sapply(cultivar2wine[2:14])
+sapply(cultivar2wine[2:14], sd)
+printMeanAndSdByGroup <- function(variables,groupvariable)#
+  {#
+     # find the names of the variables#
+     variablenames <- c(names(groupvariable),names(as.data.frame(variables)))#
+     # within each group, find the mean of each variable#
+     groupvariable <- groupvariable[,1] # ensures groupvariable is not a list#
+     means <- aggregate(as.matrix(variables) ~ groupvariable, FUN = mean)#
+     names(means) <- variablenames#
+     print(paste("Means:"))#
+     print(means)#
+     # within each group, find the standard deviation of each variable:#
+     sds <- aggregate(as.matrix(variables) ~ groupvariable, FUN = sd)#
+     names(sds) <- variablenames#
+     print(paste("Standard deviations:"))#
+     print(sds)#
+     # within each group, find the number of samples:#
+     samplesizes <- aggregate(as.matrix(variables) ~ groupvariable, FUN = length)#
+     names(samplesizes) <- variablenames#
+     print(paste("Sample sizes:"))#
+     print(samplesizes)#
+  }
+printMeanAndSdByGroup(wine[2:14],wine[1])
+calcWithinGroupsVariance <- function(variable,groupvariable)#
+  {#
+     # find out how many values the group variable can take#
+     groupvariable2 <- as.factor(groupvariable[[1]])#
+     levels <- levels(groupvariable2)#
+     numlevels <- length(levels)#
+     # get the mean and standard deviation for each group:#
+     numtotal <- 0#
+     denomtotal <- 0#
+     for (i in 1:numlevels)#
+     {#
+        leveli <- levels[i]#
+        levelidata <- variable[groupvariable==leveli,]#
+        levelilength <- length(levelidata)#
+        # get the standard deviation for group i:#
+        sdi <- sd(levelidata)#
+        numi <- (levelilength - 1)*(sdi * sdi)#
+        denomi <- levelilength#
+        numtotal <- numtotal + numi#
+        denomtotal <- denomtotal + denomi#
+     }#
+     # calculate the within-groups variance#
+     Vw <- numtotal / (denomtotal - numlevels)#
+     return(Vw)#
+  }
+calcWithinGroupsVariance(wine[2],wine[1])
+calcBetweenGroupsVariance <- function(variable,groupvariable)#
+  {#
+     # find out how many values the group variable can take#
+     groupvariable2 <- as.factor(groupvariable[[1]])#
+     levels <- levels(groupvariable2)#
+     numlevels <- length(levels)#
+     # calculate the overall grand mean:#
+     grandmean <- mean(variable)#
+     # get the mean and standard deviation for each group:#
+     numtotal <- 0#
+     denomtotal <- 0#
+     for (i in 1:numlevels)#
+     {#
+        leveli <- levels[i]#
+        levelidata <- variable[groupvariable==leveli,]#
+        levelilength <- length(levelidata)#
+        # get the mean and standard deviation for group i:#
+        meani <- mean(levelidata)#
+        sdi <- sd(levelidata)#
+        numi <- levelilength * ((meani - grandmean)^2)#
+        denomi <- levelilength#
+        numtotal <- numtotal + numi#
+        denomtotal <- denomtotal + denomi#
+     }#
+     # calculate the between-groups variance#
+     Vb <- numtotal / (numlevels - 1)#
+     Vb <- Vb[[1]]#
+     return(Vb)#
+  }
+calcBetweenGroupsVariance (wine[2],wine[1])
+mean(wine[2])
+calcSeparations <- function(variables,groupvariable)#
+  {#
+     # find out how many variables we have#
+     variables <- as.data.frame(variables)#
+     numvariables <- length(variables)#
+     # find the variable names#
+     variablenames <- colnames(variables)#
+     # calculate the separation for each variable#
+     for (i in 1:numvariables)#
+     {#
+        variablei <- variables[i]#
+        variablename <- variablenames[i]#
+        Vw <- calcWithinGroupsVariance(variablei, groupvariable)#
+        Vb <- calcBetweenGroupsVariance(variablei, groupvariable)#
+        sep <- Vb/Vw#
+        print(paste("variable",variablename,"Vw=",Vw,"Vb=",Vb,"separation=",sep))#
+     }#
+  }
+calcSeparations(wine[2:14],wine[1])
+calcBetweenGroupsVariance <- function(variable,groupvariable)#
+  {#
+     # find out how many values the group variable can take#
+     groupvariable2 <- as.factor(groupvariable[[1]])#
+     levels <- levels(groupvariable2)#
+     numlevels <- length(levels)#
+     # calculate the overall grand mean:#
+     grandmean <- mean(variable)#
+     # get the mean and standard deviation for each group:#
+     numtotal <- 0#
+     denomtotal <- 0#
+     for (i in 1:numlevels)#
+     {#
+        leveli <- levels[i]#
+        levelidata <- variable[groupvariable==leveli,]#
+        levelilength <- length(levelidata)#
+        # get the mean and standard deviation for group i:#
+        meani <- mean(levelidata)#
+        sdi <- sd(levelidata)#
+        numi <- levelilength * ((meani - grandmean)^2)#
+        denomi <- levelilength#
+        numtotal <- numtotal + numi#
+        denomtotal <- denomtotal + denomi#
+     }#
+     # calculate the between-groups variance#
+     Vb <- numtotal / (numlevels - 1)#
+     Vb <- Vb[[1]]#
+     return(Vb)#
+  }
+calcSeparations(wine[2:14],wine[1])
+warnings()
+calcWithinGroupsCovariance <- function(variable1,variable2,groupvariable)#
+  {#
+     # find out how many values the group variable can take#
+     groupvariable2 <- as.factor(groupvariable[[1]])#
+     levels <- levels(groupvariable2)#
+     numlevels <- length(levels)#
+     # get the covariance of variable 1 and variable 2 for each group:#
+     Covw <- 0#
+     for (i in 1:numlevels)#
+     {#
+        leveli <- levels[i]#
+        levelidata1 <- variable1[groupvariable==leveli,]#
+        levelidata2 <- variable2[groupvariable==leveli,]#
+        mean1 <- mean(levelidata1)#
+        mean2 <- mean(levelidata2)#
+        levelilength <- length(levelidata1)#
+        # get the covariance for this group:#
+        term1 <- 0#
+        for (j in 1:levelilength)#
+        {#
+           term1 <- term1 + ((levelidata1[j] - mean1)*(levelidata2[j] - mean2))#
+        }#
+        Cov_groupi <- term1 # covariance for this group#
+        Covw <- Covw + Cov_groupi#
+     }#
+     totallength <- nrow(variable1)#
+     Covw <- Covw / (totallength - numlevels)#
+     return(Covw)#
+  }
+calcWithinGroupsCovariance(wine[8],wine[11],wine[1])
+calcBetweenGroupsCovariance <- function(variable1,variable2,groupvariable)#
+  {#
+     # find out how many values the group variable can take#
+     groupvariable2 <- as.factor(groupvariable[[1]])#
+     levels <- levels(groupvariable2)#
+     numlevels <- length(levels)#
+     # calculate the grand means#
+     variable1mean <- mean(variable1)#
+     variable2mean <- mean(variable2)#
+     # calculate the between-groups covariance#
+     Covb <- 0#
+     for (i in 1:numlevels)#
+     {#
+        leveli <- levels[i]#
+        levelidata1 <- variable1[groupvariable==leveli,]#
+        levelidata2 <- variable2[groupvariable==leveli,]#
+        mean1 <- mean(levelidata1)#
+        mean2 <- mean(levelidata2)#
+        levelilength <- length(levelidata1)#
+        term1 <- (mean1 - variable1mean)*(mean2 - variable2mean)*(levelilength)#
+        Covb <- Covb + term1#
+     }#
+     Covb <- Covb / (numlevels - 1)#
+     Covb <- Covb[[1]]#
+     return(Covb)#
+  }
+calcBetweenGroupsCovariance(wine[8],wine[11],wine[1])
+cor.test(wine$V2, wine$V3)
+mosthighlycorrelated <- function(mydataframe,numtoreport)#
+  {#
+     # find the correlations#
+     cormatrix <- cor(mydataframe)#
+     # set the correlations on the diagonal or lower triangle to zero,#
+     # so they will not be reported as the highest ones:#
+     diag(cormatrix) <- 0#
+     cormatrix[lower.tri(cormatrix)] <- 0#
+     # flatten the matrix into a dataframe for easy sorting#
+     fm <- as.data.frame(as.table(cormatrix))#
+     # assign human-friendly names#
+     names(fm) <- c("First.Variable", "Second.Variable","Correlation")#
+     # sort and print the top n correlations#
+     head(fm[order(abs(fm$Correlation),decreasing=T),],n=numtoreport)#
+  }
+mosthighlycorrelated(wine[2:14], 10)
+standardisedconcentrations <- as.data.frame(scale(wine[2:14]))
+head(standardisedconcentrations)
+sapply(standardisedconcentrations,mean)
+sapply(standardisedconcentrations,sd)
+wine.pca <- prcomp(standardisedconcentrations)
+summary(wine.pca)
+sum((wine.pca$sdev)^2)
+screeplot(wine.pca, type="lines")
+(wine.pca$sdev)^2
+wine.pca$rotation[,1]
+sum((wine.pca$rotation[,1])^2)
+calcpc <- function(variables,loadings)#
+  {#
+     # find the number of samples in the data set#
+     as.data.frame(variables)#
+     numsamples <- nrow(variables)#
+     # make a vector to store the component#
+     pc <- numeric(numsamples)#
+     # find the number of variables#
+     numvariables <- length(variables)#
+     # calculate the value of the component for each sample#
+     for (i in 1:numsamples)#
+     {#
+        valuei <- 0#
+        for (j in 1:numvariables)#
+        {#
+           valueij <- variables[i,j]#
+           loadingj <- loadings[j]#
+           valuei <- valuei + (valueij * loadingj)#
+        }#
+        pc[i] <- valuei#
+     }#
+     return(pc)#
+  }
+calcpc(standardisedconcentrations, wine.pca$rotation[,1])
+plot(wine.pca$x[,1],wine.pca$x[,2])
+ext(wine.pca$x[,1],wine.pca$x[,2], wine$V1, cex=0.7, pos=4, col="red")
+text(wine.pca$x[,1],wine.pca$x[,2], wine$V1, cex=0.7, pos=4, col="red")
+library(MASS)
+ine.lda <- lda(wine$V1 ~ wine$V2 + wine$V3 + wine$V4 + wine$V5 + wine$V6 + wine$V7 +#
+                            wine$V8 + wine$V9 + wine$V10 + wine$V11 + wine$V12 + wine$V13 +#
+                            wine$V14)
+line.lda <- lda(wine$V1 ~ wine$V2 + wine$V3 + wine$V4 + wine$V5 + wine$V6 + wine$V7 +#
+                            wine$V8 + wine$V9 + wine$V10 + wine$V11 + wine$V12 + wine$V13 +#
+                            wine$V14)
+line.lda
+calclda <- function(variables,loadings)#
+  {#
+     # find the number of samples in the data set#
+     as.data.frame(variables)#
+     numsamples <- nrow(variables)#
+     # make a vector to store the discriminant function#
+     ld <- numeric(numsamples)#
+     # find the number of variables#
+     numvariables <- length(variables)#
+     # calculate the value of the discriminant function for each sample#
+     for (i in 1:numsamples)#
+     {#
+        valuei <- 0#
+        for (j in 1:numvariables)#
+        {#
+           valueij <- variables[i,j]#
+           loadingj <- loadings[j]#
+           valuei <- valuei + (valueij * loadingj)#
+        }#
+        ld[i] <- valuei#
+     }#
+     # standardise the discriminant function so that its mean value is 0:#
+     ld <- as.data.frame(scale(ld, center=TRUE, scale=FALSE))#
+     ld <- ld[[1]]#
+     return(ld)#
+  }
+calclda(wine[2:14], wine.lda$scaling[,1])
+wine.lda <- lda(wine$V1 ~ wine$V2 + wine$V3 + wine$V4 + wine$V5 + wine$V6 + wine$V7 +#
+                            wine$V8 + wine$V9 + wine$V10 + wine$V11 + wine$V12 + wine$V13 +#
+                            wine$V14)
+calclda(wine[2:14], wine.lda$scaling[,1])
+wine.lda.values <- predict(wine.lda, wine[2:14])
+wine.lda.values$x[,1]
+groupStandardise <- function(variables, groupvariable)#
+  {#
+     # find out how many variables we have#
+     variables <- as.data.frame(variables)#
+     numvariables <- length(variables)#
+     # find the variable names#
+     variablenames <- colnames(variables)#
+     # calculate the group-standardised version of each variable#
+     for (i in 1:numvariables)#
+     {#
+        variablei <- variables[i]#
+        variablei_name <- variablenames[i]#
+        variablei_Vw <- calcWithinGroupsVariance(variablei, groupvariable)#
+        variablei_mean <- mean(variablei)#
+        variablei_new <- (variablei - variablei_mean)/(sqrt(variablei_Vw))#
+        data_length <- nrow(variablei)#
+        if (i == 1) { variables_new <- data.frame(row.names=seq(1,data_length)) }#
+        variables_new[`variablei_name`] <- variablei_new#
+     }#
+     return(variables_new)#
+  }
+groupstandardisedconcentrations <- groupStandardise(wine[2:14], wine[1])
+wine.lda2 <- lda(wine$V1 ~ groupstandardisedconcentrations$V2 + groupstandardisedconcentrations$V3 +#
+                             groupstandardisedconcentrations$V4 + groupstandardisedconcentrations$V5 +#
+                             groupstandardisedconcentrations$V6 + groupstandardisedconcentrations$V7 +#
+                             groupstandardisedconcentrations$V8 + groupstandardisedconcentrations$V9 +#
+                             groupstandardisedconcentrations$V10 + groupstandardisedconcentrations$V11 +#
+                             groupstandardisedconcentrations$V12 + groupstandardisedconcentrations$V13 +#
+                             groupstandardisedconcentrations$V14)
+wine.lda2
+install.packages("reticulate")
+library(bookdown)
+help(bookdown)
+??bookdown
+library(knitr)
+help(knitr)
+quit()
+library(tabulizer)#
+library(dplyr)
+install.packages('rJava')
+library(tabulizer)#
+library(dplyr)
+library(tabulizer)
+update.packages('rJava')
+update.packages('tabulizer')
+library(tabulizer)
+library(rJava)
+quit()
+library(tidyverse)
+help(rename)
+library(tidyverse)
+library(scale)
+library(scales)
+cost <- read.csv("DayCare.csv") %>% mutate(Cost = comma(Cost)) %>% rename(Cost, Dollars)
+setwd("~/projects/portfolio/assets")
+cost <- read.csv("DayCare.csv") %>% mutate(Cost = comma(Cost)) %>% rename(Cost, Dollars)
+cost <- read.csv("DayCare.csv")
+cost <- read.csv("DayCare.csv") %>% mutate(Cost = comma(Cost))
+cost
+cost <- cost %>% rename(Cost, Dollars)
+cost <- cost %>% dplyr::rename(Cost, Dollars)
+cost <- cost %>% plyr::rename(Cost, Dollars)
+cost <- cost %>% rename("Dollars", "Cost")
+cost
+cost <- cost %>% plyr::rename(cost, Cost, Dollars)
+cost <- cost %>% rename(cost, Cost, Dollars)
+cost <- cost %>% rename(Cost = Dollars)
+cost <- cost %>% rename(Cost = "Dollars")
+cost <- cost %>% rename("Cost" = "Dollars")
+cost <- cost %>% rename(cost, Cost = "Dollars")
+cost <- cost %>% rename(Cost = `Dollars`)
+cost <- cost %>% rename(Cost, Dollars)
+cost <- cost %>% rename(Cost, `Dollars`)
+help(rename)
+data(iris)
+rename(iris, petal_length = Petal.Length)
+costs[1]
+colname(cost$Cost) <- 'Dollars'
+colnames(cost$Cost) <- 'Dollars'
+colname(cost[1]) <- 'Dollars'
+rename(my_data, sepal_length = Sepal.Length,#
+       sepal_width = Sepal.Width)
+my_data <- iris
+rename(my_data, sepal_length = Sepal.Length,#
+       sepal_width = Sepal.Width)
+rename(cost, Cost, Dollar)
+rename(cost, Cost = Dollar)
+rename(my_data, sepal_length = Sepal.Length,#
+       sepal_width = Sepal.Width)
+rename(cost, State = State, Cost = Dollar)
+class(cost)
+names(cost[1]) <- 'Dollars'
+head(cost)
+library(knitr)
+help(knitr)
+install.packages("kableExtra")
