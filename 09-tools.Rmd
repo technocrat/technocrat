@@ -88,6 +88,7 @@ To begin a yaml file, table.yaml
     subHeader: "& (\\%) & (\\%) & (\\%) & (\\%)"
 
 In the same directory, mwe.hs
+
     {-# LANGUAGE OverloadedStrings #-}  -- yaml
 
     module Mwe where
