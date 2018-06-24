@@ -167,6 +167,8 @@ The resulting table with the $25 billion in mortgage loans:
 
 ## Preliminary analysis, based on FICO scores
 
+### FICO's importance
+
 In 1995, Freddie Mac advised lenders that it had found that consumer credit scores developed by Fair, Issac and Company, Inc. (**FICO** scores) strongly predicted the likelihood of default on mortgage loans. Freddie Mac's communication is reproduced as Attachment 2 in testimony before the U.S. House Committee on Oversight and Government Reform, the [Pinto testimony], beginning at page 28 of the pdf.
 
 A traditional description of the limitations of credit score is similar to the following:
@@ -185,13 +187,14 @@ library(kableExtra)
 library(RMySQL)
 drv <- dbDriver("MySQL")
 con <- dbConnect(drv, username="root", password="", dbname ="dlf", host="localhost")
-
 res <- dbGetQuery(con, "SELECT deal, fico FROM y6")
 #cs is shorthand for credit score
 cs <- as.tibble(res)
 p <- ggplot(cs, aes(x=fico)) + geom_histogram(binwidth = 5) + coord_cartesian(xlim = c(300,850))
 p + ggtitle("FICO scores for 2006 transactions in increments of 5") + labs(x = "FICO", y = "Number of Loans")
 ``` 
+
+### FICO scores in the 2006 loan pool
 
 FICO scores have a minimum value of 300, and a maximum value of 850. The summary statistics are:
 
@@ -223,7 +226,101 @@ The *cliffs* around 500 (below which only the small number of loans in the table
 p + ggtitle("FICO scores for 2006 transactions in increments") + labs(x = "FICO", y = "Number of Loans") + facet_wrap(~deal)
 ```
 
-The variability among transactions suggest that *if* FICO scores have an influence on default rates, it may be necessary to stratify the data to obtain useful results.
+The variability among transactions suggest that *if* FICO scores have an influence on default rates, it may be necessary to stratify of otherwise transform the data to obtain useful results.
+
+### The FICO scores are not normally distributed
+
+```{r,  results="asis", echo = FALSE}
+
+# Find the slope and intercept of the line that passes through the 1st and 3rd
+# quartile of the normal q-q plot
+# y: Find the 1st and 3rd quartiles
+# x: Find the matching normal values on the x-axis
+# slope: Compute the line slope
+# intc Compute the line intercept
+find_intercepts <- function(obj){
+  y = quantile(obj, c(0.25, 0.75), type=5)  
+  x = qnorm(c(0.25, 0.75))
+  slope = diff(y)/diff(x)
+  intc = y[1] - slope * x[1]
+  return(c(slope,intc))
+}
+           
+# Code informed by https://goo.gl/nz9ikh
+
+#generate q-q plot of the 2006 pool
+
+si <- find_intercepts(cs$fico)
+slope <- si[[1]]
+intercept <- si[[2]]
+print(intercept)
+ggplot(cs) + aes(sample=fico) + stat_qq(distribution=qnorm) + 
+    geom_abline(intercept=intercept, slope=slope) + ylab("FICO") +                   labs(title = "QQ Plot of FICO Scores")
+``` 
+
+As a group, FICO scores have *fat tails,* a trait that is present in each of the deals to some degree. There are more loans with very low FICO scores than you would expect if score were randomly distributed plus more loans with high score. We also see a dip in the 500-600 range (loans that may only have been originated due to compensating factors), which are fewer than the sub-500 FICO loans.
+```
+
+With variations, all the deals have similiar distributions. The variability of FICO scores makes their use as an independent variable in, say, regression analysis potentially problematic.
+
+```{r, results="asis", echo = FALSE}
+# Slope/intercept of line that passing through 1st/3rd quartile of the normal q-q plot
+find_intercepts <- function(obj){
+  y = quantile(obj, c(0.25, 0.75), type=5)  # y: Find the 1st and 3rd quartiles
+  x = qnorm(c(0.25, 0.75))                  #x: Find the matching normal values on the x-axis
+  slope = diff(y)/diff(x)                   # Compute the line slope
+  intc = y[1] - slope * x[1]                # Compute the line intercept
+  return(c(slope, intc))
+# Assisted by https://goo.gl/nz9ikh
+# Example
+# si <- find_intercepts(obj)
+# slope = si[[1]]
+# intercept = si[[2]]
+}
+
+# Generate normal q-q plot for total of deals
+
+q <- ggplot(cs, aes(sample=fico)) + stat_qq() + 
+           geom_abline(intercept=intercept, slope=slope) + ylab("FICO") + labs(title = "QQ Plot of FICO Scores")
+
+# get slopes and intercepts for each deal
+abs <- cs %>% group_by(deal) %>% summarize(slope = find_intercepts(fico)[[1]], intercept  = find_intercepts(fico)[[2]])
+
+# generate plots for each deal
+deals <- list(abs$deal)
+
+dealqq <- function(ta) {
+    v_ <- cs %>% filter(deal == ta, fico)
+    abs_ <- filter(abs, deal == ta)
+    q_<- v_ %>% ggplot(aes(sample=fico)) + stat_qq() +             
+    geom_abline(intercept=abs_$intercept, slope=abs_$slope) + ylab("FICO")     + ggtitle(paste("QQ Plot of FICO Scores for ", abs_$deal))
+    q_
+}
+
+# With the help of Python scripting while I get a better grasp of R for
+# https://git.io/f4Sun
+dealqq("LBMLT 2006-1")
+dealqq("LBMLT 2006-10")
+dealqq("LBMLT 2006-11")
+dealqq("LBMLT 2006-2")
+dealqq("LBMLT 2006-3")
+dealqq("LBMLT 2006-4")
+dealqq("LBMLT 2006-5")
+dealqq("LBMLT 2006-6")
+dealqq("LBMLT 2006-7")
+dealqq("LBMLT 2006-8")
+dealqq("LBMLT 2006-9")
+dealqq("LBMLT 2006-WL1")
+dealqq("LBMLT 2006-WL2")
+dealqq("LBMLT 2006-WL3")
+```
+
+
+### Possible strategies to deal with the issues
+
+
+Sampling the pool with a reasonably large number of observations will provide a well-behaved normal distribution, courtesy of the Central Limit Theorem. Alternatively, we can cluster based on the distance of each point from the trendline.
+
 
 ## Next steps
 

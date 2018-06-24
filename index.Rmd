@@ -10,8 +10,15 @@ description: "Landing site"
 ---
 # Preface {#preface}
 
+This draft shows where Richard Careaga's data science skills stand in mid-2018. 
 
-This draft shows where Richard Careaga's data science skills stand in mid-2018. In 2007, I put much effort into acquiring the nuts-and-bolts, dusting off old statistial learning, and throwing them into the front line of the initial skirmishes of the Great Recession. This was not something in my job description at Washington Mutual Bank, the largest ever to fail in the U.S. Fortunately, I was senior enough to decide on my own how best to spend my time. 
+## Updates
+
+* 2018-06-23 added qqnorm tests to fico example in Chapter 4, Failure Analysis
+
+## Background
+
+In 2007, I put much effort into acquiring the nuts-and-bolts, dusting off old statistial learning, and throwing them into the front line of the initial skirmishes of the Great Recession. This was not something in my job description at Washington Mutual Bank, the largest ever to fail in the U.S. Fortunately, I was senior enough to decide on my own how best to spend my time. 
 
 I spent a month split between data acquisition and acquiring the basics. (MySQL, R and Python). This is one of several cases studies in this document that I use to show what you can expect if you take me on as a data scientist.
 
