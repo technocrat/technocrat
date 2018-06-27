@@ -1,4 +1,4 @@
-# Daycare Costs and Unexamined Assumptions
+# Daycare Costs and Unexamined Assumptions {#daycare}
 
 Keywords: Skepticism, Census data API
 
@@ -8,7 +8,7 @@ Data journalism is a welcome trend, but it has not always been accompanied by a 
 
 ![Vox article on day care](https://cdn.vox-cdn.com/thumbor/xf2ee3OS9VrbZRYnGdImMWJImEc=/0x0:1200x630/920x0/filters:focal(0x0:1200x630)/cdn.vox-cdn.com/uploads/chorus_asset/file/3751728/childcaremap.png)
 
-```{r setup3, include=TRUE, echo=FALSE, results= 'asis'}
+```{r setup3,  echo=FALSE, results= 'asis', warning=FALSE}
 library(knitr)
 library(kableExtra)
 library(readr)
@@ -29,7 +29,7 @@ The costs come from a [source] that gives separate estimates for an infant, a fo
 
 Do the [Vox] estimates agree with both the costs reported by [Cost of Daycare] and the Census 2014 median household income, which is what [Vox] used?
 
-```{r mhi, include=TRUE, echo=FALSE, results= 'asis'}
+```{r   mhi, echo = FALSE, warning=FALSE, message=FALSE, results= 'asis'}
 library(acs)
 #mhi <- acs.fetch(2014, span = 1, geo.make(state = "*"), table.number = ("B19013"))
 mhi_acs <- acs.fetch(2014, span = 1, geo.make(state = "*"), table.number = ("B19013")) 
@@ -47,7 +47,7 @@ Wherever [Vox] derived its data on median household income, the percentages conf
 
 Repeating the table using median *family* income of families with children under 18 changes the picture even more.
 
-```{r mfi, include=TRUE, echo=FALSE, results= 'asis'}
+```{r  mhi2, echo = FALSE, warning=FALSE, message=FALSE, results= 'asis'}
 mfi <- acs.fetch(2014, span = 1, geo.make(state = "*"), table.number = ("B19126"))
 mfi_acs <- acs.fetch(2014, span = 1, geo.make(state = "*"), table.number = ("B19126")) 
 mfi_df <- as.data.frame(mfi_acs@estimate[,3]) %>% tibble::rownames_to_column()
@@ -62,7 +62,7 @@ Sources: [Cost of Daycare] and 2014 U.S. Census ACS Table B19126
 
 The table below compares the [Vox] table with this analysis.
 
-```{r diff, include=TRUE, echo=FALSE, results= 'asis', message=FALSE}
+```{r  diff, echo = FALSE, warning=FALSE, message=FALSE, results= 'asis'}
 pctdif <- pctdc %>% inner_join(pctdcf, by = 'State') %>% dplyr::select('State', 'Percentage.x', 'Percentage.y')
 colnames(pctdif) <- c('State', 'Vox', 'This_paper') 
 pctdif <- pctdif %>% mutate(Difference = Vox - This_paper)

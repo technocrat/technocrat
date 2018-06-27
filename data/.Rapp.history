@@ -1,0 +1,418 @@
+v_
+V <- v_ %>% select(deal, fico_array)
+V
+Deal1Fico <- V %>% join(abs_, "deal")
+Deal1Fico <- V %>% join(abs_, by = "deal")
+Deal1Fico <- V %>% left_join(abs_, by = "deal")
+Deal1Fico
+q1 <- Deal1Fico %>%  ggplot(aes(sample=fico_array)) + stat_qq() + #
+           geom_abline(intercept=intercept, slope=slope) + ylab("FICO") + labs(title = "QQ Plot of FICO Scores")
+q1
+q1 <- ggplot(aes(sample=Deal1$fico_array)) + stat_qq() + #
+           geom_abline(intercept=intercept, slope=slope) + ylab("FICO") + labs(title = "QQ Plot of FICO Scores")
+q1 <- ggplot(aes(sample=Deal1Fico$fico_array)) + stat_qq() + #
+           geom_abline(intercept=intercept, slope=slope) + ylab("FICO") + labs(title = "QQ Plot of FICO Scores")
+q1 <- ggplot(aes(Deal1Fico, sample=fico_array)) + stat_qq() geom_abline(intercept=intercept, slope=slope) + ylab("FICO") + labs(title = "QQ Plot of FICO Scores")
+q1 <- ggplot(aes(Deal1Fico, sample=fico_array)) + stat_qq() + geom_abline(intercept=intercept, slope=slope) + ylab("FICO") + labs(title = "QQ Plot of FICO Scores")
+qqplot(Deal1Fico$fico_array)
+Deal1Fico$fico_array)
+class(Deal1Fico$fico_array)
+hist(Deal1Fico$fico_array)
+boxplot(Deal1Fico$fico_array)
+q1 <- ggplot(data = Deal1Fico, aes(sample=fico_array)) + stat_qq() + geom_abline(intercept=intercept, slope=slope) + ylab("FICO") + labs(title = "QQ Plot of FICO Scores")
+q11
+q1
+q1 <- ggplot(data = Deal1Fico, aes(sample=Deal1Fico$fico_array)) + stat_qq() + geom_abline(intercept=intercept, slope=slope) + ylab("FICO") + labs(title = "QQ Plot of FICO Scores")
+q1
+q1 <- ggplot(data = Deal1Fico) + stat_qq(sample=fico_array)
+q1 <- ggplot() + stat_qq(data = Deal1Fico, sample=fico_array)
+q1 <- ggplot() + stat_qq(data = Deal1Fico, sample=Deal1Fico$fico_array)
+q1
+q1 <- ggplot() + stat_qq(data = Deal1Fico, aes(sample=Deal1Fico$fico_array))
+q1
+q1 <- ggplot(Deal1Fico, aes(x=fico_array)) + geom_histogram(binwidth=5)
+q1
+qqplot(Deal1$Fico$fico_array)
+qqplot(Deal1Fico$fico_array)
+hist(Deal1Fico$fico_array)
+boxplot(Deal1Fico$fico_array)
+qqplot(Deal1Fico$fico_array)
+class(Deal1Fico$fico_array)
+Deal1Fico$fico_array <- sort(Deal1Fico$fico_array)
+class(Deal1$Fico$fico_array)
+class(Deal1Fico$fico_array)
+help(list)
+f q1 <- ggplot(Deal1Fico, aes(x=fico_array)) + geom_histogram(binwidth=5)
+f <- as.list(Deal1Fico$fico_array, sorted)
+head(f)
+f <- sort(f)
+f.sort()
+q1 <- ggplot(data = Deal1Fico, aes(sample=fico_array))
+q1
+q1 + + stat_qq()
+q1 <- ggplot(Deal1Fico, aes(sample=fico_array)) + stat_qq()
+q1
+help(stat_qq)
+q1 <- ggplot(Deal1Fico, aes(sample=fico_array)) + stat_qq() + geom_point(stat = "qq")
+q1
+q1 <- ggplot(Deal1Fico) + stat_qq(aes(sample=fico_array))
+q1
+q1 <- ggplot(Deal1Fico) + stat_qq(aes(array(sample=fico_array))) + geom_point(stat = "qq")
+q1
+q1 <- ggplot(Deal1Fico, aes(sample=array(fico_array))) + stat_qq()
+q1
+help stat_qq
+help(stat_qq)
+q1 <- ggplot(Deal1Fico, aes(x=fico_array))
+q1
+q1 + geom_histogram()
+q1 <- ggplot(Deal1Fico, aes(x=as.numeric(fico_array)) + stat_qq()
+)
+q1 <- ggplot(Deal1Fico, aes(x=as.numeric(fico_array)))
+q1 + stat_qq
+q1 + geom_histogram()
+class(as.numeric(Deal1Fico$fico.array))
+class(as.numeric(Deal1Fico$fico_array))
+boxplot(Deal1Fico$fico_array)
+qqplot(Deal1Fico$fico_array)
+q1 + geom_boxplot()
+V
+abs
+abs_
+v
+q1<- ggplot(v, aes(sample=fico)) + stat_qq() + geom_abline(intercept=abs_$intercept, slope=abs_$slope) + ylab("FICO") + labs(title = "QQ Plot of FICO Scores for LBMLT 2006-1")
+q1
+v_ <- cs %>% filter(deal == "LBMLT 2006-1", fico)#
+abs_ <- filter(abs, deal == "LBMLT 2006-1")#
+q_<- ggplot(v_, aes(sample=fico)) + stat_qq() + geom_abline(intercept=abs_$intercept, slope=abs_$slope) + ylab("FICO") + ggtitle(paste("QQ Plot of FICO Scores for " deal)
+v_
+abs_$intercept
+abs_slope
+abs_$slope
+v_ <- cs %>% filter(deal == "LBMLT 2006-1", fico)#
+abs_ <- filter(abs, deal == "LBMLT 2006-1")#
+q_<- ggplot(v_, aes(sample=fico)) + stat_qq() + geom_abline(intercept=abs_$intercept, slope=abs_$slope) + ylab("FICO") + ggtitle(paste("QQ Plot of FICO Scores for ", deal)
+)
+help(ggtitle)
+q_<- ggplot(v_, aes(sample=fico)) + stat_qq() + geom_abline(intercept=abs_$intercept, slope=abs_$slope) + ylab("FICO") + labs(paste("QQ Plot of FICO Scores for ", deal))
+v_
+v_ <- cs %>% filter(deal == "LBMLT 2006-1", fico)#
+abs_ <- filter(abs, deal == "LBMLT 2006-1")#
+q_<- ggplot(v_, aes(sample=fico)) + stat_qq() + geom_abline(intercept=abs_$intercept, slope=abs_$slope) + ylab("FICO") + labs(paste("QQ Plot of FICO Scores for ", abs_$deal))
+q_
+q_<- ggplot(v_, aes(sample=fico)) + stat_qq() + geom_abline(intercept=abs_$intercept, slope=abs_$slope) + ylab("FICO") + ggtitle(paste("QQ Plot of FICO Scores for ", abs_$deal))
+q_
+deals <- v$deal
+q
+deals
+deals <- v$deal %>% summarize()
+deals <- v$deal[[0]]
+deals <- v$deal[0]
+deals
+deals <- v$deal[0]
+abs
+deals <- abs$deal
+deals
+class(deals)
+# generate plots for each deal#
+deals <- abs$deal#
+dealqq <- function {#
+v_ <- cs %>% filter(deal == "LBMLT 2006-1", fico)#
+abs_ <- filter(abs, deal == "LBMLT 2006-1")#
+q_<- ggplot(v_, aes(sample=fico)) + stat_qq() + geom_abline(intercept=abs_$intercept, slope=abs_$slope) + ylab("FICO") + ggtitle(paste("QQ Plot of FICO Scores for ", abs_$deal)) #
+q_#
+}#
+map(deals, dealsqq)
+deals
+map(deals,print())
+map(deals,print(deals))
+class(deals)
+deals = list(deals)
+map(deals,print(deals))
+deals <- list(abs$deal)#
+dealqq <- function {#
+v_ <- cs %>% filter(deal == deal, fico)#
+abs_ <- filter(abs, deal == deal)#
+q_<- ggplot(v_, aes(sample=fico)) + stat_qq() + geom_abline(intercept=abs_$intercept, slope=abs_$slope) + ylab("FICO") + ggtitle(paste("QQ Plot of FICO Scores for ", abs_$deal)) #
+q_#
+}#
+map(deals, dealsqq)
+deals <- list(abs$deal)#
+#
+dealqq <- function {#
+v_ <- cs %>% filter(deal == deal, fico)#
+abs_ <- filter(abs, deal == deal)#
+q_<- ggplot(v_, aes(sample=fico)) + stat_qq() + geom_abline(intercept=abs_$intercept, slope=abs_$slope) + ylab("FICO") + ggtitle(paste("QQ Plot of FICO Scores for ", abs_$deal)) #
+q_#
+}#
+output <- vector("double", ncol(df))  # 1. output#
+for (i in seq_along(v_)) {            # 2. sequence#
+  output[[i]] <-dealqq(V_[[i]])       # 3. body#
+}#
+output
+dealqq <- function {#
+v_ <- cs %>% filter(deal == deal, fico)#
+abs_ <- filter(abs, deal == deal)#
+q_<- ggplot(v_, aes(sample=fico)) + stat_qq() + geom_abline(intercept=abs_$intercept, slope=abs_$slope) + ylab("FICO") + ggtitle(paste("QQ Plot of FICO Scores for ", abs_$deal)) #
+}#
+output <- vector("double", ncol(df))  # 1. output#
+for (i in seq_along(v_)) {            # 2. sequence#
+  output[[i]] <-dealqq(V_[[i]])       # 3. body#
+}#
+output
+dealqq <- function {#
+v_ <- cs %>% filter(deal == deal, fico)#
+abs_ <- filter(abs, deal == deal)#
+q_<- ggplot(v_, aes(sample=fico)) + stat_qq() + geom_abline(intercept=abs_$intercept, slope=abs_$slope) + ylab("FICO") + ggtitle(paste("QQ Plot of FICO Scores for ", abs_$deal)) #
+}
+v_ <- cs %>% filter(deal == deal, fico)#
+abs_ <- filter(abs, deal == deal)#
+q_<- ggplot(v_, aes(sample=fico)) + stat_qq() + geom_abline(intercept=abs_$intercept, slope=abs_$slope) + ylab("FICO") + ggtitle(paste("QQ Plot of FICO Scores for ", abs_$deal)) #
+}#
+output <- vector("double", ncol(df))  # 1. output#
+for (i in seq_along(v_)) {            # 2. sequence#
+  output[[i]] <-dealqq(q_[[i]])       # 3. body#
+}#
+output
+dealqq <- function(deals) {#
+v_ <- cs %>% filter(deal == deal, fico)#
+abs_ <- filter(abs, deal == deal)#
+q_<- ggplot(v_, aes(sample=fico)) + stat_qq() + geom_abline(intercept=abs_$intercept, slope=abs_$slope) + ylab("FICO") + ggtitle(paste("QQ Plot of FICO Scores for ", abs_$deal)) #
+}
+output <- vector("double", ncol(df))  # 1. output#
+for (i in seq_along(v_)) {            # 2. sequence#
+  output[[i]] <-dealqq(q_[[i]])       # 3. body#
+}
+for (i in seq_along(v_)) {#
+  dealqq(i)#
+}
+i
+v_[2]
+v_
+dealqq <- function(deals) {#
+v_ <- cs %>% filter(deal == deal, fico)#
+abs_ <- filter(abs, deal == deal)#
+q_<- ggplot(v_, aes(sample=fico)) + stat_qq() + geom_abline(intercept=abs_$intercept, slope=abs_$slope) + ylab("FICO") + ggtitle(paste("QQ Plot of FICO Scores for ", abs_$deal))#
+return(q_) #
+}#
+#
+for (i in seq_along(v_)) {#
+  dealqq(i)#
+}
+q_
+rm(q_)
+for (i in seq_along(deals)) {#
+  dealqq(i)#
+}
+q_
+for (i in seq_along(deals)) {#
+  dealqq(i)#
+  q_#
+}
+for (i in deals) {#
+  dealqq(i)#
+  q_#
+}
+for (i in deals) {#
+  dealqq(i)#
+  print(q_)#
+}
+deals
+for  in seq_along(deals) {#
+  dealqq(i)#
+  print(q_)#
+}
+dealqq <- function(deals) {#
+v_ <- cs %>% filter(deal == deal, fico)#
+abs_ <- filter(abs, deal == deal)#
+q_<- ggplot(v_, aes(sample=fico)) + stat_qq() + geom_abline(intercept=abs_$intercept, slope=abs_$slope) + ylab("FICO") + ggtitle(paste("QQ Plot of FICO Scores for ", abs_$deal))#
+q_ #
+}
+dealqq('LBMLT 2006-2')
+dealqq <- function(deal) {#
+v_ <- cs %>% filter(deal == deal, fico)#
+abs_ <- filter(abs, deal == deal)#
+q_<- ggplot(v_, aes(sample=fico)) + stat_qq() + geom_abline(intercept=abs_$intercept, slope=abs_$slope) + ylab("FICO") + ggtitle(paste("QQ Plot of FICO Scores for ", abs_$deal))#
+q_ #
+}
+dealqq('LBMLT 2006-2')
+v_
+dealqq <- function(ta) {#
+v_ <- cs %>% filter(deal == ta, fico)#
+abs_ <- filter(abs, deal == ta)#
+q_<- v_ %>% ggplot(aes(sample=fico)) + stat_qq() + geom_abline(intercept=abs_$intercept, slope=abs_$slope) + ylab("FICO") + ggtitle(paste("QQ Plot of FICO Scores for ", abs_$deal))#
+q_ #
+}
+dealqq("LBMLT 2006-2")
+for  in seq_along(deals) {#
+  dealqq(i)#
+  print(q_)#
+}
+for  in seq_along(deals) {#
+  dealqq(i)#
+}
+for i in seq_along(deals) {#
+  dealqq(i)#
+}
+map(deals,dealqq)
+deals
+dealqq("LBMLT 2006-1")#
+dealqq("LBMLT 2006-10")#
+dealqq("LBMLT 2006-11")#
+dealqq("LBMLT 2006-2")#
+dealqq("LBMLT 2006-3")#
+dealqq("LBMLT 2006-4")#
+dealqq("LBMLT 2006-5")#
+dealqq("LBMLT 2006-6")#
+dealqq("LBMLT 2006-7")#
+dealqq("LBMLT 2006-8")#
+dealqq("LBMLT 2006-9")#
+dealqq("LBMLT 2006-WL1")#
+dealqq("LBMLT 2006-WL2")#
+dealqq("LBMLT 2006-WL3")
+si <- find_intercepts(cs$fico)#
+slope <- si %>% slice(1)#
+intercept <- si %>% slice(2)
+class(si)
+si <- find_intercepts(cs$fico)
+si
+dealqq("LBMLT 2006-1")
+si <- find_intercepts(cs$fico)#
+slope <- si %>% slice(1)#
+intercept <- si %>% slice(2)
+class(cs$fico)
+si <- find_intercepts(cs$fico)#
+slope <- si %>% slice[[1]]#
+intercept <- si %>% slice[[2]]
+si
+slice(si[[1]])
+slice(si[1])
+si <- find_intercepts(cs$fico)#
+slope <- si %>% slice(1)#
+intercept <- si %>% slice(2)
+si
+slice(si[[1]])
+si[[1]]
+abs
+deals
+dealqq("LBMLT 2006-1")
+quit
+quit()
+library(tidyverse)#
+library(DBI)#
+library(knitr)#
+library(kableExtra)#
+library(RMySQL)#
+drv <- dbDriver("MySQL")#
+con <- dbConnect(drv, username="root", password="", dbname ="dlf", host="localhost")#
+# created db with loans that dropped during 2006;#
+# create table drops select deal, fico, icode from y6 where ctapeno not in (select ytemp.ctapeno from ytemp )#
+res2 <- dbGetQuery(con, "SELECT deal, icode, fico FROM drops")#
+#cds is shorthand for drops#
+# #
+cds <- as.tibble(res)#
+p <- ggplot(cds, aes(x=fico)) + geom_histogram(binwidth = 5) + coord_cartesian(xlim = c(300,850))#
+p + ggtitle("FICO scores for 2006 dropped transactions in increments of 5") + labs(x = "FICO", y = "Number of Loans")
+cds
+cds <- as.tibble(res2)#
+p <- ggplot(cds, aes(x=fico)) + geom_histogram(binwidth = 5) + coord_cartesian(xlim = c(300,850))#
+p + ggtitle("FICO scores for 2006 dropped transactions in increments of 5") + labs(x = "FICO", y = "Number of Loans")
+cds
+summary(cds$fico)#
+nofico <-  filter(cds, fico < 300)#
+lowfico <- filter(cds, fico < 500 & fico > 0)
+nofico
+lowfico
+summary(cs$fico)
+cs <- as.tibble(res)
+summary(cs$fico)
+cs
+summary(cs)
+res <- dbGetQuery(con, "SELECT deal, fico FROM y6")#
+#cs is shorthand for credit score#
+cs <- as.tibble(res)
+summary(cs$fico)
+summary(cds$fico)
+getmode(cs$fico)
+getmode <- function(v) {#
+   uniqv <- unique(v)#
+   uniqv[which.max(tabulate(match(v, uniqv)))]#
+}
+getmode(cs$fico)
+getmode(cds$fico)
+find_intercepts <- function(obj){#
+  y = quantile(obj, c(0.25, 0.75), type=5)  #
+  x = qnorm(c(0.25, 0.75))#
+  slope = diff(y)/diff(x)#
+  intc = y[1] - slope * x[1]#
+  return(c(slope,intc))#
+}
+find_intercepts(cds$fico)
+find_intercepts(cd$fico)
+find_intercepts(cs$fico)
+slope <- find_intercepts(cs$fico)[[1]]
+slope
+intercept <- find_intercepts(cs$fico)[[2]]
+slope <- find_intercepts(cds$fico)[[1]]
+intercept <- find_intercepts(cds$fico)[[2]]
+slope
+intercept
+d <- ggplot(cds, aes(sample=fico)) + stat_qq() +             #
+    geom_abline(intercept=intercept, slope=slope) + ylab("FICO") + ggtitle(paste("QQ Plot of FICO Scores for Dropped Loans "))''
+d <- ggplot(cds, aes(sample=fico)) + stat_qq()
+d
+d <- ggplot(cds, aes(sample=fico)) + stat_qq() + geom_abline(intercept=intercept, slope=slope) + ylab("FICO")
+d
+nofico
+length(nofico)
+lowfico
+d <- ggplot(cds, aes(sample=fico)) + stat_qq() + geom_abline(intercept=intercept, slope=slope) + ylab("FICO") + ggtitle("QQ Plot of FICO Scores for Dropped Loans")
+getwd()
+setwd("/Users/rc/projects/technocrat/data")
+liq <- read.csv("totliq.csv", header = FALSE, stringsAsFactors = FALSE)
+liq <- read.csv("/totliq.csv", header = FALSE, stringsAsFactors = FALSE)
+liq <- read.csv("/Users/rc/projects/technocrat/data/totliq.csv", header = FALSE, stringsAsFactors = FALSE)
+liq <- read.csv("/totliq.csv", header = FALSE, stringsAsFactors = FALSE)
+liq <- read.csv("/Users/rc/projects/technocrat/data/totliq.csv", header = FALSE, stringsAsFactors = FALSE)
+summary(liq)
+liq
+liq$V1
+liq$liquidated
+liq <- read.csv("/Users/rc/projects/technocrat/data/totliq.csv", header = FALSE, stringsAsFactors = FALSE)
+summary(liq)
+liq
+liq <- read.csv("/Users/rc/projects/technocrat/data/totliq.csv", header = true, stringsAsFactors = FALSE)
+liq <- read.csv("/Users/rc/projects/technocrat/data/totliq.csv", header = TRUE, stringsAsFactors = FALSE)
+liq
+help(read.csv)
+liq <- read.csv("/Users/rc/projects/technocrat/data/totliq.csv", header = TRUE, stringsAsFactors = FALSE, sep = ",")
+liq
+summary(liq)
+sum(liq$liquidated)
+liq <- read.csv("/Users/rc/projects/technocrat/data/totliq.csv", header = TRUE, stringsAsFactors = FALSE, sep = ",")
+sum(liq$liquidated)
+liq
+liq <- read.csv("/Users/rc/projects/technocrat/data/totliq.csv", header = TRUE, stringsAsFactors = FALSE, sep = ",")
+liq
+summary(liq)
+sum(liq$liquidated)
+liq <- read.csv("totliq.csv", header = TRUE, stringsAsFactors = FALSE, sep = ",")
+length(cds)
+cds
+nrows(cds)
+nrow(cds)
+round(sum($liq$liquidated)/nrow(cds)*100,2)
+round(sum(liq$liquidated)/nrow(cds)*100,2)
+res <- dbGetQuery(con, "SELECT deal, remit, fico FROM y7")#
+#cs is shorthand for credit score#
+cs <- as.tibble(res)#
+cs %>% summarize(remit == 0)
+res
+class(cs)
+head(res)
+head(cs)
+cs
+cs res <- dbGetQuery(con, "SELECT deal, remit, fico FROM y7")#
+#cs is shorthand for credit score#
+cs <- as.tibble(res)#
+cs %>% summarize(remit == 0)
