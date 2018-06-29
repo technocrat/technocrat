@@ -18,6 +18,7 @@ Its intent is to provide prospective employers with concrete evidence of my abil
 
 * 2018-06-23 added qqnorm tests to FICO example in Failure Analysis chapter, part 1
 * 2018-06-26 stratified Failure Analysis 125K dataset to censor loan dropouts during 2006, classified remaining loans into performance categories based on monthly payment/nonpayment data and compared FICO distributions in the categories
+* 2018-06-28 illustrated non-normality of FICO distributions with Shapiro-Wilks test; refactored database for multiple regression analysis including categorical data
 
 ## Literate programming: the tight integration of code and text
 

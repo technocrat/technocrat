@@ -1,6 +1,6 @@
-# The Subprime Mortgage Crisis Unfolds in early 2007
+# The subprime mortgage crisis unfolds in early 2007, part 1
 
-Keywords: large database, MySQL, Python, data wrangling, data mining
+Keywords: large database, MySQL, Python, data wrangling, exploratory data analysis, data mining, qqnorm, qqplot, Shapiro-Wilk
 
 ## Case Description
 
@@ -296,7 +296,7 @@ dealqq <- function(ta) {
     q_
 }
 
-# With the help of Python scripting while I get a better grasp of R for
+# With the help of Python scripting while I get a better grasp of R "for"
 # https://git.io/f4Sun
 dealqq("LBMLT 2006-1")
 dealqq("LBMLT 2006-10")
@@ -545,8 +545,8 @@ perf11 <- elevens %>%
     mutate(
     category = case_when(
       str_detect(repstr, '111$') ~ "C",
-      str_count(repstr, '0') > 9 ~ "A"
-#      TRUE ~ B
+      str_count(repstr, '0') > 9 ~ "A",
+      str_count(repstr, '0') < 9 ~ "B"
     )
   ) %>% select(ctapeno, deal, fico, category)
 
@@ -555,35 +555,27 @@ p <- ggplot(perf11,aes(x=category, y = fico)) + geom_boxplot() + ggtitle("FICO s
 
 The boxplots show that the three categories of loans are broadly similar. The blow to orthodoxy is that the performing loans are composed of somewhat lower FICO scores than the non-performing and defaulted loans.
 
-The distributions of the three categories show the same non-normal character as the original pools.
+The distributions of the three categories show the same non-normal character as the original pools, but this time we'll calculate them using the Shapiro-Wilk normality test based on a sample of 5,000, due to limitations of the test.
 
-```{r, results="asis", echo = FALSE, warning=FALSE}
-si <- perf11 %>% group_by(category) %>% summarize(slope = find_intercepts(fico)[[1]], intercept  = find_intercepts(fico)[[2]])
+```{r, results="asis", echo = TRUE, warning=FALSE}
 perf11A <- perf11 %>% filter(category == 'A')
-slope = si %>% filter(category == 'A') %>% select(slope)
-intercept <- si %>% filter(category == 'A') %>% select(intercept)
-ggplot(perf11A) + aes(sample=fico) + stat_qq(distribution=qnorm) + geom_abline(slope =  slope, intercept = intercept) +  ylab("FICO") + labs(title = "QQ Plot of Category A FICO Scores")
+shapiro.test(perf11A$fico) # No sampling needed,  n < 5000, function's limit
+
 ```
 
-(Category B omitted pending fixing of rendering bug in RStudio)
-```{r, results="asis", echo = FALSE, warning=FALSE}
+
+```{r, results="asis", echo = TRUE, warning=FALSE}
 perf11B <- perf11 %>% filter(category == 'B')
-slope = si %>% filter(category == 'B') %>% select(slope)
-intercept <- si %>% filter(category == 'B') %>% select(intercept)
-p <- ggplot(perf11B) + aes(sample=fico) + stat_qq(distribution=qnorm) + geom_abline(slope =  slope, intercept = intercept) +  ylab("FICO") + labs(title = "QQ Plot of Category B FICO Scores")
+smpB <- sample_n(perf11B, 5000)
+shapiro.test(smpB$fico) # more than 5000 in dataset 
 ```
 
-```{r, results="asis", echo = FALSE, warning=FALSE}
+```{r, results="asis", echo = TRUE, warning=FALSE}
 perf11C <- perf11 %>% filter(category == 'C')
-slope = si %>% filter(category == 'C') %>% select(slope)
-intercept <- si %>% filter(category == 'C') %>% select(intercept)
-ggplot(perf11C) + aes(sample=fico) + stat_qq(distribution=qnorm) + geom_abline(intercept=intercept, slope=slope) + ylab("FICO") + labs(title = "QQ Plot of Category C FICO Scores")
+shapiro.test(perf11C$fico)
 ``` 
 
-
-## Next steps
-
-I had planned on testing the association between FICO and defaults with logistic regression, but the similarities of FICO distributions among the three categories of loan performance make that an unpromising direction. So, the next line of attack will be to select among the other variables, starting with looking at their covariance with FICO.
+Category A *might* be normally distributed. With only 46 loans, it hardly matters. Categories B and C are definitely not, according to the results of the test.
 
 [credit disclosure]: https://goo.gl/uhX1Pc
 [LBMLT 2006-1]: https://www.sec.gov/Archives/edgar/data/1119605/000114420406002461/v033798_fwp.htm
