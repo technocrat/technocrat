@@ -1,7 +1,7 @@
 --- 
 title: "Data Science Portfolio"
 author: "Richard Careaga"
-date: "`r Sys.Date()`"
+date: "2018-06-28"
 site: bookdown::bookdown_site
 output: bookdown::gitbook
 documentclass: book
@@ -81,432 +81,47 @@ Keywords: Descriptive statistics, R, Census API, geocoding, thematic mapping
 Police involved civilian homicides in the United States is the subject of a series published by *The Guardian,* [The Counted], which compiles media reports of homicides resulting from police encounters in the United States. You can explore the data interactively at their [interactive] page. The data version used in this chapter is dated 2016-06-30.
 
 
-```{r setup1, include=TRUE, echo=FALSE, results= 'asis', message = FALSE, warning=FALSE}
-##########################################################
-# required libraries
-library(bitops)
-library(broom)
-library(Cairo)
-library(classInt)
-library(dplyr) # select conflict, use dplyr::select()
-library(ggmap)
-library(ggplot2)
-library(kableExtra)
-library(knitr)
-library(lunar)
-library(mapproj)
-library(maps)
-library(maptools)
-library(MASS)
-library(pander)
-library(printr)
-library(RColorBrewer)
-library(RCurl)
-library(rgdal)
-library(rgeos)
-library(scales)
-library(sp)
-library(tidyverse)
-library(Unicode)
-library(xtable)
-##########################################################
-# global options
-options(stringsAsFactors = FALSE)
-options(xtable.booktabs = TRUE)
-##########################################################
-# convenience functions
-bindh <- function(x,y) trunc(x/y)*y
-cdefactor <- function(x) {as.character(levels(x))[x]}
-ndefactor <- function(x) {as.numeric(levels(x))[x]}
-pct <- function(x,y) round((x/y*100), digits = 2)
-##########################################################
-# functions to make multicolumn xtables
-# format a 51-state table into 4 columns
-squarestate <- function (.df) {
-    blankrow <- as.data.frame("")        
-    pt1 = slice(.df,1:13)
-    pt2 = slice(.df,14:26)
-    pt3 = slice(.df,27:39)
-    pt4 = slice(.df,40:52)
-    pt4 = bind_rows(pt4,blankrow)
-    result <- bind_cols(pt1,pt2,pt3,pt4)
-    return(result)
-}
-# format a 17-cohort table into 3 columns
-squareage <- function (.df) {
-    blankrow <- as.data.frame("")        
-    pt1 = slice(.df,1:6)
-    pt2 = slice(.df,7:12)
-    pt3 = slice(.df,13:17)
-    pt3 = bind_rows(pt3,blankrow)
-    result <- bind_cols(pt1,pt2,pt3)
-    result$age <- as.character(result$age)
-    result[5,5] <- "Unknown"
-    result[6,5] <- ""
-    result[6,6] <- ""
-    result[7] <- NULL
-    return(result)
-}
-# format days of month into 4 columns
-squaredays <- function (.df) {
-    blankrow <- as.data.frame("")        
-    pt1 <- slice(.df,1:8)
-    pt2 <- slice(.df,9:16)
-    pt3 <- slice(.df,17:24)
-    pt4 <- slice(.df,25:31)
-    pt4 = bind_rows(pt4, blankrow)
-    result <- bind_cols(pt1,pt2,pt3,pt4)
-    result[9] <- NULL
-    return(result)
-}
 
-# divide data into intervals
-intervals = function(.df, ...)
-  {
-  argList = match.call(expand.dots = FALSE)$... 
-    for (i in 1:length(argList)) 
-      {
-        colName <- argList[[i]]
-        series_colName = eval(substitute(colName), envir = .df, enclos = parent.frame())
-        min <- min(series_colName)
-        max <- max(series_colName)
-        diff <- max - min
-        std <- sd(series_colName)
-        equal.interval <- seq(min, max, by = diff/6)
-        quantile.interval <- quantile(series_colName, probs = seq(0, 1, by = 1/6))
-        std.interval <- c(seq(min, max, by = std), max)
-        natural.interval <- classIntervals(series_colName, n = 6, style = 'jenks')$brks
-        .df$equal <- cut(series_colName, breaks = equal.interval, include.lowest = TRUE)
-        names(.df)[names(.df) == "equal"] <- paste(colName,".","equal", sep = '')
-        .df$quantile <- cut(series_colName, breaks = quantile.interval, include.lowest = TRUE)
-        names(.df)[names(.df) == "quantile"] <- paste(colName,".","quantile", sep = '')
-        .df$std <- cut(series_colName, breaks = std.interval, include.lowest =  TRUE)
-        names(.df)[names(.df) == "std"] <- paste(colName,".","std", sep = '')
-        .df$natural <- cut(series_colName, breaks = natural.interval, include.lowest = TRUE)
-        names(.df)[names(.df) == "natural"] <-     paste(colName,".","natural", sep = '')
-  }
-  return(.df)
-}
-
-##########################################################
-# Data access for relatively static sources
-thecounted <- read.csv("data/2015.csv", header = TRUE, stringsAsFactors = FALSE)
-counted <- tbl_df(thecounted)
-fields <- tbl_df(colnames(counted))
-fields1 <- slice(fields,1:7)
-fields2 <- slice(fields,8:14)
-fields <- bind_cols(fields1, fields2)
-# convenience constants
-n <- nrow(counted) # numeral, e.g., 1145
-N <- as.character(prettyNum(n, big.mark = ',')) # e.g., 1,145
-# add long/lat to address points
-addr <- as.data.frame(paste(counted$streetaddress,",",counted$city,",",counted$state))
-colnames(addr) <- "location"
-addr <- tbl_df(addr)
-##########################################################
-# acquire geo/popuation data
-# following only need to be done when dataset changes
-#api_key <- "[USER SPECIFIC]" # google
-#coord <- geocode(addr$location, output = "latlon")
-#save(coord, file = "data/coord.Rda")
-# following only needs to be done when new cartographic boundary file published
-#dsn <- "data"
-#layer <- "data/cb_2015_us_state_5m"
-#cb5 <- readOGR(dsn = dsn, layer = layer)
-#save(cb5, file = "data/cb5.Rda")
-# following only needs to be done when new census estiates published
-#pop_source <- "https://www.census.gov/popest/data/national/totals/2015/files/NST-EST2015-alldata.csv"
-#population <- read.csv(textConnection(getURL(pop_source)))[-(1:5),]
-#save(population, file = "data/population.Rda")
-# add lat/long to dataframe
-load("data/coord.Rda")
-counted <- bind_cols(counted, coord)
-colnames(counted)[11] <- "id"
-##########################################################
-load("data/cb5.Rda")
-us <- cb5
-# relocate AK & HI and outset RI, DE and DC
-us_aea <- spTransform(us, CRS("+proj=laea +lat_0=45 +lon_0=-100 +x_0=0 +y_0=0 +a=6370997 +b=6370997 +units=m +no_defs"))
-alaska <- us_aea[us_aea$STATEFP == "02",]
-alaska <- elide(alaska, rotate = -50)
-alaska <- elide(alaska, scale = max(apply(bbox(alaska), 1, diff)) / 2.3)
-alaska <- elide(alaska, shift = c(-2100000, -2500000))
-proj4string(alaska) <- proj4string(us_aea)
-hawaii <- us_aea[us_aea$STATEFP == "15",]
-hawaii <- elide(hawaii, rotate = -35)
-hawaii <- elide(hawaii, shift = c(5400000, -1400000))
-proj4string(hawaii) <- proj4string(us_aea)
-us_aea <- us_aea[!us_aea$STATEFP %in% c("02", "15"),]
-us_aea <- rbind(us_aea, alaska, hawaii)
-rhode_island <- us_aea[us_aea$STATEFP == "44",]
-rhode_island <- elide(rhode_island, shift = c(125000,-125000))
-proj4string(rhode_island) <- proj4string(us_aea)
-delaware <- us_aea[us_aea$STATEFP == "10",]
-delaware <- elide(delaware, shift = c(200000,0))
-proj4string(delaware) <- proj4string(us_aea)
-dc <- us_aea[us_aea$STATEFP == "11",]
-dc <- elide(dc, shift = c(250000,-125000))
-proj4string(dc) <- proj4string(us_aea)
-us_aea <- us_aea[!us_aea$STATEFP %in% c("44", "10", "11", "60", "66", "69", "72", "78"),] #exclude overseas territories
-us_aea <- rbind(us_aea, delaware, rhode_island, dc)
-##########################################################
-# obtain locations to put state names
-centroids <- data.frame(us_aea$STUSPS, coordinates(us_aea))
-names(centroids) <- c("id", "clong", "clat")
-us50 <- fortify(us_aea, region = "STUSPS")
-poly = coord_map("polyconic")
-rownames(centroids) = centroids$id
-# adjust centroids for better positioning of state names
-centroids['LA',]$clong = 729000
-centroids['FL',]$clong = 1800000
-centroids['DE',]$clong = 2400000
-centroids['RI',]$clong = 2500000
-centroids['MD',]$clong = 1950000
-centroids['MD',]$clat = -360000
-centroids['MA',]$clat = 100000
-centroids['NJ',]$clong = 2130000
-centroids['NJ',]$clat = -255000
-# load population data
-load("data/population.Rda")
-# load convenience data frame cross indexing state, id, fips
-load("data/converter.Rda")
-converter$state <- cdefactor(converter$state)
-converter$id <- cdefactor(converter$id)
-converter <- tbl_df(converter)
-# create dataframe of states with zero-values in second column
-vec <- vector(,51)
-vec[1:51] <- 0
-state <- as.data.frame(converter$id)
-colnames(state) <- "id"
-state <- tbl_df(state)
-blank <- bind_cols(state,tbl_df(vec))
-##########################################################
-# variables from counted
-# national data
-age <- counted$age
-age <- as.integer(age)
-age <- bindh(age,5) # 5-year cohorts)
-age <- as.data.frame(age)
-age <- tbl_df(age)
-age <- count(age,age)
-age$n <- pct(age$n,n)
-armed <- count(counted, armed)        # civilian weapon
-cod <- count(counted, classification) # cause of death
-cod$n <- pct(cod$n,n)
-gender <- count(counted,gender)
-gender$n <- pct(gender$n,n)
-race <- count(counted,raceethnicity)
-race$n <- pct(race$n,n)
-state <- count(counted,id)
-state$n <- pct(state$n,n)
-weapon <- count(counted,armed)
-weapon$n <- pct(weapon$n,n)
-codvsarmed <- pct(table(counted$classification,counted$armed),n)
-codvsarmed1 <- codvsarmed[,c(1:4)] # first half wide table
-codvsarmed2 <- codvsarmed[,c(5:8)] # second half
-deaths <- count(counted,id)
-deaths <- tbl_df(deaths)
-colnames(deaths) <- c("id", "deaths")
-##########################################################
-# Date manipulations
-month <- as.data.frame(counted$month)
-colnames(month) <- c("mon")
-day <- counted$day
-day <- as.data.frame(as.integer(day))
-colnames(day) <- c("day")
-monthday <- bind_cols(month,day)
-dateinput <- paste(monthday$mon,monthday$day)
-monthday <- transmute(monthday, date = paste(mon,day))
-datefile <- (cat(system("bin/datify | bin/datify2 | bin/stripblanks > data/dates.csv", input = dateinput, intern = TRUE)))
-dated <- read.csv("data/dates.csv", header = FALSE, stringsAsFactors = FALSE)
-colnames(dated) = c("date")
-dated <- tbl_df(dated)
-dated$date <- as.Date(dated$date)
-dated$dow <- weekdays(dated$date, abbreviate = FALSE)
-dated$dow <- factor(dated$dow, levels = c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"))
-dated$month <- counted$month
-dowcount <- count(dated, dow) # day of week
-dowcount$n <- pct(dowcount$n,n)
-mindow = min(dowcount$n)
-maxdow = max(dowcount$n)
-dom <- as.data.frame(count(counted, day)) # day of month
-dom$n <- pct(dom$n,n)
-domspread <- squaredays(dom)
-dated$moon <- lunar.phase(dated$date, name = TRUE)
-lunar <- count(dated, moon)
-lunar$n <- pct(lunar$n,n)
-datecount <- count(dated,date)
-datecountdays <- nrow(datecount)
-datecount$date <- as.character(datecount$date)
-datecounthigh <- filter(datecount, n == max(n))
-monthcount <- count(month,mon)
-monthcount$mon <- factor(monthcount$mon, levels = c("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"))
-monthcount$n <- pct(monthcount$n,n)
-monthcount <- monthcount[order(monthcount$mon),]
-monthorder <- monthcount
-monthorder$n <- as.character(monthorder$n)
-monthorder$mon <- factor(monthorder$mon, levels = c("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"))
-monthorder$mon <- as.character(monthorder$mon)
-monthorder$n   <- as.character(monthorder$n)
-##########################################################
-uspop <- sum(population$POPESTIMATE2015)
-uspopper5k <- uspop/100000
-homi <- uspopper5k*5.1 # approimate homicidesh
-comphomi <- pct(n,homi)
-##########################################################
-# Breakout for women
-femme <- filter(counted, gender == "Female")
-bfemme <- filter(femme, raceethnicity == "Black")
-wfemme <- filter(femme, raceethnicity == "White")
-nf <- nrow(femme)
-nfb <- nrow(bfemme)
-nfw <- nrow(wfemme)
-fcount <- count(femme, id)
-fcombo <- full_join(fcount,blank, by = "id")
-fcombo[is.na(fcombo)] <- 0
-fveh <- filter(counted, gender == "Female", armed == "No", classification == "Struck by vehicle")
-fcodvsarmed <- pct(table(femme$classification,femme$armed),nf)
-fcodvsarmed1 <- fcodvsarmed[,c(1:3)] # split wide table
-fcodvsarmed2 <- fcodvsarmed[,c(4:6)]
-fbcodvsarmed <- pct(table(bfemme$classification,bfemme$armed),nfb)
-fbcodvsarmed1 <- fbcodvsarmed[,c(1:4)]
-#fbcodvsarmed2 <- fbcodvsarmed[,c(3:4)]
-fwcodvsarmed <- pct(table(wfemme$classification,wfemme$armed),nfw)
-fwcodvstaser <- 0
-fwcodvsarmed1 <- fwcodvsarmed[,c(1:4)]
-#fwcodvsarmed2 <- fwcodvsarmed[,c(4:4)]
-btrial <- count(femme, raceethnicity == "Black")[2,2]
-wtrial <- count(femme, raceethnicity == "White")[2,2]
-trial <- unlist(c(btrial,wtrial))
-wgundeath <- filter(femme, classification == "Gunshot")
-bw <- count(wgundeath, raceethnicity == "Black")[2,2]
-ww <- count(wgundeath, raceethnicity == "White")[2,2]
-outcome <- unlist(c(bw,ww))
-##########################################################
-# breakout for men
-homme <- filter(counted, gender == "Male")
-bhomme <- filter(homme, raceethnicity == "Black")
-hhomme <- filter(homme, raceethnicity == "Hispanic/Latino")
-whomme <- filter(homme, raceethnicity == "White")
-nh <- nrow(homme)
-nhb <- nrow(bhomme)
-nhh <- nrow(hhomme)
-nhw <- nrow(whomme)
-hcodvsarmed <- pct(table(homme$classification,homme$armed),nh)
-hcodvsarmed1 <- hcodvsarmed[,c(1:4)]
-hcodvsarmed2 <- hcodvsarmed[,c(5:8)]
-hwcodvsarmed <- pct(table(whomme$classification,whomme$armed),nhw)
-hwcodvsarmed1 <- hwcodvsarmed[,c(1:4)]
-hwcodvsarmed2 <- hwcodvsarmed[,c(5:7)]
-hbcodvsarmed <- pct(table(bhomme$classification,bhomme$armed),nhb)
-hbcodvsarmed1 <- hbcodvsarmed[,c(1:4)]
-hbcodvsarmed2 <- hbcodvsarmed[,c(5:8)]
-hhcodvsarmed <- pct(table(hhomme$classification,hhomme$armed),nhh)
-hhcodvsarmed1 <- hhcodvsarmed[,c(1:4)]
-hhcodvsarmed2 <- hhcodvsarmed[,c(5:8)]
-##########################################################
-# xtables are for LaTeX output; kable has been used throughout the text
-#ageprint <- print.xtable(xtable(squareage(age), caption = "Deaths by age group"))
-#codprint <- print.xtable(xtable(cod, "Deaths by cause"))
-#datehighprint <- print.xtable(xtable(datecounthigh, caption = "Dates with highest number of deaths"))
-#domprint <- print.xtable(xtable(domspread, caption = "Deaths by days of month"))
-#dowprint <- print.xtable(xtable(dowcount, caption = "Deaths by day of week"))
-#fbcodvsarmedprint1 <- print.xtable(xtable(fbcodvsarmed1, "Deaths of black women by whether and how officers and civilians were armed, part A"))
-#fbcodvsarmedprint2 <- print.xtable(xtable(fbcodvsarmed2, "Deaths of black women by whether and how officers and civilians were armed, part B"))
-#fcodvsarmedprint1 <- print.xtable(xtable(fcodvsarmed1, "Deaths of women by whether and how officers and civilians were armed, part A"))
-#fcodvsarmedprint2 <- print.xtable(xtable(fcodvsarmed2, "Deaths of women by whether and how officers and civilians were armed, part B"))
-#fieldsprint <- print.xtable(xtable(fields, "Fields in the data provided by The Guardian The Counted Project"))
-#fwcodvsarmedprint1 <- print.xtable(xtable(fwcodvsarmed1, "Deaths of white women by whether and how officers and civilians were armed, part A"))
-#fwcodvsarmedprint2 <- print.xtable(xtable(fwcodvsarmed, "Deaths of white women by whether and how officers and civilians were armed, part B"))
-#genderprint <- print.xtable(xtable(gender, caption = "Deaths by gender"))
-#genracprint <- print.xtable(xtable(count(femme,raceethnicity), caption = "Deaths of women by race/ethnicity"))
-#hbcodvsarmedprint1 <- print.xtable(xtable(hbcodvsarmed1, "Deaths of black men by whether and how officers and civilians were armed, part A"))
-#hbcodvsarmedprint2 <- print.xtable(xtable(hbcodvsarmed2, "Deaths of black men by whether and how officers and civilians were armed, part B"))
-#hcodvsarmedprint1 <- print.xtable(xtable(hcodvsarmed1, "Deaths of men by whether and how officers and civilians were armed, part A"))
-#hcodvsarmedprint2 <- print.xtable(xtable(hcodvsarmed2, "Deaths of men by whether and how officers and civilians were armed, part B"))
-#hhcodvsarmedprint1 <- print.xtable(xtable(hhcodvsarmed1, "Deaths of hispanic men by whether and how officers and civilians were armed, part A"))
-#hhcodvsarmedprint2 <- print.xtable(xtable(hhcodvsarmed2, "Deaths of hispanic men by whether and how officers and civilians were armed, part B"))
-#hwcodvsarmedprint1 <- print.xtable(xtable(hwcodvsarmed1, "Deaths of white men by whether and how officers and civilians were armed, part A"))
-#hwcodvsarmedprint2 <- print.xtable(xtable(hwcodvsarmed2, "Deaths of white men by whether and how officers and civilians were armed, part B"))
-#howarmed <- print.xtable(xtable(codvsarmed1, caption = "Deaths by whether and how officers and civilians were armed, part A."))
-#howarmed2 <- print.xtable(xtable(codvsarmed2, caption = "Deaths by whether and how officers and civilians were armed, part B."))
-#lunprint <- print.xtable(xtable(lunar, caption = "Deaths by phase of moon"))
-#monthdeathprint <- print.xtable(xtable(monthcount, caption = "Deaths by month"))
-#raceprint <- print.xtable(xtable(race, caption = "Deaths by race/ethnicity"))
-#stateprint <- print.xtable(xtable(squarestate(state), caption = "Deaths by state", label = {"tabhold"}), auto = TRUE)
-#weaponprint <- print.xtable(xtable(weapon, caption = "Deaths by whether and how civilian was armed"))
-##########################################################
-# thematic maps
-# ggplot setup2
-plain_theme = theme(axis.text = element_blank()) + 
-    theme(panel.background = element_blank(), 
-        panel.grid = element_blank(), 
-        axis.ticks = element_blank())
-no_ylab <- ylab("") 
-no_xlab <- xlab("")
-# death count
-# raw numbers for deaths
-natural.interval <- classIntervals(deaths$deaths, n = 6, style = 'jenks', lowest = TRUE)$brks
-natint <- natural.interval
-deaths$natural <- cut(deaths$deaths, breaks = natint, include.lowest = TRUE)
-map <- merge(us50, deaths, by = "id")
-b <- ggplot(data = map) + geom_map(map = map, aes(x = long, y = lat, map_id = id, group = group), fill = "white", color = "black", size = 0.3) + plain_theme + no_ylab + no_xlab
-fire = "YlOrRd"
-drought = "YlOrBr"
-l = geom_text(data = centroids, aes(clong, clat, label = id), color = "black", size = 2)
-makewhite = centroids[c('CA','TX'),] # has to be set by inspection
-w = geom_text(data = makewhite, aes(clong, clat, label = id), color = "white", size = 2)
-# raw numbers for deaths
-c <- b + geom_polygon(data = map, aes(x = long, y = lat, group = group, fill = natural), color = "dark grey", size = 0.3)
-d <- c + l + w + ggtitle("Number of Police Involved Civilian Homicides in the U.S. in 2015") + scale_fill_brewer(palette = drought, name = "Number\nof deaths")
-# population comparison
-pop52 <- dplyr::select(population, POPESTIMATE2015, NAME)
-pop52 <- tbl_df(pop52)
-#remove PR
-pop51 <- filter(pop52, NAME != "Puerto Rico")
-pop51$id <- converter$id
-pop51 <- tbl_df(pop51)
-colnames(pop51) <- c("EST2015", "NAME", "id")
-natural.interval <- classIntervals(pop51$EST2015, n = 6, style = 'jenks', lowest = TRUE)$brks
-natint <- natural.interval
-pop51$natural <- cut(pop51$EST2015, breaks = natint, include.lowest = TRUE)
-map1 <- merge(us50, pop51, by = "id")
-e <- b + geom_polygon(data = map1, aes(x = long, y = lat, group = group, fill = natural), color = "dark grey", size = 0.3)
-q <- e + scale_fill_brewer(palette = drought) + l + w
-natural.interval <- classIntervals(deaths$deaths, n = 6, style = 'jenks', lowest = TRUE)$brks
-natint <- natural.interval
-deaths$natural <- cut(deaths$deaths, breaks = natint, include.lowest = TRUE)
-e <- b + geom_polygon(data = map, aes(x = long, y = lat, group = group, fill = natural), color = "dark grey", size = 0.3)
-q <- e + scale_fill_brewer(palette = drought) + l + w
-pop51a <- merge(pop51, deaths, by = "id")
-pop51a <- mutate(pop51a, ratio = round(pop51a$deaths/(pop51a$EST2015/100000),2))
-natural.interval <- classIntervals(pop51a$ratio, n = 6, style = 'jenks', lowest = TRUE)$brks
-natint <- natural.interval
-pop51a$natural <- cut(pop51a$ratio, breaks = natint, include.lowest = TRUE)
-makewhite = centroids[c('CA'),]
-w = geom_text(data = makewhite, aes(clong, clat, label = id), color = "white", size = 2)
-makewhite = centroids[c('WY','NM', 'OK'),]
-w = geom_text(data = makewhite, aes(clong, clat, label = id), color = "white", size = 2)
-map3 <- merge(us50, pop51a, by = "id")
-f <- b + geom_polygon(data = map3, aes(x = long, y = lat, group = group, fill = natural), color = "dark grey", size = 0.3)
-r <- f + scale_fill_brewer(palette = drought) + l + w
-d <- b + geom_polygon(data = map, aes(x = long, y = lat, group = group, fill = natural), color = "dark grey", size = 0.3)
-p <- d + scale_fill_brewer(palette = drought) + l + w
-##########################################################
-# End set-up routines
-```
 
 ## The Data
 
-[The Counted] information on 2015 police involved civilian homicides report that the deaths in 2015 represent `r N` of the current population of the United States, approximately 320,000,000, a vanishingly small percentage. As a percentage of all homicides in 2014, the deaths represent approximately `r comphomi`%. *See* [Health, United States, 2015 - Individual Charts and Tables: Spreadsheet, PDF, and PowerPoint files, Table 17].
+[The Counted] information on 2015 police involved civilian homicides report that the deaths in 2015 represent 1,146 of the current population of the United States, approximately 320,000,000, a vanishingly small percentage. As a percentage of all homicides in 2014, the deaths represent approximately 6.92%. *See* [Health, United States, 2015 - Individual Charts and Tables: Spreadsheet, PDF, and PowerPoint files, Table 17].
 
 [The Counted] data layout in in CSV (comma separated value form) is:
 
-```{r, results="asis", echo = FALSE}
-fields_ <- fields
-colnames(fields_) <- c(NULL,NULL)
-kable(fields_, format.args = list(big.mark = ","), caption = "Fields in the data provided by The Guardian The Counted Project")  %>% kable_styling(bootstrap_options = "striped", full_width = F)
-```
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>(\#tab:unnamed-chunk-1)Fields in the data provided by The Guardian The Counted Project</caption>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> uid </td>
+   <td style="text-align:left;"> year </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> name </td>
+   <td style="text-align:left;"> streetaddress </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> age </td>
+   <td style="text-align:left;"> city </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> gender </td>
+   <td style="text-align:left;"> state </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> raceethnicity </td>
+   <td style="text-align:left;"> classification </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> month </td>
+   <td style="text-align:left;"> lawenforcementagency </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> day </td>
+   <td style="text-align:left;"> armed </td>
+  </tr>
+</tbody>
+</table>
 
 Classification" is the cause of death and "armed" is whether or how the civilian was armed.
 
@@ -517,200 +132,1505 @@ Classification" is the cause of death and "armed" is whether or how the civilian
 Approximately 95 percent of deaths were men. Gender of one death was reported as "non-conforming," possibly representing the delays involved in revising reporting systems to account for transgendered citizens.
 
 
-```{r, results="asis", echo = FALSE}
-gender_ <- gender
-colnames(gender_) <- c(NULL,NULL)
-kable(gender_, format.args = list(big.mark = ","), caption = "Percentages deaths by gender")  %>% kable_styling(bootstrap_options = "striped", full_width = F)
-```
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>(\#tab:unnamed-chunk-2)Percentages deaths by gender</caption>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> Female </td>
+   <td style="text-align:right;"> 4.62 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Male </td>
+   <td style="text-align:right;"> 95.29 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Non-conforming </td>
+   <td style="text-align:right;"> 0.09 </td>
+  </tr>
+</tbody>
+</table>
 
 ### Race/Ethnicity
 
 White deaths are under-represented compared to the national population. White, non-Hispanic population in 2014 was 62.2%. [Census Projections]
 
 
-```{r, results="asis", echo = FALSE}
-race_ = race
-colnames(race_) <- c(NULL,NULL)
-kable(race_, format.args = list(big.mark = ","), caption = "Percentage deaths by race/ethnicity")  %>% kable_styling(bootstrap_options = "striped", full_width = F)
-```
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>(\#tab:unnamed-chunk-3)Percentage deaths by race/ethnicity</caption>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> Arab-American </td>
+   <td style="text-align:right;"> 0.35 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Asian/Pacific Islander </td>
+   <td style="text-align:right;"> 2.09 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Black </td>
+   <td style="text-align:right;"> 26.70 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Hispanic/Latino </td>
+   <td style="text-align:right;"> 17.02 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Native American </td>
+   <td style="text-align:right;"> 1.13 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Other </td>
+   <td style="text-align:right;"> 0.09 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Unknown </td>
+   <td style="text-align:right;"> 1.92 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> White </td>
+   <td style="text-align:right;"> 50.70 </td>
+  </tr>
+</tbody>
+</table>
 
 
 ### Age
 
-Deaths were of all ages. The youngest death was `r min(age$age, na.rm=TRUE)` and the oldest, `r max(age$age, na.rm=TRUE)`. The median age of death (half older and half younger) was `r median(age$age, na.rm=TRUE)`, and the mean (average) age of death was approximately `r trunc(mean(age$age, na.rm=TRUE))`.
+Deaths were of all ages. The youngest death was 5 and the oldest, 85. The median age of death (half older and half younger) was 47.5, and the mean (average) age of death was approximately 47.
 
 
-```{r, results="asis", echo = FALSE}
-age_ <- age
-colnames(age_) <- c(NULL,NULL)
-kable(age_, format.args = list(big.mark = ","), caption = "Percentage deaths by age group")  %>% kable_styling(bootstrap_options = "striped", full_width = F)
-```
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>(\#tab:unnamed-chunk-4)Percentage deaths by age group</caption>
+<tbody>
+  <tr>
+   <td style="text-align:right;"> 5 </td>
+   <td style="text-align:right;"> 0.09 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 15 </td>
+   <td style="text-align:right;"> 5.15 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 20 </td>
+   <td style="text-align:right;"> 12.91 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 25 </td>
+   <td style="text-align:right;"> 16.06 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 30 </td>
+   <td style="text-align:right;"> 15.45 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 35 </td>
+   <td style="text-align:right;"> 12.74 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 40 </td>
+   <td style="text-align:right;"> 8.38 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 45 </td>
+   <td style="text-align:right;"> 9.86 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 50 </td>
+   <td style="text-align:right;"> 7.33 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 55 </td>
+   <td style="text-align:right;"> 5.41 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 60 </td>
+   <td style="text-align:right;"> 3.58 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 65 </td>
+   <td style="text-align:right;"> 1.22 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 70 </td>
+   <td style="text-align:right;"> 0.61 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 75 </td>
+   <td style="text-align:right;"> 0.61 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 80 </td>
+   <td style="text-align:right;"> 0.09 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 85 </td>
+   <td style="text-align:right;"> 0.17 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> 0.35 </td>
+  </tr>
+</tbody>
+</table>
 
 ### Cause of Death
 
-Gunshots are the leading cause of deaths in police involved civilian homicides, representing `r max(cod$n, na.rm=TRUE)`% of all deaths in [The Counted] dataset.
+Gunshots are the leading cause of deaths in police involved civilian homicides, representing 88.92% of all deaths in [The Counted] dataset.
 
 ### Whether and how civilians were armed
 
-Civilian firearms were the most common category involved, but unarmed civilians were the next most common, representing `r max(weapon$n, na.rm=TRUE)`%  and `r weapon$n[4]`% of all deaths, respectively.
+Civilian firearms were the most common category involved, but unarmed civilians were the next most common, representing 48.34%  and 19.98% of all deaths, respectively.
 
-```{r, results="asis", echo = FALSE}
-weapon_ <- weapon
-colnames(weapon_) <- c(NULL,NULL)
-kable(weapon_, format.args = list(big.mark = ","), caption = "Percentage deaths by whether and how civilian was armed")  %>% kable_styling(bootstrap_options = "striped", full_width = F)
-```
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>(\#tab:unnamed-chunk-5)Percentage deaths by whether and how civilian was armed</caption>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> Disputed </td>
+   <td style="text-align:right;"> 0.35 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Firearm </td>
+   <td style="text-align:right;"> 48.34 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Knife </td>
+   <td style="text-align:right;"> 13.44 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> No </td>
+   <td style="text-align:right;"> 19.98 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Non-lethal firearm </td>
+   <td style="text-align:right;"> 4.01 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Other </td>
+   <td style="text-align:right;"> 5.41 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Unknown </td>
+   <td style="text-align:right;"> 4.62 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Vehicle </td>
+   <td style="text-align:right;"> 3.84 </td>
+  </tr>
+</tbody>
+</table>
 
 ### Location
 
-More deaths occurred in California than in any other state, representing `r max(state$n, na.rm=TRUE)`% of all deaths, which is disproportionately higher than its national share of population, `r round(37254503/308758105*100,2)`%. [American Fact Finder]
+More deaths occurred in California than in any other state, representing 18.32% of all deaths, which is disproportionately higher than its national share of population, 12.07%. [American Fact Finder]
 
-```{r, results="asis", echo = FALSE}
-state_ <- state
-colnames(state_) <- c(NULL,NULL)
-kable(state_, format.args = list(big.mark = ","), caption = "Percentage deaths by state")  %>% kable_styling(bootstrap_options = "striped", full_width = F)
-```
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>(\#tab:unnamed-chunk-6)Percentage deaths by state</caption>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> AK </td>
+   <td style="text-align:right;"> 0.44 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> AL </td>
+   <td style="text-align:right;"> 1.66 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> AR </td>
+   <td style="text-align:right;"> 0.44 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> AZ </td>
+   <td style="text-align:right;"> 3.84 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> CA </td>
+   <td style="text-align:right;"> 18.32 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> CO </td>
+   <td style="text-align:right;"> 2.79 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> CT </td>
+   <td style="text-align:right;"> 0.35 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> DC </td>
+   <td style="text-align:right;"> 0.61 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> DE </td>
+   <td style="text-align:right;"> 0.35 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> FL </td>
+   <td style="text-align:right;"> 6.20 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> GA </td>
+   <td style="text-align:right;"> 3.40 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> HI </td>
+   <td style="text-align:right;"> 0.44 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> IA </td>
+   <td style="text-align:right;"> 0.44 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> ID </td>
+   <td style="text-align:right;"> 0.70 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> IL </td>
+   <td style="text-align:right;"> 2.01 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> IN </td>
+   <td style="text-align:right;"> 1.83 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> KS </td>
+   <td style="text-align:right;"> 0.96 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> KY </td>
+   <td style="text-align:right;"> 1.66 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> LA </td>
+   <td style="text-align:right;"> 2.36 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> MA </td>
+   <td style="text-align:right;"> 0.87 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> MD </td>
+   <td style="text-align:right;"> 1.48 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> ME </td>
+   <td style="text-align:right;"> 0.17 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> MI </td>
+   <td style="text-align:right;"> 1.75 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> MN </td>
+   <td style="text-align:right;"> 1.13 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> MO </td>
+   <td style="text-align:right;"> 1.92 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> MS </td>
+   <td style="text-align:right;"> 1.05 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> MT </td>
+   <td style="text-align:right;"> 0.35 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> NC </td>
+   <td style="text-align:right;"> 2.27 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> ND </td>
+   <td style="text-align:right;"> 0.09 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> NE </td>
+   <td style="text-align:right;"> 0.79 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> NH </td>
+   <td style="text-align:right;"> 0.26 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> NJ </td>
+   <td style="text-align:right;"> 2.09 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> NM </td>
+   <td style="text-align:right;"> 1.83 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> NV </td>
+   <td style="text-align:right;"> 1.66 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> NY </td>
+   <td style="text-align:right;"> 2.27 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> OH </td>
+   <td style="text-align:right;"> 3.23 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> OK </td>
+   <td style="text-align:right;"> 3.23 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> OR </td>
+   <td style="text-align:right;"> 1.48 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> PA </td>
+   <td style="text-align:right;"> 2.09 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> RI </td>
+   <td style="text-align:right;"> 0.09 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> SC </td>
+   <td style="text-align:right;"> 1.83 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> SD </td>
+   <td style="text-align:right;"> 0.17 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> TN </td>
+   <td style="text-align:right;"> 1.83 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> TX </td>
+   <td style="text-align:right;"> 9.77 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> UT </td>
+   <td style="text-align:right;"> 0.87 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> VA </td>
+   <td style="text-align:right;"> 1.92 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> VT </td>
+   <td style="text-align:right;"> 0.09 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> WA </td>
+   <td style="text-align:right;"> 2.01 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> WI </td>
+   <td style="text-align:right;"> 1.05 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> WV </td>
+   <td style="text-align:right;"> 1.05 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> WY </td>
+   <td style="text-align:right;"> 0.52 </td>
+  </tr>
+</tbody>
+</table>
 
 ### Months and Days of Death
 
-Nationally, deaths were spread approximately evenly among months, days of the week, days of the month and phases of the moon.  *There was at least one death on `r n_distinct(dated)` days of the year,* `r round(n_distinct(dated)/365*100,2)`% of all days. The median number of deaths per day was `r median(count(dated, date)$n)`, and the mean number of deaths was slightly larger, `r round(mean(count(dated,date)$n),2)`. On `r nrow(datecounthigh)` days, there were `r mean(datecounthigh$n)` deaths. 
+Nationally, deaths were spread approximately evenly among months, days of the week, days of the month and phases of the moon.  *There was at least one death on 342 days of the year,* 93.7% of all days. The median number of deaths per day was 3, and the mean number of deaths was slightly larger, 3.35. On 7 days, there were 8 deaths. 
 
-```{r, results="asis", echo = FALSE}
-datecounthigh_ <- datecounthigh
-colnames(datecounthigh_) <- c(NULL,NULL)
-kable(datecounthigh_, format.args = list(big.mark = ","), caption = "Dates with highest number of deaths")  %>% kable_styling(bootstrap_options = "striped", full_width = F) 
-```
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>(\#tab:unnamed-chunk-7)Dates with highest number of deaths</caption>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> 2015-03-27 </td>
+   <td style="text-align:right;"> 8 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 2015-04-21 </td>
+   <td style="text-align:right;"> 8 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 2015-09-21 </td>
+   <td style="text-align:right;"> 8 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 2015-10-15 </td>
+   <td style="text-align:right;"> 8 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 2015-10-24 </td>
+   <td style="text-align:right;"> 8 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 2015-12-14 </td>
+   <td style="text-align:right;"> 8 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 2015-12-21 </td>
+   <td style="text-align:right;"> 8 </td>
+  </tr>
+</tbody>
+</table>
 
-`r filter(monthcount, n == min(n))$mon` had the fewest deaths, `r min(count(month,mon)$n)`, `r round(min(count(month,mon)$n)/n*100,2)`%,  and `r filter(monthcount, n == max(n))$mon` had the most deaths, `r max(count(month,mon)$n)`, `r round(max(count(month,mon)$n)/n*100,2)`%.
+June had the fewest deaths, 80, 6.98%,  and July had the most deaths, 124, 10.82%.
 
-```{r, results="asis", echo = FALSE}
-monthcount_ <- monthcount
-colnames(monthcount_) <- c(NULL,NULL)
-kable(monthcount_, format.args = list(big.mark = ","), caption = "Percentage deaths by month")  %>% kable_styling(bootstrap_options = "striped", full_width = F) 
-```
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>(\#tab:unnamed-chunk-8)Percentage deaths by month</caption>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> January </td>
+   <td style="text-align:right;"> 7.94 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> February </td>
+   <td style="text-align:right;"> 7.16 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> March </td>
+   <td style="text-align:right;"> 9.86 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> April </td>
+   <td style="text-align:right;"> 8.90 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> May </td>
+   <td style="text-align:right;"> 7.50 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> June </td>
+   <td style="text-align:right;"> 6.98 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> July </td>
+   <td style="text-align:right;"> 10.82 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> August </td>
+   <td style="text-align:right;"> 8.90 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> September </td>
+   <td style="text-align:right;"> 8.46 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> October </td>
+   <td style="text-align:right;"> 7.94 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> November </td>
+   <td style="text-align:right;"> 7.33 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> December </td>
+   <td style="text-align:right;"> 8.20 </td>
+  </tr>
+</tbody>
+</table>
 
-The day of the month with the fewest deaths was day `r filter(dom, n == min(dom$n))$day`, and the day of the month with the most deaths was day  `r filter(dom, n == max(dom$n))$day`.
+The day of the month with the fewest deaths was day 31, and the day of the month with the most deaths was day  21.
 
-```{r, results="asis", echo = FALSE}
-domspread_ <- domspread
-colnames(domspread_) <- c(NULL,NULL)
-kable(domspread_, format.args = list(big.mark = ","), caption = "Percentage deaths by day of month")  %>% kable_styling(bootstrap_options = "striped", full_width = F) 
-```
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>(\#tab:unnamed-chunk-9)Percentage deaths by day of month</caption>
+<tbody>
+  <tr>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 2.36 </td>
+   <td style="text-align:right;"> 9 </td>
+   <td style="text-align:right;"> 3.66 </td>
+   <td style="text-align:right;"> 17 </td>
+   <td style="text-align:right;"> 4.10 </td>
+   <td style="text-align:right;"> 25 </td>
+   <td style="text-align:right;"> 2.97 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 2 </td>
+   <td style="text-align:right;"> 2.88 </td>
+   <td style="text-align:right;"> 10 </td>
+   <td style="text-align:right;"> 3.32 </td>
+   <td style="text-align:right;"> 18 </td>
+   <td style="text-align:right;"> 2.18 </td>
+   <td style="text-align:right;"> 26 </td>
+   <td style="text-align:right;"> 3.05 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 3 </td>
+   <td style="text-align:right;"> 3.32 </td>
+   <td style="text-align:right;"> 11 </td>
+   <td style="text-align:right;"> 3.14 </td>
+   <td style="text-align:right;"> 19 </td>
+   <td style="text-align:right;"> 2.79 </td>
+   <td style="text-align:right;"> 27 </td>
+   <td style="text-align:right;"> 3.23 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> 3.23 </td>
+   <td style="text-align:right;"> 12 </td>
+   <td style="text-align:right;"> 3.23 </td>
+   <td style="text-align:right;"> 20 </td>
+   <td style="text-align:right;"> 3.14 </td>
+   <td style="text-align:right;"> 28 </td>
+   <td style="text-align:right;"> 3.05 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 5 </td>
+   <td style="text-align:right;"> 3.66 </td>
+   <td style="text-align:right;"> 13 </td>
+   <td style="text-align:right;"> 3.32 </td>
+   <td style="text-align:right;"> 21 </td>
+   <td style="text-align:right;"> 4.89 </td>
+   <td style="text-align:right;"> 29 </td>
+   <td style="text-align:right;"> 2.71 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 6 </td>
+   <td style="text-align:right;"> 4.10 </td>
+   <td style="text-align:right;"> 14 </td>
+   <td style="text-align:right;"> 3.58 </td>
+   <td style="text-align:right;"> 22 </td>
+   <td style="text-align:right;"> 3.66 </td>
+   <td style="text-align:right;"> 30 </td>
+   <td style="text-align:right;"> 2.88 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 7 </td>
+   <td style="text-align:right;"> 2.71 </td>
+   <td style="text-align:right;"> 15 </td>
+   <td style="text-align:right;"> 4.10 </td>
+   <td style="text-align:right;"> 23 </td>
+   <td style="text-align:right;"> 3.40 </td>
+   <td style="text-align:right;"> 31 </td>
+   <td style="text-align:right;"> 1.57 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 8 </td>
+   <td style="text-align:right;"> 3.58 </td>
+   <td style="text-align:right;"> 16 </td>
+   <td style="text-align:right;"> 3.23 </td>
+   <td style="text-align:right;"> 24 </td>
+   <td style="text-align:right;"> 2.97 </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+  </tr>
+</tbody>
+</table>
 
-The day of the week with the fewest deaths was `r filter(dowcount, n == min(dowcount$n))$dow`, `r mindow`%, and the day of the month with the most deaths was `r filter(dowcount, n == max(dowcount$n))$dow`, `r maxdow`%.
+The day of the week with the fewest deaths was Sunday, 12.57%, and the day of the month with the most deaths was Wednesday, 15.88%.
 
-```{r, results="asis", echo = FALSE}
-dowcount_ <- dowcount
-colnames(dowcount_) <- c(NULL,NULL)
-kable(dowcount_, format.args = list(big.mark = ","), caption = "Percentage deaths by day of week")  %>% kable_styling(bootstrap_options = "striped", full_width = F)
-```
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>(\#tab:unnamed-chunk-10)Percentage deaths by day of week</caption>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> Monday </td>
+   <td style="text-align:right;"> 13.96 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Tuesday </td>
+   <td style="text-align:right;"> 14.92 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Wednesday </td>
+   <td style="text-align:right;"> 15.88 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Thursday </td>
+   <td style="text-align:right;"> 15.01 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Friday </td>
+   <td style="text-align:right;"> 14.75 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Saturday </td>
+   <td style="text-align:right;"> 12.91 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Sunday </td>
+   <td style="text-align:right;"> 12.57 </td>
+  </tr>
+</tbody>
+</table>
 
 Folk wisdom attributes increased crime and other aberations to the full moon; *see [Lunacy and the Full Moon]*. However, deaths are approximately evenly distributed over the phases of the moon.
 
-```{r, results="asis", echo = FALSE}
-lunar_ <- lunar
-colnames(lunar_) <- c(NULL,NULL)
-kable(lunar_, format.args = list(big.mark = ","), caption = "Percentage deaths by lunar phase")  %>% kable_styling(bootstrap_options = "striped", full_width = F)
-```
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>(\#tab:unnamed-chunk-11)Percentage deaths by lunar phase</caption>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> New </td>
+   <td style="text-align:right;"> 25.48 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Waxing </td>
+   <td style="text-align:right;"> 24.87 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Full </td>
+   <td style="text-align:right;"> 23.91 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Waning </td>
+   <td style="text-align:right;"> 25.74 </td>
+  </tr>
+</tbody>
+</table>
 
 ### Cause of Death and Civilian Armed Status
 
-```{r, results="asis", echo = FALSE}
-kable(codvsarmed1, format.args = list(big.mark = ","), caption = "Cause of death and civilian armed status, part A")  %>% kable_styling(bootstrap_options = "striped", full_width = F) 
-```
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>(\#tab:unnamed-chunk-12)Cause of death and civilian armed status, part A</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;">   </th>
+   <th style="text-align:right;"> Disputed </th>
+   <th style="text-align:right;"> Firearm </th>
+   <th style="text-align:right;"> Knife </th>
+   <th style="text-align:right;"> No </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> Death in custody </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.09 </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 3.66 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Gunshot </td>
+   <td style="text-align:right;"> 0.35 </td>
+   <td style="text-align:right;"> 48.08 </td>
+   <td style="text-align:right;"> 13.35 </td>
+   <td style="text-align:right;"> 9.69 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Other </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.09 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Struck by vehicle </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.09 </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 2.53 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Taser </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.09 </td>
+   <td style="text-align:right;"> 0.09 </td>
+   <td style="text-align:right;"> 4.01 </td>
+  </tr>
+</tbody>
+</table>
 
-```{r, results="asis", echo = FALSE}
-kable(codvsarmed2, format.args = list(big.mark = ","), caption = "Cause of death and civilian armed status, part B")  %>% kable_styling(bootstrap_options = "striped", full_width = F)
-```
-Of the `r N` deaths, `r nf` were women, approximately `r  pct(nf,n)`%. All but `r nf - nfw - nfb` of those deaths were white or black.
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>(\#tab:unnamed-chunk-13)Cause of death and civilian armed status, part B</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;">   </th>
+   <th style="text-align:right;"> Non-lethal firearm </th>
+   <th style="text-align:right;"> Other </th>
+   <th style="text-align:right;"> Unknown </th>
+   <th style="text-align:right;"> Vehicle </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> Death in custody </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.09 </td>
+   <td style="text-align:right;"> 0.09 </td>
+   <td style="text-align:right;"> 0.00 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Gunshot </td>
+   <td style="text-align:right;"> 4.01 </td>
+   <td style="text-align:right;"> 5.15 </td>
+   <td style="text-align:right;"> 4.45 </td>
+   <td style="text-align:right;"> 3.84 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Other </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.00 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Struck by vehicle </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.09 </td>
+   <td style="text-align:right;"> 0.00 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Taser </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.17 </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.00 </td>
+  </tr>
+</tbody>
+</table>
+Of the 1,146 deaths, 53 were women, approximately 4.62%. All but 6 of those deaths were white or black.
 
-```{r, results="asis", echo = FALSE}
-kable(fcodvsarmed1, format.args = list(big.mark = ","), caption = "Cause of death of women and civilian armed status, part A")  %>% kable_styling(bootstrap_options = "striped", full_width = F) 
-```
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>(\#tab:unnamed-chunk-14)Cause of death of women and civilian armed status, part A</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;">   </th>
+   <th style="text-align:right;"> Firearm </th>
+   <th style="text-align:right;"> Knife </th>
+   <th style="text-align:right;"> No </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> Death in custody </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 1.89 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Gunshot </td>
+   <td style="text-align:right;"> 41.51 </td>
+   <td style="text-align:right;"> 20.75 </td>
+   <td style="text-align:right;"> 9.43 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Struck by vehicle </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 13.21 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Taser </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 1.89 </td>
+  </tr>
+</tbody>
+</table>
 
-```{r, results="asis", echo = FALSE}
-kable(fcodvsarmed2, format.args = list(big.mark = ","), caption = "Cause of death of women and civilian armed status, part B")  %>% kable_styling(bootstrap_options = "striped", full_width = F)
-```
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>(\#tab:unnamed-chunk-15)Cause of death of women and civilian armed status, part B</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;">   </th>
+   <th style="text-align:right;"> Non-lethal firearm </th>
+   <th style="text-align:right;"> Unknown </th>
+   <th style="text-align:right;"> Vehicle </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> Death in custody </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.00 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Gunshot </td>
+   <td style="text-align:right;"> 1.89 </td>
+   <td style="text-align:right;"> 1.89 </td>
+   <td style="text-align:right;"> 7.55 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Struck by vehicle </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.00 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Taser </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.00 </td>
+  </tr>
+</tbody>
+</table>
 
-Of the `r nf` deaths of women, `r nfw`, approximately `r  pct(nfw,nf)`% were white. Tables show percentages of deaths among white women.
+Of the 53 deaths of women, 35, approximately 66.04% were white. Tables show percentages of deaths among white women.
 
-```{r, results="asis", echo = FALSE}
-kable(fwcodvsarmed1, format.args = list(big.mark = ","), caption = "Cause of death of white women and civilian armed status")  %>% kable_styling(bootstrap_options = "striped", full_width = F) 
-```
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>(\#tab:unnamed-chunk-16)Cause of death of white women and civilian armed status</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;">   </th>
+   <th style="text-align:right;"> Firearm </th>
+   <th style="text-align:right;"> Knife </th>
+   <th style="text-align:right;"> No </th>
+   <th style="text-align:right;"> Non-lethal firearm </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> Gunshot </td>
+   <td style="text-align:right;"> 51.43 </td>
+   <td style="text-align:right;"> 11.43 </td>
+   <td style="text-align:right;"> 8.57 </td>
+   <td style="text-align:right;"> 2.86 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Struck by vehicle </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 14.29 </td>
+   <td style="text-align:right;"> 0.00 </td>
+  </tr>
+</tbody>
+</table>
 
 
-Of the `r nf` deaths of women, `r nfb`, approximately `r  pct(nfb,nf)`% were black. Tables show percentages of deaths among black women.
+Of the 53 deaths of women, 12, approximately 22.64% were black. Tables show percentages of deaths among black women.
 
-```{r, results="asis", echo = FALSE}
-kable(fbcodvsarmed1, format.args = list(big.mark = ","), caption = "Cause of death of black women and civilian armed status")  %>% kable_styling(bootstrap_options = "striped", full_width = F) 
-```
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>(\#tab:unnamed-chunk-17)Cause of death of black women and civilian armed status</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;">   </th>
+   <th style="text-align:right;"> Firearm </th>
+   <th style="text-align:right;"> Knife </th>
+   <th style="text-align:right;"> No </th>
+   <th style="text-align:right;"> Vehicle </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> Gunshot </td>
+   <td style="text-align:right;"> 25 </td>
+   <td style="text-align:right;"> 33.33 </td>
+   <td style="text-align:right;"> 16.67 </td>
+   <td style="text-align:right;"> 8.33 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Struck by vehicle </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 8.33 </td>
+   <td style="text-align:right;"> 0.00 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Taser </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 8.33 </td>
+   <td style="text-align:right;"> 0.00 </td>
+  </tr>
+</tbody>
+</table>
 
-Of the `r N` deaths, `r as.character(prettyNum(nh, big.mark = ','))` were men, approximately `r  pct(nh,n)`%. 
+Of the 1,146 deaths, 1,092 were men, approximately 95.29%. 
 
-```{r, results="asis", echo = FALSE}
-kable(hcodvsarmed1, format.args = list(big.mark = ","), caption = "Cause of death of men and civilian armed status, part A")  %>% kable_styling(bootstrap_options = "striped", full_width = F) 
-```
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>(\#tab:unnamed-chunk-18)Cause of death of men and civilian armed status, part A</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;">   </th>
+   <th style="text-align:right;"> Disputed </th>
+   <th style="text-align:right;"> Firearm </th>
+   <th style="text-align:right;"> Knife </th>
+   <th style="text-align:right;"> No </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> Death in custody </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.09 </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 3.75 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Gunshot </td>
+   <td style="text-align:right;"> 0.37 </td>
+   <td style="text-align:right;"> 48.44 </td>
+   <td style="text-align:right;"> 13.00 </td>
+   <td style="text-align:right;"> 9.62 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Other </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.09 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Struck by vehicle </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.09 </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 2.01 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Taser </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.09 </td>
+   <td style="text-align:right;"> 0.09 </td>
+   <td style="text-align:right;"> 4.12 </td>
+  </tr>
+</tbody>
+</table>
 
-```{r, results="asis", echo = FALSE}
-kable(hcodvsarmed2, format.args = list(big.mark = ","), caption = "Cause of death of men and civilian armed status, part B")  %>% kable_styling(bootstrap_options = "striped", full_width = F)
-```
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>(\#tab:unnamed-chunk-19)Cause of death of men and civilian armed status, part B</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;">   </th>
+   <th style="text-align:right;"> Non-lethal firearm </th>
+   <th style="text-align:right;"> Other </th>
+   <th style="text-align:right;"> Unknown </th>
+   <th style="text-align:right;"> Vehicle </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> Death in custody </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.09 </td>
+   <td style="text-align:right;"> 0.09 </td>
+   <td style="text-align:right;"> 0.00 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Gunshot </td>
+   <td style="text-align:right;"> 4.12 </td>
+   <td style="text-align:right;"> 5.40 </td>
+   <td style="text-align:right;"> 4.58 </td>
+   <td style="text-align:right;"> 3.66 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Other </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.00 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Struck by vehicle </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.09 </td>
+   <td style="text-align:right;"> 0.00 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Taser </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.18 </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.00 </td>
+  </tr>
+</tbody>
+</table>
 
-Of the `r as.character(prettyNum(nh, big.mark = ','))` deaths of men, `r nhw`, approximately `r pct(nhw,nh)`%, were white. Tables show percentages of deaths among white men.
+Of the 1,092 deaths of men, 546, approximately 50%, were white. Tables show percentages of deaths among white men.
 
-```{r, results="asis", echo = FALSE}
-kable(hwcodvsarmed1, format.args = list(big.mark = ","), caption = "Cause of death of white men and civilian armed status, part A")  %>% kable_styling(bootstrap_options = "striped", full_width = F) 
-```
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>(\#tab:unnamed-chunk-20)Cause of death of white men and civilian armed status, part A</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;">   </th>
+   <th style="text-align:right;"> Disputed </th>
+   <th style="text-align:right;"> Firearm </th>
+   <th style="text-align:right;"> Knife </th>
+   <th style="text-align:right;"> No </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> Death in custody </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 2.75 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Gunshot </td>
+   <td style="text-align:right;"> 0.18 </td>
+   <td style="text-align:right;"> 52.75 </td>
+   <td style="text-align:right;"> 11.9 </td>
+   <td style="text-align:right;"> 8.06 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Struck by vehicle </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 2.75 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Taser </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 3.85 </td>
+  </tr>
+</tbody>
+</table>
 
-```{r, results="asis", echo = FALSE}
-kable(hwcodvsarmed2, format.args = list(big.mark = ","), caption = "Cause of death of white men and civilian armed status, part B")  %>% kable_styling(bootstrap_options = "striped", full_width = F)
-```
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>(\#tab:unnamed-chunk-21)Cause of death of white men and civilian armed status, part B</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;">   </th>
+   <th style="text-align:right;"> Non-lethal firearm </th>
+   <th style="text-align:right;"> Other </th>
+   <th style="text-align:right;"> Unknown </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> Death in custody </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.00 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Gunshot </td>
+   <td style="text-align:right;"> 4.76 </td>
+   <td style="text-align:right;"> 4.95 </td>
+   <td style="text-align:right;"> 4.95 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Struck by vehicle </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.00 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Taser </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.00 </td>
+  </tr>
+</tbody>
+</table>
 
-Of the `r as.character(prettyNum(nh, big.mark = ','))` deaths of men, `r nhb`, approximately `r  pct(nhb,nh)`%, were black. Tables show percentages of deaths among black men.
+Of the 1,092 deaths of men, 294, approximately 26.92%, were black. Tables show percentages of deaths among black men.
 
-```{r, results="asis", echo = FALSE}
-kable(hbcodvsarmed1, format.args = list(big.mark = ","), caption = "Cause of death of black men and civilian armed status, part A")  %>% kable_styling(bootstrap_options = "striped", full_width = F) 
-```
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>(\#tab:unnamed-chunk-22)Cause of death of black men and civilian armed status, part A</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;">   </th>
+   <th style="text-align:right;"> Disputed </th>
+   <th style="text-align:right;"> Firearm </th>
+   <th style="text-align:right;"> Knife </th>
+   <th style="text-align:right;"> No </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> Death in custody </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.34 </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 5.44 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Gunshot </td>
+   <td style="text-align:right;"> 0.68 </td>
+   <td style="text-align:right;"> 45.24 </td>
+   <td style="text-align:right;"> 11.22 </td>
+   <td style="text-align:right;"> 12.93 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Other </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.34 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Struck by vehicle </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.34 </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 1.36 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Taser </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.34 </td>
+   <td style="text-align:right;"> 0.34 </td>
+   <td style="text-align:right;"> 5.44 </td>
+  </tr>
+</tbody>
+</table>
 
-```{r, results="asis", echo = FALSE}
-kable(hbcodvsarmed2, format.args = list(big.mark = ","), caption = "Cause of death of black men and civilian armed status, part B")  %>% kable_styling(bootstrap_options = "striped", full_width = F)
-```
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>(\#tab:unnamed-chunk-23)Cause of death of black men and civilian armed status, part B</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;">   </th>
+   <th style="text-align:right;"> Non-lethal firearm </th>
+   <th style="text-align:right;"> Other </th>
+   <th style="text-align:right;"> Unknown </th>
+   <th style="text-align:right;"> Vehicle </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> Death in custody </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.34 </td>
+   <td style="text-align:right;"> 0.34 </td>
+   <td style="text-align:right;"> 0.00 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Gunshot </td>
+   <td style="text-align:right;"> 2.72 </td>
+   <td style="text-align:right;"> 4.08 </td>
+   <td style="text-align:right;"> 2.72 </td>
+   <td style="text-align:right;"> 5.44 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Other </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.00 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Struck by vehicle </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.34 </td>
+   <td style="text-align:right;"> 0.00 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Taser </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.00 </td>
+  </tr>
+</tbody>
+</table>
 
-Of the `r as.character(prettyNum(nh, big.mark = ','))` deaths of men, `r nhh`, approximately `r  pct(nhh,nh)`%, were hispanic. Tables show percentages of deaths among hispanic men.
+Of the 1,092 deaths of men, 191, approximately 17.49%, were hispanic. Tables show percentages of deaths among hispanic men.
 
-```{r, results="asis", echo = FALSE}
-kable(hhcodvsarmed1, format.args = list(big.mark = ","), caption = "Cause of death of hispanic men and civilian armed status, part A")  %>% kable_styling(bootstrap_options = "striped", full_width = F) 
-```
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>(\#tab:unnamed-chunk-24)Cause of death of hispanic men and civilian armed status, part A</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;">   </th>
+   <th style="text-align:right;"> Disputed </th>
+   <th style="text-align:right;"> Firearm </th>
+   <th style="text-align:right;"> Knife </th>
+   <th style="text-align:right;"> No </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> Death in custody </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 2.62 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Gunshot </td>
+   <td style="text-align:right;"> 0.52 </td>
+   <td style="text-align:right;"> 43.46 </td>
+   <td style="text-align:right;"> 16.75 </td>
+   <td style="text-align:right;"> 10.47 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Struck by vehicle </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 1.57 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Taser </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 3.14 </td>
+  </tr>
+</tbody>
+</table>
 
-```{r, results="asis", echo = FALSE}
-kable(hhcodvsarmed2, format.args = list(big.mark = ","), caption = "Cause of death of black men and civilian armed status, part B")  %>% kable_styling(bootstrap_options = "striped", full_width = F)
-```
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>(\#tab:unnamed-chunk-25)Cause of death of black men and civilian armed status, part B</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;">   </th>
+   <th style="text-align:right;"> Non-lethal firearm </th>
+   <th style="text-align:right;"> Other </th>
+   <th style="text-align:right;"> Unknown </th>
+   <th style="text-align:right;"> Vehicle </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> Death in custody </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.00 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Gunshot </td>
+   <td style="text-align:right;"> 4.71 </td>
+   <td style="text-align:right;"> 7.85 </td>
+   <td style="text-align:right;"> 5.24 </td>
+   <td style="text-align:right;"> 3.14 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Struck by vehicle </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.00 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Taser </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.52 </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.00 </td>
+  </tr>
+</tbody>
+</table>
 
 ## Geographic Analysis of the Data
 
 One way to look at the data geograhically is to map the number of deaths by state. We tabulated percentages of deaths occurring by state. We can also show the *numbers*.
 
-```{r, results="asis", echo = FALSE}
-kable(count(counted,id), format.args = list(big.mark = ","), caption = "Number deaths by state")  %>% kable_styling(bootstrap_options = "striped", full_width = F) 
-
-```
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>(\#tab:unnamed-chunk-26)Number deaths by state</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> id </th>
+   <th style="text-align:right;"> n </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> AK </td>
+   <td style="text-align:right;"> 5 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> AL </td>
+   <td style="text-align:right;"> 19 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> AR </td>
+   <td style="text-align:right;"> 5 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> AZ </td>
+   <td style="text-align:right;"> 44 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> CA </td>
+   <td style="text-align:right;"> 210 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> CO </td>
+   <td style="text-align:right;"> 32 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> CT </td>
+   <td style="text-align:right;"> 4 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> DC </td>
+   <td style="text-align:right;"> 7 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> DE </td>
+   <td style="text-align:right;"> 4 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> FL </td>
+   <td style="text-align:right;"> 71 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> GA </td>
+   <td style="text-align:right;"> 39 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> HI </td>
+   <td style="text-align:right;"> 5 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> IA </td>
+   <td style="text-align:right;"> 5 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> ID </td>
+   <td style="text-align:right;"> 8 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> IL </td>
+   <td style="text-align:right;"> 23 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> IN </td>
+   <td style="text-align:right;"> 21 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> KS </td>
+   <td style="text-align:right;"> 11 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> KY </td>
+   <td style="text-align:right;"> 19 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> LA </td>
+   <td style="text-align:right;"> 27 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> MA </td>
+   <td style="text-align:right;"> 10 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> MD </td>
+   <td style="text-align:right;"> 17 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> ME </td>
+   <td style="text-align:right;"> 2 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> MI </td>
+   <td style="text-align:right;"> 20 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> MN </td>
+   <td style="text-align:right;"> 13 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> MO </td>
+   <td style="text-align:right;"> 22 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> MS </td>
+   <td style="text-align:right;"> 12 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> MT </td>
+   <td style="text-align:right;"> 4 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> NC </td>
+   <td style="text-align:right;"> 26 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> ND </td>
+   <td style="text-align:right;"> 1 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> NE </td>
+   <td style="text-align:right;"> 9 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> NH </td>
+   <td style="text-align:right;"> 3 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> NJ </td>
+   <td style="text-align:right;"> 24 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> NM </td>
+   <td style="text-align:right;"> 21 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> NV </td>
+   <td style="text-align:right;"> 19 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> NY </td>
+   <td style="text-align:right;"> 26 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> OH </td>
+   <td style="text-align:right;"> 37 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> OK </td>
+   <td style="text-align:right;"> 37 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> OR </td>
+   <td style="text-align:right;"> 17 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> PA </td>
+   <td style="text-align:right;"> 24 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> RI </td>
+   <td style="text-align:right;"> 1 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> SC </td>
+   <td style="text-align:right;"> 21 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> SD </td>
+   <td style="text-align:right;"> 2 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> TN </td>
+   <td style="text-align:right;"> 21 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> TX </td>
+   <td style="text-align:right;"> 112 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> UT </td>
+   <td style="text-align:right;"> 10 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> VA </td>
+   <td style="text-align:right;"> 22 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> VT </td>
+   <td style="text-align:right;"> 1 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> WA </td>
+   <td style="text-align:right;"> 23 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> WI </td>
+   <td style="text-align:right;"> 12 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> WV </td>
+   <td style="text-align:right;"> 12 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> WY </td>
+   <td style="text-align:right;"> 6 </td>
+  </tr>
+</tbody>
+</table>
 
 ### Many Datasets are Distributed Similarly to Population
 
 Counts of some features often parallel counts of population. As a result, a map that shows the raw counts may be difficult to distinguish from a map of population. For example
 
-```{r results="asis", echo = FALSE}
-p + theme(legend.position = "bottom") + ggtitle("Police Involved Civilian Homicides, 2015")
-```
+<img src="_main_files/figure-html/unnamed-chunk-27-1.png" width="672" />
 
 
-```{r results="asis", echo = FALSE}
-q + theme(legend.position = "bottom") + ggtitle("Estimated Population, 2015")
-```
+<img src="_main_files/figure-html/unnamed-chunk-28-1.png" width="672" />
 
 Comparing the two maps above, police involved civilian homicides are approximately proportional to state population. Some states, such as New York, have fewer police involved civilian homicides than would be expected based only on population, while other states, such as Oklahoma, have more. However, the ratios of police involved civilian homicides per hundred thousand population is a much different picture, showing strong regional differences.
 
-```{r results="asis", echo = FALSE}
-r + theme(legend.position = "bottom") + ggtitle("Police Involved Civilian Homicides, 2015\n, Number per 100,000 Population")
-```
+<img src="_main_files/figure-html/unnamed-chunk-29-1.png" width="672" />
 
 In general, states west of the Mississippi River have higher rates of police involved civilian homicides. North Dakota's low rate is an exception in the West, while Louisiana and West Virigia have higher rates than the other states in the East.
 
@@ -720,7 +1640,7 @@ Before attempting an answer, it would be well to remember that the United States
 
 ### Detail underlying deaths of women
 
-In short, these data are best to pose questions, rather than to provide answers. For example `r pct(nrow(fveh),nf)`% of deaths of women involved situations in which the woman was unarmed and struck by a vehicle.
+In short, these data are best to pose questions, rather than to provide answers. For example 13.21% of deaths of women involved situations in which the woman was unarmed and struck by a vehicle.
 
 * [Hue Dang]
 * [Nuwnah Laroche]
@@ -730,9 +1650,9 @@ In short, these data are best to pose questions, rather than to provide answers.
 * [Isabella Chinchilla]
 * [Bendetta 'Lynn' Miller]
 
-In reviewing the related news reports, these deaths were accidental in nature (striking pedestrian in intersection, striking pedestrians walking on highway, for example). In the case of [Kimberly Bedford], the officer was convicted of a serious traffic offense for hitting a pedestrian while speeding without lights or siren. Thus, although the relative proportion, `r pct(nrow(fveh),nf)`%, of unarmed women struck by vehicles is notable, these deaths are quite unlike deaths inflicted by gunshot on unarmed civilians. Without the addition of facts in addition to those from from news accounts, the `r pct(nrow(fveh),nf)`% figure, by itself, is misleading.
+In reviewing the related news reports, these deaths were accidental in nature (striking pedestrian in intersection, striking pedestrians walking on highway, for example). In the case of [Kimberly Bedford], the officer was convicted of a serious traffic offense for hitting a pedestrian while speeding without lights or siren. Thus, although the relative proportion, 13.21%, of unarmed women struck by vehicles is notable, these deaths are quite unlike deaths inflicted by gunshot on unarmed civilians. Without the addition of facts in addition to those from from news accounts, the 13.21% figure, by itself, is misleading.
 
-For another example, `r sum(codvsarmed["Taser",])`% of all deaths were caused by Tasers. Among women, however, only `r sum(fcodvsarmed["Taser",])`% were due to Tasers. Yet, among white women `r sum(fwcodvstaser)`% of deaths were due to Tasers while `r sum(fbcodvsarmed["Taser",])`% of deaths of black women were Taser inflicted. That was the death of [Natasha McKenna], who was a mentally ill, 5'4" tall, 180-pound woman in handcuffs and leg shackles. Six deputies were attempting to transfer her from a jail cell and administered 4 Taser shocks that proved fatal. [The coroner]) ruled the death accidental. [A comprehensive report] details the circumstances involved in the administration of the Taser shocks and the difficulties in physically controlling the prisoner that led to the decisions to administer each of them.
+For another example, 4.36% of all deaths were caused by Tasers. Among women, however, only 1.89% were due to Tasers. Yet, among white women 0% of deaths were due to Tasers while 8.33% of deaths of black women were Taser inflicted. That was the death of [Natasha McKenna], who was a mentally ill, 5'4" tall, 180-pound woman in handcuffs and leg shackles. Six deputies were attempting to transfer her from a jail cell and administered 4 Taser shocks that proved fatal. [The coroner]) ruled the death accidental. [A comprehensive report] details the circumstances involved in the administration of the Taser shocks and the difficulties in physically controlling the prisoner that led to the decisions to administer each of them.
 
 Among all women, a single case of death in custody was reported, an hispanic woman who died from lack of timely medical attention after complaining of feeling unwell. The outside contractor providing medical services decided to delay services until the regularly scheduled evening rounds. Lobato died shortly after the start of rounds before being seen.
 
@@ -816,7 +1736,7 @@ Because this is an **observational** study, it will not be possible to state the
 
 ### Cautionary Example
 
-For a relatively small dataset, the `r as.character(prettyNum(nf, big.mark = ','))` deaths of women represent a large variety of circumstances. It's a classic problem in analysis, which is trying to put too many pigeons into too few pigeon holes.
+For a relatively small dataset, the 53 deaths of women represent a large variety of circumstances. It's a classic problem in analysis, which is trying to put too many pigeons into too few pigeon holes.
 
 ## Next steps
 
@@ -1942,9 +2862,7 @@ The results are likely to be different each time. This is because whether any gi
 
 I tested the results of the model against the issuer's table, and I found good agreement with results taken to the second decimal place.
 
-```{r echo = FALSE}
-knitr::include_graphics(rep("images/CPR02dec.png"))
-```
+![](images/CPR02dec.png)<!-- -->
 
 This is the most complex Python program that I've written. Again, I don't consider it production code, but did find it a useful prototype.
 
@@ -2133,140 +3051,151 @@ A traditional description of the limitations of credit score is similar to the f
 
 The rating agencies and buyers involved in residential mortgage backed securities, however, attached considerable importance to credit scores, generically referred to as FICOs. Therefore, the FICO composition was an obvious starting point.
 
-```{r setup4, echo = FALSE, warning=FALSE, message=FALSE}
-library(tidyverse)
-library(DBI)
-library(knitr)
-library(kableExtra)
-library(RMySQL)
-drv <- dbDriver("MySQL")
-con <- dbConnect(drv, username="root", password="", dbname ="dlf", host="localhost")
-res <- dbGetQuery(con, "SELECT deal, fico FROM y6")
-#cs is shorthand for credit score
-cs <- as.tibble(res)
-p <- ggplot(cs, aes(x=fico)) + geom_histogram(binwidth = 5) + coord_cartesian(xlim = c(300,850))
-p + ggtitle("FICO scores for 2006 transactions in increments of 5") + labs(x = "FICO", y = "Number of Loans")
-``` 
+<img src="_main_files/figure-html/setup4-1.png" width="672" />
 
 ### FICO scores in the 2006 loan pool
 
 FICO scores have a minimum value of 300, and a maximum value of 850. The summary statistics are:
 
-```{r, echo = FALSE, warning=FALSE, message=FALSE}
-summary(cs$fico)
-getmode <- function(v) {
-   uniqv <- unique(v)
-   uniqv[which.max(tabulate(match(v, uniqv)))]
-}
-nofico <-  filter(cs, fico < 300)
-lowfico <- filter(cs, fico < 500 & fico > 0)
-```
 
-and the mode is `r getmode(cs$fico)`. The minimum score represents loans without FICO scores:
+<table>
+ <thead>
+  <tr>
+   <th style="text-align:right;"> Min. </th>
+   <th style="text-align:right;"> 1st Qu. </th>
+   <th style="text-align:right;"> Median </th>
+   <th style="text-align:right;"> Mean </th>
+   <th style="text-align:right;"> 3rd Qu. </th>
+   <th style="text-align:right;"> Max. </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 600 </td>
+   <td style="text-align:right;"> 631 </td>
+   <td style="text-align:right;"> 631.9481 </td>
+   <td style="text-align:right;"> 665 </td>
+   <td style="text-align:right;"> 821 </td>
+  </tr>
+</tbody>
+</table>
 
-```{r, results="asis", echo = FALSE}
-kable(nofico, format.args = list(big.mark = ","), caption = "Number of no-FICO loans by deal")  %>% kable_styling(bootstrap_options = "striped", full_width = F) 
-```
+and the mode is 620. The minimum score represents loans without FICO scores:
+
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>(\#tab:unnamed-chunk-32)Number of no-FICO loans by deal</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> deal </th>
+   <th style="text-align:right;"> fico </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> LBMLT 2006-4 </td>
+   <td style="text-align:right;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> LBMLT 2006-WL2 </td>
+   <td style="text-align:right;"> 0 </td>
+  </tr>
+</tbody>
+</table>
 
 Sixteen other loans had scores below 500:
 
-```{r, results="asis", echo = FALSE}
-kable(lowfico, format.args = list(big.mark = ","), caption = "Number of low-FICO loans by deal")  %>% kable_styling(bootstrap_options = "striped", full_width = F) 
-```
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>(\#tab:unnamed-chunk-33)Number of low-FICO loans by deal</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> deal </th>
+   <th style="text-align:right;"> fico </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> LBMLT 2006-1 </td>
+   <td style="text-align:right;"> 498 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> LBMLT 2006-2 </td>
+   <td style="text-align:right;"> 491 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> LBMLT 2006-2 </td>
+   <td style="text-align:right;"> 492 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> LBMLT 2006-2 </td>
+   <td style="text-align:right;"> 470 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> LBMLT 2006-2 </td>
+   <td style="text-align:right;"> 487 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> LBMLT 2006-2 </td>
+   <td style="text-align:right;"> 465 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> LBMLT 2006-2 </td>
+   <td style="text-align:right;"> 481 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> LBMLT 2006-2 </td>
+   <td style="text-align:right;"> 493 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> LBMLT 2006-WL1 </td>
+   <td style="text-align:right;"> 497 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> LBMLT 2006-WL1 </td>
+   <td style="text-align:right;"> 497 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> LBMLT 2006-WL1 </td>
+   <td style="text-align:right;"> 482 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> LBMLT 2006-WL1 </td>
+   <td style="text-align:right;"> 498 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> LBMLT 2006-WL1 </td>
+   <td style="text-align:right;"> 494 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> LBMLT 2006-WL1 </td>
+   <td style="text-align:right;"> 473 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> LBMLT 2006-WL1 </td>
+   <td style="text-align:right;"> 496 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> LBMLT 2006-WL3 </td>
+   <td style="text-align:right;"> 498 </td>
+  </tr>
+</tbody>
+</table>
 
 The *cliffs* around 500 (below which only the small number of loans in the tables above are included), 600, 630 and 635 represent the cumulative segmentation of the pools to obtain favorable ratings. Not all deals followed this approach, however.
 
-```{r, results="asis", echo = FALSE}
-p + ggtitle("FICO scores for 2006 transactions in increments") + labs(x = "FICO", y = "Number of Loans") + facet_wrap(~deal)
-```
+<img src="_main_files/figure-html/unnamed-chunk-34-1.png" width="672" />
 
 The variability among transactions suggest that *if* FICO scores have an influence on default rates, it may be necessary to stratify of otherwise transform the data to obtain useful results.
 
 ### The FICO scores are not normally distributed
 
-```{r, results="asis", echo = FALSE, warning=FALSE}
-
-# Find the slope and intercept of the line that passes through the 1st and 3rd
-# quartile of the normal q-q plot
-# y: Find the 1st and 3rd quartiles
-# x: Find the matching normal values on the x-axis
-# slope: Compute the line slope
-# intc Compute the line intercept
-find_intercepts <- function(obj){
-  y = quantile(obj, c(0.25, 0.75), type=5)  
-  x = qnorm(c(0.25, 0.75))
-  slope = diff(y)/diff(x)
-  intc = y[1] - slope * x[1]
-  return(c(slope,intc))
-}
-           
-# Code informed by https://goo.gl/nz9ikh
-
-#generate q-q plot of the 2006 pool
-
-si <- find_intercepts(cs$fico)
-slope <- si[[1]]
-intercept <- si[[2]]
-
-ggplot(cs) + aes(sample=fico) + stat_qq(distribution=qnorm) + 
-    geom_abline(intercept=intercept[1], slope=slope[1]) + ylab("FICO") + labs(title = "QQ Plot of FICO Scores")
-``` 
+<img src="_main_files/figure-html/unnamed-chunk-35-1.png" width="672" />
 
 As a group, FICO scores have *fat tails,* a trait that is present in each of the deals to some degree. There are more loans with very low FICO scores than you would expect if score were randomly distributed plus more loans with high score. We also see a dip in the 500-600 range (loans that may only have been originated due to compensating factors), which are fewer than the sub-500 FICO loans.
 
 With variations, all the deals have similiar distributions. The variability of FICO scores makes their use as an independent variable in, say, regression analysis potentially problematic.
 
-```{r, results="asis", echo = FALSE}
-# Slope/intercept of line that passing through 1st/3rd quartile of the normal q-q plot
-find_intercepts <- function(obj){
-  y = quantile(obj, c(0.25, 0.75), type=5)  # y: Find the 1st and 3rd quartiles
-  x = qnorm(c(0.25, 0.75))                  #x: Find the matching normal values on the x-axis
-  slope = diff(y)/diff(x)                   # Compute the line slope
-  intc = y[1] - slope * x[1]                # Compute the line intercept
-  return(c(slope, intc))
-# Assisted by https://goo.gl/nz9ikh
-# Example
-# si <- find_intercepts(obj)
-# slope = si[[1]]
-# intercept = si[[2]]
-}
-
-# Generate normal q-q plot for total of deals
-
-q <- ggplot(cs, aes(sample=fico)) + stat_qq() + 
-           geom_abline(intercept=intercept, slope=slope) + ylab("FICO") + labs(title = "QQ Plot of FICO Scores")
-
-# get slopes and intercepts for each deal
-si <- cs %>% group_by(deal) %>% summarize(slope = find_intercepts(fico)[[1]], intercept  = find_intercepts(fico)[[2]])
-
-# generate plots for each deal
-deals <- list(si$deal)
-
-dealqq <- function(ta) {
-    v_ <- cs %>% filter(deal == ta, fico)
-    si_ <- filter(si, deal == ta)
-    q_<- v_ %>% ggplot(aes(sample=fico)) + stat_qq() +             
-    geom_abline(intercept=si_$intercept, slope=si_$slope) + ylab("FICO")     + ggtitle(paste("QQ Plot of FICO Scores for ", si_$deal))
-    q_
-}
-
-# With the help of Python scripting while I get a better grasp of R "for"
-# https://git.io/f4Sun
-dealqq("LBMLT 2006-1")
-dealqq("LBMLT 2006-10")
-dealqq("LBMLT 2006-11")
-dealqq("LBMLT 2006-2")
-dealqq("LBMLT 2006-3")
-dealqq("LBMLT 2006-4")
-dealqq("LBMLT 2006-5")
-dealqq("LBMLT 2006-6")
-dealqq("LBMLT 2006-7")
-dealqq("LBMLT 2006-8")
-dealqq("LBMLT 2006-9")
-dealqq("LBMLT 2006-WL1")
-dealqq("LBMLT 2006-WL2")
-dealqq("LBMLT 2006-WL3")
-```
+<img src="_main_files/figure-html/unnamed-chunk-36-1.png" width="672" /><img src="_main_files/figure-html/unnamed-chunk-36-2.png" width="672" /><img src="_main_files/figure-html/unnamed-chunk-36-3.png" width="672" /><img src="_main_files/figure-html/unnamed-chunk-36-4.png" width="672" /><img src="_main_files/figure-html/unnamed-chunk-36-5.png" width="672" /><img src="_main_files/figure-html/unnamed-chunk-36-6.png" width="672" /><img src="_main_files/figure-html/unnamed-chunk-36-7.png" width="672" /><img src="_main_files/figure-html/unnamed-chunk-36-8.png" width="672" /><img src="_main_files/figure-html/unnamed-chunk-36-9.png" width="672" /><img src="_main_files/figure-html/unnamed-chunk-36-10.png" width="672" /><img src="_main_files/figure-html/unnamed-chunk-36-11.png" width="672" /><img src="_main_files/figure-html/unnamed-chunk-36-12.png" width="672" /><img src="_main_files/figure-html/unnamed-chunk-36-13.png" width="672" /><img src="_main_files/figure-html/unnamed-chunk-36-14.png" width="672" />
 
 
 ### Possible strategies to deal with the issues
@@ -2289,43 +3218,145 @@ whether due to prepayment in full, repurchase by the seller for breach or defaul
 
 The dropped loans appear similar to the original pool.
 
-```{r, results="asis", echo = FALSE, warning=FALSE}
-res2 <- dbGetQuery(con, "SELECT deal, icode, fico FROM drops")
-cds <- as.tibble(res2)
-p <- ggplot(cds, aes(x=fico)) + geom_histogram(binwidth = 5) + coord_cartesian(xlim = c(300,850))
-p + ggtitle("FICO scores for 2006 dropped transactions in increments of 5") + labs(x = "FICO", y = "Number of Loans")
-``` 
+<img src="_main_files/figure-html/unnamed-chunk-37-1.png" width="672" />
 
 Summary statistics are similar.
 
-```{r, echo = FALSE, warning=FALSE, message=FALSE}
-summary(cds$fico)
-```
 
-and the mode, `r getmode(cds$fico)`, is identical. 
+<table>
+ <thead>
+  <tr>
+   <th style="text-align:right;"> Min. </th>
+   <th style="text-align:right;"> 1st Qu. </th>
+   <th style="text-align:right;"> Median </th>
+   <th style="text-align:right;"> Mean </th>
+   <th style="text-align:right;"> 3rd Qu. </th>
+   <th style="text-align:right;"> Max. </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:right;"> 482 </td>
+   <td style="text-align:right;"> 587 </td>
+   <td style="text-align:right;"> 628 </td>
+   <td style="text-align:right;"> 626.7383 </td>
+   <td style="text-align:right;"> 664 </td>
+   <td style="text-align:right;"> 818 </td>
+  </tr>
+</tbody>
+</table>
+
+and the mode, 620, is identical. 
 
 Like the total pool, the dropouts were not normally distributed. Since none of the drops were no-FICO loans, the slopes differ, but the shape of the distribution appears to be remarkably similar to the total pool.
 
-```{r, results="asis", echo = FALSE, warning=FALSE}
-slope <- find_intercepts(cds$fico)[[1]]
-intercept <- find_intercepts(cds$fico)[[2]]
-d <- ggplot(cds, aes(sample=fico)) + stat_qq() + geom_abline(intercept=intercept, slope=slope) + ylab("FICO") + ggtitle("QQ Plot of FICO Scores for Dropped Loans")
-d
-```
+<img src="_main_files/figure-html/unnamed-chunk-39-1.png" width="672" />
 
 The distribution reports on each deal provide the cumulative number of defaulted loans that were liquidated. These were collected manually because there were only 15 files and I anticipated no future need to examine the reports.
 
-```{r, results="asis", echo = FALSE, warning=FALSE}
-
-liq <- read.csv("data/totliq.csv", header = TRUE, stringsAsFactors = FALSE, sep = ",")
-kable(liq, format.args = list(big.mark = ","), caption = "Number of Liquidated Defaulted Loans Reported by the end of 2006")  %>% kable_styling(bootstrap_options = "striped", full_width = F) 
-```
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>(\#tab:unnamed-chunk-40)Number of Liquidated Defaulted Loans Reported by the end of 2006</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> deal </th>
+   <th style="text-align:right;"> CIK </th>
+   <th style="text-align:right;"> liquidated </th>
+   <th style="text-align:left;"> reported </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> LBMLT 2006-1 </td>
+   <td style="text-align:right;"> 1,350,315 </td>
+   <td style="text-align:right;"> 6 </td>
+   <td style="text-align:left;"> TRUE </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> LBMLT 2006-2 </td>
+   <td style="text-align:right;"> 1,350,317 </td>
+   <td style="text-align:right;"> 12 </td>
+   <td style="text-align:left;"> TRUE </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> LBMLT 2006-3 </td>
+   <td style="text-align:right;"> 1,355,515 </td>
+   <td style="text-align:right;"> 3 </td>
+   <td style="text-align:left;"> TRUE </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> LBMLT 2006-4 </td>
+   <td style="text-align:right;"> 1,358,910 </td>
+   <td style="text-align:right;"> 2 </td>
+   <td style="text-align:left;"> TRUE </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> LBMLT 2006-5 </td>
+   <td style="text-align:right;"> 1,364,477 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:left;"> TRUE </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> LBMLT 2006-6 </td>
+   <td style="text-align:right;"> 1,367,733 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:left;"> TRUE </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> LBMLT 2006-7 </td>
+   <td style="text-align:right;"> 1,370,358 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:left;"> TRUE </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> LBMLT 2006-8 </td>
+   <td style="text-align:right;"> 1,374,621 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:left;"> TRUE </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> LBMLT 2006-9 </td>
+   <td style="text-align:right;"> 1,374,622 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:left;"> TRUE </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> LBMLT 2006-10 </td>
+   <td style="text-align:right;"> 1,379,746 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:left;"> FALSE </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> LBMLT 2006-11 </td>
+   <td style="text-align:right;"> 1,382,996 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:left;"> FALSE </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> LBMLT 2006-WL1 </td>
+   <td style="text-align:right;"> 1,348,572 </td>
+   <td style="text-align:right;"> 17 </td>
+   <td style="text-align:left;"> TRUE </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> LBMLT 2006-WL2 </td>
+   <td style="text-align:right;"> 1,350,316 </td>
+   <td style="text-align:right;"> 22 </td>
+   <td style="text-align:left;"> TRUE </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> LBMLT 2006-WL3 </td>
+   <td style="text-align:right;"> 1,350,318 </td>
+   <td style="text-align:right;"> 19 </td>
+   <td style="text-align:left;"> TRUE </td>
+  </tr>
+</tbody>
+</table>
 
 (The field "CIK" represents the EDGAR lookup key on the SEC data base; the field "reported" is whether a report was required to filed by the end of 2006.)
 
 #### Decision to focus on loan population still outstanding in early 2007
 
-Only `r sum(liq$liquidated)` loans of the `r nrow(cds)`, or `r round(sum(liq$liquidated)/nrow(cds)*100,2)`% of the dropped loans had defaulted and been liquidated by the end of 2006 reporting. On this basis, I decided to limit analysis to the remaining loans because FICO information about the dropped loans did not appear promising as a predictive factor in loan delinquency for the remaining loans.
+Only 81 loans of the 28908, or 0.28% of the dropped loans had defaulted and been liquidated by the end of 2006 reporting. On this basis, I decided to limit analysis to the remaining loans because FICO information about the dropped loans did not appear promising as a predictive factor in loan delinquency for the remaining loans.
 
 ### Reduced data set
 
@@ -2416,32 +3447,12 @@ So, for example, if the remit field contains a value of 4198, the binary string 
 
 This provides a large menu of choices as to how to define *performance.* For example, if *remit = 0*, a loan has missed no payments in the preceding 12 months.
 
-```{r, results="asis", echo = FALSE, warning=FALSE}
-#overwriting names from earlier code chunks in the Rmd file frees memory
-d <- NULL
-p <- NULL
-q <- NULL
-nofico <- NULL
-lowfico <- NULL
-si <- NULL
-slope <- NULL
-intercept <- NULL
-liq <- NULL
-cds <- NULL
-res2 <- NULL
 
-con <- dbConnect(drv, username="root", password="", dbname ="dlf", host="localhost")
-res <- dbGetQuery(con, "SELECT deal, remit, fico FROM y7")
-#cs is shorthand for credit score
-cs <- as.tibble(res)
-```
 
-Unfortunately, there were few of those in the 2007 pool (the loans in securitizations issued in 2006 that remained in the pool at the end of the first quarter 2007, we will now call **the pool** and any subsets will be drawn from it), only `r cs %>% filter(remit == 0) %>% nrow` loans with perfect payment records.
+Unfortunately, there were few of those in the 2007 pool (the loans in securitizations issued in 2006 that remained in the pool at the end of the first quarter 2007, we will now call **the pool** and any subsets will be drawn from it), only 729 loans with perfect payment records.
 
-```{r, results="asis", echo = FALSE, warning=FALSE}
-permw <- function(n,r) n^r
-``` 
-A bigger problem is the large number of possible payment patterns over a 12-month period. It's the permutation of two objects (pay/no pay) taken 12 times with replacement. This means that there are potentially `r as.character(prettyNum(permw(2,12)),big.mark = ",")` different possibilities.
+
+A bigger problem is the large number of possible payment patterns over a 12-month period. It's the permutation of two objects (pay/no pay) taken 12 times with replacement. This means that there are potentially 4096 different possibilities.
 
 We *could* treat delinquencies as a continuous variable, but that creates useless distinctions. Some domain specific knowledge will help sort things out.
 
@@ -2464,910 +3475,25 @@ The problem is thus a *classification* problem. Do FICO scores allow us to class
 
 From the 2007 pool database, we can pull the loan number, deal encoded remittance history and fico. With that we can decode the remittance history. Here's a sample with only loans having FICO scores below 500.
 
-```{r, results="asis", echo = FALSE, warning=FALSE}
-library(tidyverse)
-library(DBI)
-library(knitr)
-library(kableExtra)
-library(RMySQL)
-drv <- dbDriver("MySQL")
-con <- dbConnect(drv, username="root", password="", dbname ="dlf", host="localhost")
-res <- dbGetQuery(con, "SELECT ctapeno, deal, remit, fico FROM y7")
-#cs is shorthand for credit score
-cs <- as.tibble(res)
-require(binaryLogic)
-require(stringi)
-reports <- cs %>% rowwise %>% mutate(repbin = toString(as.binary(remit))) %>% rowwise %>% mutate(repstr = str_replace_all(repbin,"[, ]",'')) %>% mutate(reports = str_count(repstr)) %>% select(ctapeno, deal, fico, repstr, reports)
-ex_low <- reports %>% filter(fico < 500)
-kable(head(ex_low), format.args = list(big.mark = ","), caption = "2007 Q1 loans by loan number, remittance code and fico < 500 (example")  %>% kable_styling(bootstrap_options = "striped", full_width = F) 
-```
 
-In preparing a routine to parse the reports fields to classify the performance categories, I found a potential problem. The number of months reported is variable due to several factors: Some loans in the pool were recently originated, some were seasoned, and others intermediate. The distribution looks like the following histogram.
 
-```{r, results="asis", echo = FALSE, warning=FALSE}
-p <- ggplot(reports) + geom_histogram(aes(x=reports), binwidth = 1)
-p
-```
-Observational data never organizes itself conveniently. Parsing the differing numbers of monthly reports is feasible, but I decided to limit the analysis of FICO and performance to the cohort of loans with 11-month reporting histories.
 
-We can now add a column for performance category, and take a quick look at how those categories relate to FICO with the approximately `r as.character(prettyNum(nrow(filter(reports, reports == '11'))),big.mark = ",")` loans with an 11-month payment history, about a third of the pool.
 
-```{r, results="asis", echo = FALSE, warning=FALSE}
-elevens <- reports %>% filter(reports == 11)
 
-perf11 <- elevens %>%
-    mutate(
-    category = case_when(
-      str_detect(repstr, '111$') ~ "C",
-      str_count(repstr, '0') > 9 ~ "A",
-      str_count(repstr, '0') < 9 ~ "B"
-    )
-  ) %>% select(ctapeno, deal, fico, category)
 
-p <- ggplot(perf11,aes(x=category, y = fico)) + geom_boxplot() + ggtitle("FICO scores for loans remaining in 2007\nwith 11-month payment history by performance") + labs(y = "FICO", x = "A = Performing, B = Non-performing, C = Defaulted")
-```
 
-The boxplots show that the three categories of loans are broadly similar. The blow to orthodoxy is that the performing loans are composed of somewhat lower FICO scores than the non-performing and defaulted loans.
 
-The distributions of the three categories show the same non-normal character as the original pools, but this time we'll calculate them using the Shapiro-Wilk normality test based on a sample of 5,000, due to limitations of the test.
 
-```{r, results="asis", echo = TRUE, warning=FALSE}
-perf11A <- perf11 %>% filter(category == 'A')
-shapiro.test(perf11A$fico) # No sampling needed,  n < 5000, function's limit
 
-```
 
 
-```{r, results="asis", echo = TRUE, warning=FALSE}
-perf11B <- perf11 %>% filter(category == 'B')
-smpB <- sample_n(perf11B, 5000)
-shapiro.test(smpB$fico) # more than 5000 in dataset 
-```
 
-```{r, results="asis", echo = TRUE, warning=FALSE}
-perf11C <- perf11 %>% filter(category == 'C')
-shapiro.test(perf11C$fico)
-``` 
 
-Category A *might* be normally distributed. With only 46 loans, it hardly matters. Categories B and C are definitely not, according to the results of the test.
 
-[credit disclosure]: https://goo.gl/uhX1Pc
-[LBMLT 2006-1]: https://www.sec.gov/Archives/edgar/data/1119605/000114420406002461/v033798_fwp.htm
 
-[Pinto testimony]: https://democrats-oversight.house.gov/sites/democrats.oversight.house.gov/files/documents/Fannie%20Freddie%20Testimony%20of%20Edward%20Pinto%2012.9.08%20written%20submission%20Full.pdf
 
-<!--chapter:end:03-failure-part1.Rmd-->
 
-# The subprime mortgage crisis unfolds in early 2007, part 2
 
-Keywords: refactoring, principal component analysis
 
-## The fall of FICO
 
-The problem with the conventional wisdom of long standing is that it loses sight of history. The prominence of FICO in home loan credit underwriting described in the [Pinto Testimony] had its origins in a different time (the early 1990s) and a different lending environment. Freddie Mac was in a good position to ensure that all other things *were* equal. It made only what came to be called "prime" loans, generally for no more than 80% of the value of the property, under more stringent limitations on the debt-to-income ratio of the borrower and many other criteria that it kept within a narrow range, and offered only a few varieties of loans.
-
-In the subprime market that emerged in the late 90s, all of those factors changed. Criteria that were narrow became broad, documentation was relaxed and a widespread assumption was that continually rising home values would preclude any problems. It's not surprising that FICO lost its predictive power.
-
-## Restructuring the data
-
-Some of the testing of FICO as a useful metric involved subsetting the data. There were many more variables than the ones used, some of them categorical and some categorical coded as numeric. One potentially useful variable is location, because we know that real estate value are location sensitive. We have four location fields in the database, all derived from the postal zip code:
-
-* The zip code itself, which is generally either much smaller or much larger than the real estate market, and also changes at the convenience of the postal service. *See* the discussion at [On the use of ZIP codes and ZIP code tabulation areas (ZCTAs) for the spatial analysis of epidemiological data].
-
-* The metropolitan area derived from the U.S. Census ZIP code tabulation area, but covers a larger area than most real estate markets
-
-* Longitude and latitude dervived from the ZCTA's, used for mapping
-
-As a compromise, I converted the 5-digit zip codes into 3-digit zip codes. In metropolitan areas, the 3-digit codes are the sizes comparable to how the multiple listing services divide the market. We'll see if there is any value in this proxy measure of real estate market.
-
-```{r, results='hide', echo = FALSE, warning=FALSE}
-library(tidyverse)
-library(DBI)
-library(RMySQL)
-drv <- dbDriver("MySQL")
-con <- dbConnect(drv, username="root", password="", dbname ="dlf", host="localhost")
-res <- dbGetQuery(con, "SELECT ctapeno, deal, remit, fico, dti, cltv, orate, obal grade, round(zip/100,0), dtype, fpd,ltype, pmiflag, ppp, otype, purpose, ptype FROM y6c")
-cs <- as.tibble(res)
-require(binaryLogic)
-require(stringi)
-reports <- cs %>% rowwise %>% mutate(repbin = toString(as.binary(remit))) %>% rowwise %>% mutate(repstr = str_replace_all(repbin,"[, ]",'')) %>% mutate(reports = str_count(repstr)) %>% select(ctapeno, repstr, reports)
-perf <- reports %>% mutate(category = case_when(str_detect(repstr, '111$') ~ "C", str_count(repstr, '0') <= 9 ~ "B", str_count(repstr, '0') > 9 ~ "A")) %>% select(ctapeno, category)
-y6rf <- cs %>% inner_join(perf, by = "ctapeno")
-#y6rf = y6 refactored
-y6rf <- y6rf %>% mutate(zip = as.character(`round(zip/100,0)`), pmiflag = as.character(pmiflag), ppp = as.character(ppp), perf = category, grade = as.character((grade)))
-y6rf <- y6rf %>% select(ctapeno, deal,fico,dti,cltv,orate, grade, dtype,fpd,ltype, pmiflag, ppp,  otype, purpose, ptype, zip, perf)
-# dbWriteTable(con, "loans", y6rf) 
-# test
-# res <- dbGetQuery(con, "SELECT * from loans limit 25") passed
-``` 
-
-It was time to reorganize the database into a more streamlined version, that captured the information on performance (relieving the 11-month constraint) and transformed the fields that needed to be treated as categorical, rather than continuous. It's much more efficient to put this in a new SQL table than to keep in memory, especially since sampling will be involved. Here's the revised data layout:
-
-
-    MariaDB [dlf]> describe loans;
-    +-----------+--------+------+-----+---------+-------+
-    | Field     | Type   | Null | Key | Default | Extra |
-    +-----------+--------+------+-----+---------+-------+
-    | row_names | text   | YES  |     | NULL    |       |
-    | ctapeno   | double | YES  |     | NULL    |       |
-    | deal      | text   | YES  |     | NULL    |       |
-    | fico      | double | YES  |     | NULL    |       |
-    | dti       | double | YES  |     | NULL    |       |
-    | cltv      | double | YES  |     | NULL    |       |
-    | orate     | double | YES  |     | NULL    |       |
-    | grade     | text   | YES  |     | NULL    |       |
-    | dtype     | text   | YES  |     | NULL    |       |
-    | fpd       | text   | YES  |     | NULL    |       |
-    | ltype     | text   | YES  |     | NULL    |       |
-    | pmiflag   | text   | YES  |     | NULL    |       |
-    | ppp       | text   | YES  |     | NULL    |       |
-    | otype     | text   | YES  |     | NULL    |       |
-    | purpose   | text   | YES  |     | NULL    |       |
-    | ptype     | text   | YES  |     | NULL    |       |
-    | zip       | text   | YES  |     | NULL    |       |
-    | perf      | text   | YES  |     | NULL    |       |
-    +-----------+--------+------+-----+---------+-------+
-    18 rows in set (0.00 sec)
-
-    
-Between the first row (a record identifier) and the last row (the performance category) are the sixteen variables we have to predict the performance outcome. For the almost 100,000 records, that is 1.5 million pieces of information. Technically we are in 16-dimensional space, and we need a way of flattening the dimensionality to be able to question the data.
-
-
-[On the use of ZIP codes and ZIP code tabulation areas (ZCTAs) for the spatial analysis of epidemiological data]: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1762013/
-
-
-[Pinto testimony]: https://democrats-oversight.house.gov/sites/democrats.oversight.house.gov/files/documents/Fannie%20Freddie%20Testimony%20of%20Edward%20Pinto%2012.9.08%20written%20submission%20Full.pdf
-
-
-<!--chapter:end:04-failure-part2.Rmd-->
-
-# The Enron Email Corpus
-
-## Case Description
-
-[Enron Corporation] was a $100 billion annual revenue company:
-
-1. They were in the gas and electricity business, mainly as traders, rather than as a utility
-2. California had an auction process for electricity that Enron was manipulating
-3. Enron used special purpose entities in a way that hid its financial condition
-4. There was a special purpose entity used for a deal involving barges in Nigeria
-5. Several individuals, including the CEO and his deputy were prosecuted
-6. Many employees lost their retirement savings when Enron stock became worthless
-
-The Federal Energy Regulatory Commission (**FERC**) investigated Enron's activities in the western U.S. wholesale electricity market for evidence of price manipulation and other violations. It obtained approximately 500,000 copies of emails from 149 email users. Copies of these were acquired by Leslie Kaelbling of MIT and published by William W. Cohen of Carnegie Mellon University. It is one of the largest publicly available datasets of corporate email and is referred to as the [Enron Corpus]. The term *corpus* is used in natural language processing to denote a collection of related text.
-
-Civil and criminal litigation of other cases is conducted either by commercial or proprietary software. Much of the focus is directed to keyword searches and depends on visual scanning of emails by attorneys. Email examination can be a substantial expense.
-
-Although "smoking gun" emails may be found, brute force examination misses opportunities to understand the social networks that reflect how the organization operates, what their concerns are and which part of the corpus should receive priority. To do that the corpus must be distilled.
-
-## Data preparation
-
-The data was provided in the form of a directory tree of text copies of emails in the file folders of the **custodians** (users), rather than in "native" format. The version of the [Enron Corpus] that I used is dated August 21, 2009.
-
-The directory tree of one of the users is representative:
-
- ![An email folder](https://s3-us-west-2.amazonaws.com/tuva/DirTree.jpg)
-
-Each of these files is plain text and contains the following types of data:
-
-![Parts of an email](https://s3-us-west-2.amazonaws.com/tuva/parse_email.png)
-### Preparation
- 
-Because the same message body resides in multiple folders of multiple custodians, some way was needed to de-duplicate.
-
-The method differed dependant on whether the email was originated on the IBM Notes system or Microsoft Outlook. In either case, however, it consisted traversing the directoryl tree and extracting the same fields 
-
-* Sender
-* Date
-* Receiver(s)
-* cc(s)
-* Message body
-* file-name
-
-and, in addition, adding a digital signature (MD5 digest) to the message body to nearly guarantee its uniqueness. (The body is the content of the originating email strip of meta-data, legends and disclaimers, and replies and replies to replies. It is the payload.)
-
-This was done by traditional Unix command line tools, perl and Python scripts and other tools to create a database with the following structure:
-
-    +----------+--------------+------+-----+---------+-------+
-    | Field    | Type         | Null | Key | Default | Extra |
-    +----------+--------------+------+-----+---------+-------+
-    | body     | mediumtext   | YES  |     | NULL    |       |
-    | lastword | mediumtext   | YES  |     | NULL    |       |
-    | hash     | varchar(250) | YES  | UNI | NULL    |       |
-    | sender   | varchar(250) | YES  |     | NULL    |       |
-    | tos      | text         | YES  |     | NULL    |       |
-    | mid      | varchar(250) | YES  |     | NULL    |       |
-    | ccs      | text         | YES  |     | NULL    |       |
-    | date     | datetime     | YES  |     | NULL    |       |
-    | subj     | varchar(500) | YES  |     | NULL    |       |
-    | tosctn   | mediumint(9) | YES  |     | NULL    |       |
-    | ccsctn   | mediumint(9) | YES  |     | NULL    |       |
-    | source   | varchar(250) | YES  |     | NULL    |       |
-    +----------+--------------+------+-----+---------+-------+
-
-Of the approxiately 500,000 emails in the [Enron corpus], approximately half are duplicates. A large part of the remainder consists of newsletters, bulletins, fantasy football matters and other emails addressed to a large audience with only one or a few Enron recipients. Say, 125,000. The remaining 125,000 have roughly 75,000 addressed to large groups ("be advised that the Houston gym hours will be changing") or to individuals on routine matters ("your approval for expense report #1234 is overdue"). Another 25,000 deal with scheduling of meetings, transmission of periodic reports, and circulation of form documents covering derivative trading with counterparties. A cull list of senders and topics was developed to extract these.
-
-Of the remaining emails, approximately 15,000 involve correspondence from a sender to a custodian who never sends a reply or an original email to the sender. This leaves about 35,000 emails among senders and receivers who engage in some degree of reciprocal correspondence. This is where to begin. Insights from this group can be used to recycle over the discards.
-
-## Strategy for exploration
-
-### Don't look for much from the big shots
-
-CEO Ken Lays's administrative assistant handled much of his email, CFO Andy Fastow's email is not included. COO Jeff Skilling is included, but his volume is small. On the other hand, some of the largest senders are relatively low ranking, a legal assistant distributing documents and a lobbyist in California.
-
-### Volume is not evenly distributed among users
-
-![Number of emails by sender](http://media.richard-careaga.com/img/BigSenders.png)
- 
-
-### Keywords may not help much
-
-Natural language processing (**NLP**) approaches based on written composition are of little help in the misspelled, ungrammatical, freeflowing, implicit meaning-rich world of email. Reviewing email is much more like eavesdropping than reading.
-
-First, it is essential to have a well-thought out file of stop words to eliminate the most common words, which tend to be "glue" words. Second, the business of Enron was trading, and the tool of trading is and was the Bloomberg terminal with its instant messaging feature. The conduct of a trading floor, more than most other large corporate enterprises, is effectuated face-to-face and by telephone. Don't look for meeting agendas and minutes.
-
-Every organization has a vocabulary profile that is unique to its business. To develop candidate lists for Enron, I used the following NLP program:
-
-	#!/usr/bin/env python
-	# encoding: utf-8
-	"""
-	oddfreq.py: word frequency list, disregarding capitalization, excluding stopwords
-	and words _not_ in standard dictionary, sorted by frequency
-
-	Created on 2010-04-15
-	Richard Careaga
-	"""
-	from itertools import izip, chain, repeat
-	from Prep import *
-	from util import *
-	import nltk
-	from nltk import FreqDist
-	from nltk.corpus import stopwords
-
-	# Natural Language Toolkit: unusual_words
-	# from nltk and used by permission
-	def unusual_words(text):
-		text_vocab = set(w.lower() for w in text if w.lower().isalpha())
-		english_vocab = set(w.lower() for w in nltk.corpus.words.words())
-		unusual = text_vocab.difference(english_vocab)
-		return sorted(unusual)
-
-	# Natural Language Toolkit: code_plural
-	# from nltk and used by permission
-	def plural(word):
-		if word.endswith('y'):
-			return word[:-1] + 'ies'
-		elif word[-1] in 'sx' or word[-2:] in ['sh', 'ch']:
-			return word + 'es'
-		elif word.endswith('an'):
-			return word[:-2] + 'en'
-		else:
-			return word + 's'
-
-	def main():
-		# query to select new topic email subject lines sent to single recipients
-		sql =   sql = """SELECT date, subject FROM scrub where subject not \
-				regexp 'RE:|Re:|re:|FW:|Fw:|fw:|FWD:|Fwd:|fwd:' and twoway is true \
-				and tosctn = 1 and ccsctn = 0 and chaff is false"""
-		# create an object
-		C = Prepare()
-		# do the necessary processing to return an nltk Text object
-		X = C.prep(sql)
-		# collect list of common words, such as prepositions, articles, etc.
-		stops = stopwords.words('english')
-		# extract word list after converting to all lowercase
-		words = [w.lower() for w in X if w.isalpha() and w.lower() not in stops]
-		# extract unique words
-		vocab = set(words)
-		# fetch a standard English vocabular
-		english_vocab = set(w.lower() for w in nltk.corpus.words.words())
-		# convert to a list for pluralization
-		english = list(english_vocab)
-		# make a list of "plural-like" words
-		plurals = [plural(w) for w in english]
-		# cobmine lists
-		englishes = english + plurals
-		# make a set of the list
-		englishes_vocab = set(englishes)
-		# compare to the vocabulary extracted from the emails
-		oddball = vocab.difference(englishes_vocab)
-		# convert to a list
-		enronic = list(oddball)
-		# sort the list
-		enronic.sort()
-		# create a new list of the text _without__  those words
-		words[:] = [w for w in words if w not in enronic]
-		# recycle the original vocabulary definition
-		# this allows the remainder of the code to be reused as is
-		vocab = set(words)
-		# prepare dictionary of word frequencies
-		fdist = FreqDist(words)
-		# collect the unique words for sorting
-		alphalist = list(vocab)
-		# sort the unique words
-		alphalist.sort()
-		# create a list to hold results
-		LA = []
-		# collect key:item pairs for word:frequency in alphabetical order
-		for item in alphalist:
-		   bag = []
-		   bag.append(item)
-		   bag.append(fdist[item])
-		   LA.append(bag)
-		# calculate width of word field and add one
-		width = find_max_width(LA,0)+1
-		# calculate width of frequency field and add one
-		numwidth = find_max_width(LA,1)+1
-		# assign a desired pagewidth
-		pagewidth = 85
-		# assign desired margins
-		lmargin = 5
-		rmargin = 5
-		margins = lmargin + rmargin
-		# calculate column width
-		columnwidth = width + numwidth
-		# calculate whole number of columns that will fit (floor division)
-		columns = (pagewidth-margins)//columnwidth
-		# assign a gutter width
-		gutter = 4*' ' # 4 spaces
-		# calculate available gutter
-		copywidth = columnwidth*columns + len(gutter)
-		# assign desired pagelength
-		pagelength = 54
-		# open a file for output
-		f = open("enronic.txt", 'w')
-		# convenience definition to append a newline
-		nl = '\n'
-		# generate an iterator object to fetch 54 lines of the word frequency
-		# list at a time
-		g = grouper(pagelength,LA)
-		# iterate through the object until exhausted
-		while g:
-			# write a ruler and newline
-			f.write("="*copywidth)
-			f.write(nl)
-			# chunk first two batches of pagelength lines side by side
-			z = zip(g.next(),g.next())
-			# print each pair
-			for row in z:
-				stringline = ("%s%s%s%s%s") % (repr(row[0][0]).ljust(width),\
-				repr(row[0][1]).rjust(numwidth), gutter, \
-				repr(row[1][0]).ljust(width),\
-				repr(row[1][1]).rjust(numwidth))
-				f.write(stringline)
-				f.write(nl)
-
-		f.close()
-
-	if __name__ == '__main__':
-		main()
-
-which produced pages like the following (here limited to words with 10-99 occurrences):
-
-    aec                        17    aloha                       1
-    aep                        19    alport                      1
-    ag                         18    amerada                     6
-    agl                         3    amerex                     22
-    anahiem                     1    aron                       11
-    anglo                       1    asap                       14
-    apb                        90    atoka                       1
-    api                        10    attaching                   1
-    approved                   29    attending                   1
-    australia                  15    bayer                       3
-    autoreply                 220    bball                       1
-    bandwidth                  14    bennett                     4
-    barnett                    20    berney                      1
-    bge                         3    bp                         16
-    bgml                        1    bpa                        16
-    bingaman                    1    brazos                     15
-    bio                        10    breakeven                   1
-    blackline                   6    bridgeline                 17
-    bloomberg                  14    brl                         1
-    bmo                         1    broadband                  11
-    bnp                        18    bros                        1
-    boise                       1    bruce                      10
-    byler                       1    cargill                    40
-    caiso                      18    carolyn                     1
-    calgary                    14    cartersville                1
-    calif                      11    cashion                     1
-    calley                      1    catalytica                 12
-    calpine                    47    ccf                         1
-    caminus                     4    cdwr                       13
-    canceled                   15    cementos                    1
-    cancun                      2    centana                    14
-    ceo                        11    cibc                        3
-    cera                       24    cif                         1
-    cfd                         1    cinergy                    21
-    cftc                       17    cipico                      1
-    cgas                       16    cirino                      1
-    changed                    16    clair                       6
-    checking                    3    clickathome                23
-    checklist                  13    clicking                    7
-    checkosut                   1    clickpaper                 40
-    checkout                  160    clifford                    3
-    chemconnect                 1    closing                    23
-    chicago                    24    cmr                         1
-    chilkina                    1    cms                        10
-    cng                        14    confer                      1
-    cogen                      10    confirmlogic                4
-    coi                         1    congrats                   18
-    coleman                    10    congratulotions             1
-    colstrip                    1    conoco                     10
-    completed                  10    corhshucker                 1
-    conf                       14    countdown                   1
-    confederated                3    counterparties             45
-    counterparty               64    curtis                      2
-    cp                         12    cuves                       1
-    cps                        14    cysive                      1
-    cpuc                       25    dabacle                     2
-    cpy                         2    dabhol                     18
-
-
-
-### Don't neglect time series
-
-In looking at a subset, pay attention to how volume varies with time. As others have noted, a sudden drop in email volume within the senior group, such as occurred in May 2001, can indicate a situation in which decisionmakers are meeting personally. When trouble looms, people clam up.
-
-The traffic in 2001 suggests lines of inquiry focused on specific periods.
-
-![May gap](http://media.richard-careaga.com/img/emails2001.png)
-
-### Avoid the echo chamber
-
-Email streams in which an initial email goes out to a group with responses coming back quoting the original email, forwards and reforwards and responses, amplify whatever NLP content can be gleaned. Parse each email to determine its original content load and delete that from replies and forwards, as well as standard disclaimers.
-
-### The REAL value proposition
-
-The purpose of examining a huge body of email is not to find a smoking gun. It is to understand the business, its language and its people. While you may sometimes run across braggadocio crowing over putting one over, those are rare and seldom determinative.
-
-## Some preliminary results
-
-### Unique senders
-
-     mysql> select count(*) from usenders;
-     +----------+
-     | count(*) |
-     +----------+
-     |    17568 |
-     +----------+
-
-### Unique receivers
- 
-     mysql> select count(*) from ureceivers;
-     +----------+
-     | count(*) |
-     +----------+
-     |    68199 |
-     +----------+
-
-### Senders who are also receivers
-
-    mysql> select count(*) from twoway;
-    +----------+
-    | count(*) |
-    +----------+
-    |    10235 |
-    +----------+
-
-### Sender/receivers with Enron addresses
-
-    mysql> select count(*) from insiders;
-    +----------+
-    | count(*) |
-    +----------+
-    |     6099 |
-    +----------+
-
-### Subject line words
-
-    mysql> select count(*) from wordlist;
-    +----------+
-    | count(*) |
-    +----------+
-    |   141180 |
-    +----------+
-
-Two of the most common words are *power* and *energy*. There seems to be a difference, however, in how different senders tend toward one or another
-
-![Power vs. Energy](http://media.richard-careaga.com/img/joule.png)
-
-and the time distribution differs
-
-
-![Power vs. Energy over time](http://media.richard-careaga.com/img/energypower.png)
- 
-### Places mentioned
-
-> 	Abu Accra Addis Agra Ak Akron Al Almaty Amman Andorra Angola Ankara Ar Aruba Ashmore Astana Atoll Az Baghdad Bahamas Bahrain Baker Bakersfield Baku Balkans Baltimore Bandar Bangalore Bangkok Bangladesh Barbados Barbuda Barcelona Barranquilla Barthelemy Beaumont Beijing Belarus Belgium Belgrade Belize Bellevue Belo Benin Berkeley Berlin Bermuda Bernardino Bhopal Birmingham Bogota Boise Bolivia Bonn Bosnia Boston Botswana Brasilia Brazil Bremen Bridgeport Brisbane Bristol Britain British Brownsville Brunei Brussels Bucharest Budapest Buenos Buffalo Bulgaria Burbank Burma Bursa Burundi Ca Caicos Cairo Caledonia Calgary Cali California Cambodia Cambridge Cameroon Campinas Campo Canada Cancun Cape Caracas Carolina Carrollton Cartagena Cartier Casablanca Cayman Cebu Cedar Chad Chandler Charlotte Chattanooga Chengdu Chennai Chesapeake Chiba Chicago Chihuahua Chile China Chon Christi Cincinnati Ciudad Clarita Clarksville Clearwater Cleveland Cochabamba Collins Colombia Colombo Colorado Columbia Columbus Comoros Concord Congo Connecticut Cook Coral Cordoba Corona Costa Cote Cotonou Covina Croatia Ct Cuba Cucamonga Cuiaba Culiacan Curitiba Cyprus Czech Dakota Dali Dallas Daly Damascus Dar Davao Davidson Daye Dayton Dc De Delaware Delhi Denmark Denver Detroit Dhaka Diego District Dominica Dominican Dongguan Dortmund Downey Dubai Dublin Duesseldorf Duque Durban Durham Dushanbe Ecuador Edmonton Egypt Emirates England Erie Escondido Essen Estonia Ethiopia Eugene Europa Europe Evansville Faridabad Faroe Fayette Fayetteville Fiji Finland Fl Flint Florida Fm Fontana Fort Fortaleza Foshan France Francisco Frankfurt Fremont Fresno Fukuoka Fullerton Ga Gabon Garland Gary Gaza Genova Georgia Germany Ghana Ghaziabad Gibraltar Gilbert Giza Glasgow Glendale Gold Greece Green Greenland Greensboro Grenada Gu Guadalajara Guadeloupe Guam Guatemala Guernsey Guinea Guyana Ha Haiti Hama Hamburg Hamilton Hampton Hangzhou Harare Harbin Hartford Havana Haven Hawaii Hayward Helsinki Henderson Hialeah Hiroshima Ho Hollywood Homs Honduras Hong Honolulu Houston Howland Hungary Huntsville Hyderabad Ia Iceland Id Idaho Il Illinois Independence India Indiana Indianapolis Indonesia Inglewood Iowa Iran Iraq Ireland Irkutsk Irvine Irving Islamabad Israel Istanbul Italy Jackson Jacksonville Jakarta Jamaica Jammu Jamnagar Japan Jarvis Jeddah Jersey Jerusalem Jilin Jinjiang Jintan Joao Johannesburg Joliet Jordan Juan Juarez Jurong Kabul Kalyan Kano Kanpur Kansas Karachi Kathmandu Kawasaki Kazakhstan Kazan Keeling Kentucky Kenya Kerman Khartoum Kingdom Kingman Kingston Kiribati Knoxville Kobe Kolkata Kong Korea Kosovo Kota Kozhikode Krakow Krasnoyarsk Ks Kuala Kuwait Ky Kyiv Kyoto Kyrgyzstan La Lafayette Lagos Lahore Lakewood Lancaster Lanka Lansing Lanzhou Laos Laredo Las Latvia Lauderdale Lebanon Leon Leone Lesotho Lexington Liberia Libya Liechtenstein Lima Lincoln Lisbon Lithuania Liverpool Lomas London Los Louisiana Louisville Lowell Lubbock Lucia Lusaka Luxembourg Ma Macau Macedonia Madagascar Madison Madrid Maine Malaga Malawi Malaysia Maldives Mali Malta Manaus Manchester Mangalore Manila Maputo Mariana Marshall Martin Maryland Massachusetts Mauritania Mauritius Mayen Mcallen Md Medellin Melbourne Memphis Mendoza Merida Mesa Mesquite Mexicali Mexico Mh Mi Miami Michigan Midway Milan Milwaukee Minneapolis Minnesota Mississippi Missouri Mn Mo Mobile Modesto Mogadishu Moines Moldova Monaco Mongolia Montana Monte Monterrey Montgomery Montreal Moreno Morocco Moron Moscow Mosul Mozambique Mp Ms Mt Muenchen Mumbai Myanmar Nagoya Nagpur Nairobi Namibia Nanchong Nanhai Nanjing Nanning Nanyang Naperville Naples Nashik Nashville Natal Nauru Navi Nc Ne Nebraska Nepal Netherlands Nevada Newark Newport Nh Nicaragua Niger Nigeria Niigata Ningbo Nj Nm Norfolk Norwalk Norway Nottingham Nova Novokuznetsk Novosibirsk Nv Ny Oakland Oaks Oceanside Odessa Ohio Oklahoma Omaha Oman Ontario Oran Orange Oregon Orlando Orleans Osaka Oslo Ottawa Overland Oxnard Pa Pacific Pakistan Palermo Palestine Palmdale Panama Papua Paris Pasadena Paso Paterson Patna Pembroke Pennsylvania Peoria Perm Peru Peshawar Petersburg Philadelphia Philippines Phoenix Pittsburgh Plano Poland Polynesia Pomona Ponce Port Portland Porto Portsmouth Portugal Pr Prague Prairie Preston Principe Providence Provo Puebla Pueblo Puente Puerto Pune Pw Pyongyang Qatar Qingdao Quebec Quezon Quito Rabat Raleigh Recife Reno Ri Richmond Riga Rio Riverside Riyadh Rizhao Rochester Rockford Romania Rome Rosario Rotterdam Russia Rwanda Sacramento Safi Sahara Saint Sale Salem Salinas Salt Saltillo Salvador Samoa San Santa Santiago Santo Sao Sapporo Sarajevo Saudi Savannah Sc Scotland Scottsdale Sd Seattle Senegal Seoul Serbia Seychelles Shanghai Sheffield Shenzhen Shiraz Shreveport Simi Singapore Sioux Slovakia Slovenia Sofia Solomon Somalia Soviet Spain Spokane Springfield Stamford Sterling Stockholm Stockton Stuttgart Sudan Sunnyvale Surabaya Surat Suriname Suzhou Swaziland Sweden Switzerland Sydney Syracuse Syria Tacoma Taipei Taiwan Tajikistan Tallahassee Tampa Tanzania Tashkent Tehran Tel Tempe Tennessee Texas Thailand Thane Tianjin Tijuana Timor Tn Tobago Togo Tokyo Toledo Tome  Tonga Topeka Torino Toronto Torrance Torreon Trinidad Tripoli Trujillo Tucson Tulsa Tunisia Turkey Turkmenistan Turks Tx Tyumen Ufa Uganda Ukraine Uruguay Ussr Ut Utah Uzbekistan Va Valencia Vallejo Vancouver Vatican Vegas Venezuela Ventura Veracruz Verde Vermont Vi Vienna Vietnam Vijayawada Virgin Virginia Vt Wa Waco Wake Wales Wallis Warren Warsaw Washington Waterbury Wenzhou West Westminster Wi Wichita Winnipeg Winston Wisconsin Worcester Wuhan Wuwei Wv Wy Wyoming Xinyi Yemen Yicheng Yokohama Yonkers York Yueyang Yugoslavia Zagreb Zambia Zamboanga Zealand Zimbabwe Zurich
-
-### Periodicity
-
-![periodicity](http://media.richard-careaga.com/img/1999-2002.png)
-
-**Things to note:**
-
-A. The difference between 1999 and 2000 may reflect differences in levels of activity or availability of data or both. Each day in the three-year period is represented. The data points near the zero level generally represent weekends and holidays.
-
-B. Emails in 2000 build to a peak in December.
-
-C. Emails in 2001 build to a peak in June and another pair in October and November, but there is no December peak.
-
-D. Instead there is a January 2002 peak.
-
-E. The blue line is the smoothed trend of the data. Point above or below the dark gray band show higher or lower activity than the trend.
- 
-### Social Networks
-
-Starting with *penpals*, people who regularly exchange one-on-one emails, it is possible to infer the functional organization of an organization like Enron. Think of it like whispering. Going beyond that, avoid the spoke and wheel representations that you so often see. Most of those connections end up being broadcast email. What helps is to look at email patterns over relatively small intervals.
-
-![Week 39, 2001](https://s3-us-west-2.amazonaws.com/tuva/wk39net.png)
-The user pairs were anonomized to reduce analyst bias
-
-## Future work
-
-* Sampling of penpals to measure centrality and connectiveness
-* Clustering
-* NLP processing of email cliques
-
-[Enron Corporation]: (https://en.wikipedia.org/wiki/Enron)
-[Enron Corpus]: (https://www.cs.cmu.edu/~enron/)
-
-<!--chapter:end:05-enron.Rmd-->
-
-# Daycare Costs and Unexamined Assumptions {#daycare}
-
-Keywords: Skepticism, Census data API
-
-## Case Description
-
-Data journalism is a welcome trend, but it has not always been accompanied by a rise in thoughtful analysis. I saw in a 2015 article from [Vox] and I was annoyed that the article relied on a map just to show percentages (why not a table?) and then began noticing other problems, such as the lack of a date for the data.
-
-![Vox article on day care](https://cdn.vox-cdn.com/thumbor/xf2ee3OS9VrbZRYnGdImMWJImEc=/0x0:1200x630/920x0/filters:focal(0x0:1200x630)/cdn.vox-cdn.com/uploads/chorus_asset/file/3751728/childcaremap.png)
-
-```{r setup3,  echo=FALSE, results= 'asis', warning=FALSE}
-library(knitr)
-library(kableExtra)
-library(readr)
-library(scales)
-library(tidyverse)
-knitr::opts_chunk$set(echo = TRUE)
-options(knitr.table.format = "html")
-cost <- read.csv("assets/DayCare.csv")
-names(cost[1]) <- 'Dollars'
-kable(cost, format.args = list(big.mark = ","), caption = "2014 Annual Costs for Infant Daycare") %>% kable_styling(bootstrap_options = "striped", full_width = F)
-```
-
-[Source] Child Care Aware® of America
-
-The costs come from a [source] that gives separate estimates for an infant, a four-year old and a school child at day-care centers and the [Vox] article doesn’t say which age group it used to calculate the percentages of median income that costs represent. Worse, it uses median *household* income, when the source used *median state income* (*see* [source] at *fn* 49, *p.* 2.). (Unfortunately the [source] cites to a Census data table that no longer exists.)
-
-## With the right metrics
-
-Do the [Vox] estimates agree with both the costs reported by [Cost of Daycare] and the Census 2014 median household income, which is what [Vox] used?
-
-```{r   mhi, echo = FALSE, warning=FALSE, message=FALSE, results= 'asis'}
-library(acs)
-#mhi <- acs.fetch(2014, span = 1, geo.make(state = "*"), table.number = ("B19013"))
-mhi_acs <- acs.fetch(2014, span = 1, geo.make(state = "*"), table.number = ("B19013")) 
-mhi_df <- as.data.frame(mhi_acs@estimate) %>% tibble::rownames_to_column()
-colnames(mhi_df) <- c('State', 'Median_household_income') 
-mhi_tbl <- mhi_df %>% filter(State != 'Puerto Rico')
-cost_mhi <- cost %>% inner_join(mhi_tbl, by = 'State') 
-pctdc <- cost_mhi %>% mutate(Percentage = Cost/Median_household_income) %>% mutate(Percentage = round(Percentage*100))
-kable(pctdc, format.args = list(big.mark = ","), caption = "2014 Cost of Day Care for infants and median household income") %>% kable_styling(bootstrap_options = "striped", full_width = F)
-```
-
-Sources: [source] and 2014 U.S. Census ACS Table B19013
-
-Wherever [Vox] derived its data on median household income, the percentages conflict with the official Census data.
-
-Repeating the table using median *family* income of families with children under 18 changes the picture even more.
-
-```{r  mhi2, echo = FALSE, warning=FALSE, message=FALSE, results= 'asis'}
-mfi <- acs.fetch(2014, span = 1, geo.make(state = "*"), table.number = ("B19126"))
-mfi_acs <- acs.fetch(2014, span = 1, geo.make(state = "*"), table.number = ("B19126")) 
-mfi_df <- as.data.frame(mfi_acs@estimate[,3]) %>% tibble::rownames_to_column()
-colnames(mfi_df) <- c('State', 'Median_family_income') 
-mfi_tbl <- mfi_df %>% filter(State != 'Puerto Rico')
-cost_mfi <- cost %>% inner_join(mfi_tbl, by = 'State') 
-pctdcf <- cost_mfi %>% mutate(Percentage = Cost/Median_family_income) %>% mutate(Percentage = round(Percentage*100))
-kable(pctdcf, format.args = list(big.mark = ","), caption = "2014 Cost of Day Care for infants and median family income for families with children under 18") %>% kable_styling(bootstrap_options = "striped", full_width = F)
-```
-
-Sources: [Cost of Daycare] and 2014 U.S. Census ACS Table B19126
-
-The table below compares the [Vox] table with this analysis.
-
-```{r  diff, echo = FALSE, warning=FALSE, message=FALSE, results= 'asis'}
-pctdif <- pctdc %>% inner_join(pctdcf, by = 'State') %>% dplyr::select('State', 'Percentage.x', 'Percentage.y')
-colnames(pctdif) <- c('State', 'Vox', 'This_paper') 
-pctdif <- pctdif %>% mutate(Difference = Vox - This_paper)
-kable(pctdif, format.args = list(big.mark = ","), caption = "Differences in estates of 2014 Cost of Day Care data for infants as a percentage of median income between Vox article and this paper") %>% kable_styling(bootstrap_options = "striped", full_width = F)
-```
-
-## Takeaway
-> Доверяй, но проверяй
-
-Trust, but verify. This is true of any data, but especially data that you can trace trace to an authoritative source. And it is critical to think about the choice of a benchmark to evaluate one set of data against another. Here, the costs of day care came from a credible source and seem reasonable, based on anecdotal evidence. If this were more than an exercise, it would be important to seek out alternative estimates.
-
-The data used to provide the cost of day care as a percentage of median household income proved a poor choice. Not *all* households have children. There is, however, data not only for *family households,* but even for *families with children under 18.* Relatively few households residing in retirement communities have day care expenses; it also turns out that families with children under 18 have a *higher* median income than the *all household* group.
-
-There may be a way to determine median income of families with one or more children under 6, since the number of those families is collected or estimated (between the full Census years), which would provide an even better metric.
-
-The data you have is not always the data you need.
-
-Data sources: 
-
-* [Cost of Daycare], Appendix I: 2014 Average Annual Cost of Full-Time Child Care by State, *pp.* 53-54 in pdf
-
-* U.S. Census American Community Survey for 2014, using the **R** package by Ezra Haber Glenn (2018). acs: Download, Manipulate, and Present American Community Survey and Decennial Data from the US Census. R package version 2.1.3. https://CRAN.R-project.org/package=acs
-
-[Vox]: https://www.vox.com/2015/6/3/8721331/child-care-costs
-[Cost of Daycare]: http://usa.childcareaware.org/wp-content/uploads/2016/05/Parents-and-the-High-Cost-of-Child-Care-2015-FINAL.pdf
-[source]: http://usa.childcareaware.org/wp-content/uploads/2016/05/Parents-and-the-High-Cost-of-Child-Care-2015-FINAL.pdf
-
-<!--chapter:end:06-daycare.Rmd-->
-
-# Assorted Examples of Toolmaking
-
-## The Short Genome File: Day-to-Day Python
-
-Keywords: Python, one-off, utility
-
-### Case Description
-One of the recent courses that I took at MIT had a simple short datafile [genome], representing a portion of the DNA sequences of *Caulobacter crescentus*, a species of bacteria very popular in biological studies. The class problem was in K-means clustering based on principal component analysis of the [genome] data. 
-
-### Conversion Problem
-
-That data consisted 1,528 lines of 200-character fragments. The building blocks of DNA genomes are very simple, consisting of sequences of only four possible character values, 'A','C','G','T'.
-
-The immediate problem was that the assignment called for 300-character fragments. This is a recurring fact of life for data science; transforming data from one structure to another.
-
-### Everyday Solution
-
-The obvious tool was Python, and it took no more than 20 minutes to do, even for someone who used Python as a handtool rather than industrial machinery.
-
-In short, we start with
-
-> \>fragment of c.crescentus genome
->gccgatagcctatgatccc... [to 200 characters]
-
-and then apply a short Python program
-
-    # required modules
-    import csv
-    import itertools
-    import textwrap
-
-    data  = "/Users/rc/Desktop/MITx8/ccrescentus.fa" # your path here
-    # Desired length of genome fragments
-    fraglen = 300
-    OBJECT = [] # empty bucket
-    f = csv.reader(open(data, 'r'))
-
-    # read the source file into a list
-    for row in f:
-        OBJECT.append(row) 
-    # remove header '>fragment of c.crescentus genome'
-    del(OBJECT[0])
-    # combine all of the 200-character lines from the source
-    laundry = list(itertools.chain(*OBJECT))
-    # join them back into a single string
-    washed = ''.join(laundry)
-    # check to make sure each line of data can be 300 characters long
-    overage = len(washed)%fraglen 
-    # should return True to the console
-    overage == 0
-    # split the string into 300-character list elements
-    dried = textwrap.wrap(washed,300)
-    # write the processed file back to a processed file, adding
-    # opening and closing double quotes and new lines
-    with open('fragments.csv', 'w') as f:
-        f.write('\"')
-        f.write('\"\n'.join(dried))
-    # "fragments.csv" is now ready for analysis with Python or R
-
-and end up with
-
-> "gccgatagcctatgatcccc ... [to 300 characters]
-    
-Athough I checked that I had enough data to make each line 300-characters long, I did lose a few bytes in the conversions, which isn't material for purposes of the exercise.
-
-This is not intended as an example of best-practices Python programming, nor I am not a programmer. I use programming to solve problems. If I have a solution like this, I go to a programmer to scale it, when necessary.
-
-[genome]: https://goo.gl/qYvDHA
-## Hard but simple -- parsing YAML files in Haskell
-
-It is a truth universally acknowledged that the best way to learn a language is from the lips of a lover. Mine, alas, has no Haskell, so I have made the choice I usually do. Rather than attempting first to master the rules of syntax and the rationale underlying a new computer language, I launch into trying to solve a real problem, by which I mean automating some repetitive task that I would otherwise have to do by hand.
-
-In this case, it was tweaking a LaTeX table. I chose Haskell because I was already using the estimable **pandoc** to convert the rest of my document and it has a facility to pipe its AST (abstract syntax tree) through to a filter for intermediate processing before rendering the final document.
-
-Alas, the functionality I sought was not available without doing some heavy lifting of internals that is beyond my pay grade as a rank Haskell beginner. I did manage to get a version working, but it had two major defects: First, it relied on parsing regular expressions. I imagine a term like unPythonic applies to this approach – unHaskellian? Second, it lacked a clean separation between logic and data, meaning it would have to be rewritten for each new table that differed from this first use.
-
-The functionality could also be achieved through *sed* and *awk* in combination with the other standard tools of *bash*. But, as I had come this far with Haskell, I determined to continue.
-
-I learned a lot along the way, but I’m only going to report the results. There are any number of great resources on theory and concepts, but recipes seem hard to come by.
-
-To begin a yaml file, table.yaml
-
-    stripComments: true
-    stripLable: true
-    zeroEntry: "."
-    justifyLeft: true
-    stubHeader: "Cause of Death"
-    subHeader: "& (\\%) & (\\%) & (\\%) & (\\%)"
-
-In the same directory, mwe.hs
-
-    {-# LANGUAGE OverloadedStrings #-}  -- yaml
-
-    module Mwe where
-
-    import Data.Yaml 
-    import Data.Maybe (fromJust)
-
-    data ReadData = ReadData { stripComments     :: Bool
-                             , stripLable      :: Bool
-                             , zeroEntry       :: Bool
-                             , justifyLeft     :: Bool
-                             , stubHeader      :: String
-                             , subHeader       :: String
-                             } deriving (Eq, Ord, Show)
-
-    instance FromJSON ReadData where
-      parseJSON (Object v) = ReadData <$>
-                             v .: "stripComments" <*>
-                             v .: "stripLable"    <*>
-                             v .: "zeroEntry"     <*>
-                             v .: "justifyLeft"   <*>
-                             v .: "stubHeader"    <*>
-                             v .: "subHeader" 
-      parseJSON _ = error "Can't parse ReadData from YAML/JSON"
-
-I won’t embarrass myself by revealing how long it took to get this working. I did pick up a fairly solid understanding of types, some insight into typeclasses and instances and got on the right track for IO and Maybe, with some notion of what it means to be pure in Haskell. What took the longest was how to do anything with a successful read of a yaml file other than to print it, which is where the examples I found stopped. I acknowledge my debt to the many sources I consulted to figure this out.
-
-## Contextual Awareness
-
-Whenever I see a time series that purports to show dramatic results, I like to look back to trace the prior history.
-
-![Misleading unemployment data](http://media.richard-careaga.com/img/unemp.png)
- 
-## Minimalism Throws You into the Pool
-
-I have been dabbling in the hipster lanaguage Lua, which you have to be cool even to have heard about. Its claim to fame is minimalism. It has one data type, called a table and I found myself wanting to combine two or more of them à la cat (concatenate). WTF, there is no built-in way to do this? Incredulity began to lift when I discovered that neither was there a built-in way to even print tables. As a public service for the benefit of other pilgrims, here is
-
-    --cat.lua concatenate tables
-     function cat( ... ) -- append 1D tables
-         local List = require 'pl.List' -- penlight library
-         local args = {...}
-         local l = List()
-         for i=1, #args do
-             l:extend(args[i])
-         end
-         return l
-     end
-     --[[Example
-     a = {
-        "gala",
-        "cameo",
-        "jazz"
-     }
-     o = {
-        "seville",
-        "valencia",
-        "navel"
-     }
-     g = {
-        "concord",
-        "thompson",
-        "muscat"
-     }
-     f = cat(a,o,g)
-     {gala,cameo,jazz,seville,valencia,navel,concord,thompson,muscat}
-     --]]
-
-## Parsing system date strings into Python datetime objects
-
-     from datetime import datetime
-     from dateutil.parser import parse
-     from dateutil import tz
-
-     s = "Mon Aug 15 21:17:14 GMT 2011"     
-     d = parse(s)                           
-
-     GMT = tz.gettz('UTC')                  
-     Beijing = tz.gettz('Asia/Shanghai')    
-
-     there = d.astimezone(GMT)              
-                                            
-     here = d.astimezone(Beijing)           
-
-     print(here)
-     print(there)
-
-
-## Combination of k items, taken n at a time
-
-Very functional
-
-    -- combo.hs
-    -- problem: C(k,n), where k = the integers from 1 to 9, inclusive
-    -- and n = 3, without regard to order, then sum the subsets
-    import Data.List
-    combinations 0 lst = [[]]
-    combinations n lst = do
-        (x:xs) <- tails lst
-        rest <- combinations (n-1) xs
-        return $ x : rest
-    result = ( map sum (combinations 3 [1..9]))
-
-Python alternative
-
-    import itertools
-    result = map(sum, itertools.combinations([1,2,3,4,5,6,7,8,9], 3))
-    for i in result: print(i)
-
-## Flex/Bison to compile data parser for June 20, 2018 form
-
-    datify.l Bison script
-
-    /* NB: OSX, cannot link to -lfl, use -ll */
-    /* can't have internal comments */
-
-    %{
-    %}
-
-    %%
-
-    ^[0-9]+         {printf("")             ; }
-    "January "      {printf("2015-01-")     ; }
-    "February "     {printf("2015-02-")     ; }
-    "March "        {printf("2015-03-")     ; }
-    "April "        {printf("2015-04-")     ; }
-    "May "          {printf("2015-05-")     ; }
-    "June "         {printf("2015-06-")     ; }
-    "July "         {printf("2015-07-")     ; }
-    "August "       {printf("2015-08-")     ; }
-    "September "    {printf("2015-09-")     ; }
-    "October "      {printf("2015-10-")     ; }
-    "November "     {printf("2015-11-")     ; }
-    "December "     {printf("2015-12-")     ; }
-
-    %%
-
-    int main()
-
-    {
-     yylex();
-    }
-
-    datify2.l Bison script
-
-    /* NB: OSX, cannot link to -lfl, use -ll */
-    /* can':t have internal comments */
-
-    %{
-    %}
-
-    %%
-
-    "-1"{1}[ \t\n]  {printf("-01\n")        ; }
-    "-2"{1}[ \t\n]  {printf("-02\n")        ; }
-    "-3"{1}[ \t\n]  {printf("-03\n")        ; }
-    "-4"{1}[ \t\n]  {printf("-04\n")        ; }
-    "-5"{1}[ \t\n]  {printf("-05\n")        ; }
-    "-6"{1}[ \t\n]  {printf("-06\n")        ; }
-    "-7"{1}[ \t\n]  {printf("-07\n")        ; }
-    "-8"{1}[ \t\n]  {printf("-08\n")        ; }
-    "-9"{1}[ \t\n]  {printf("-09\n")        ; }
-
-    %%
-
-    int main()
-    {
-     yylex();
-    }
-
-
-<!--chapter:end:07-tools.Rmd-->
 
