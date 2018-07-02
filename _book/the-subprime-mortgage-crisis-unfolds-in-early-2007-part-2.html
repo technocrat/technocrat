@@ -25,7 +25,7 @@
 <meta name="author" content="Richard Careaga">
 
 
-<meta name="date" content="2018-06-30">
+<meta name="date" content="2018-07-01">
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -117,11 +117,11 @@
 <li class="chapter" data-level="4.4.5" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html#reduced-data-set"><i class="fa fa-check"></i><b>4.4.5</b> Reduced data set</a></li>
 </ul></li>
 <li class="chapter" data-level="4.5" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html#results-at-this-point"><i class="fa fa-check"></i><b>4.5</b> Results at this point</a></li>
-<li class="chapter" data-level="4.6" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html#next-question"><i class="fa fa-check"></i><b>4.6</b> Next question</a></li>
 </ul></li>
 <li class="chapter" data-level="5" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html"><i class="fa fa-check"></i><b>5</b> The subprime mortgage crisis unfolds in early 2007, part 2</a><ul>
 <li class="chapter" data-level="5.1" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html#the-fall-of-fico"><i class="fa fa-check"></i><b>5.1</b> The fall of FICO</a></li>
 <li class="chapter" data-level="5.2" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html#restructuring-the-data"><i class="fa fa-check"></i><b>5.2</b> Restructuring the data</a></li>
+<li class="chapter" data-level="5.3" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html#principal-component-analysis"><i class="fa fa-check"></i><b>5.3</b> Principal component analysis</a></li>
 </ul></li>
 <li class="chapter" data-level="6" data-path="the-enron-email-corpus.html"><a href="the-enron-email-corpus.html"><i class="fa fa-check"></i><b>6</b> The Enron Email Corpus</a><ul>
 <li class="chapter" data-level="6.1" data-path="the-enron-email-corpus.html"><a href="the-enron-email-corpus.html#case-description-2"><i class="fa fa-check"></i><b>6.1</b> Case Description</a></li>
@@ -166,11 +166,6 @@
 <li class="chapter" data-level="8.6" data-path="assorted-examples-of-toolmaking.html"><a href="assorted-examples-of-toolmaking.html#combination-of-k-items-taken-n-at-a-time"><i class="fa fa-check"></i><b>8.6</b> Combination of k items, taken n at a time</a></li>
 <li class="chapter" data-level="8.7" data-path="assorted-examples-of-toolmaking.html"><a href="assorted-examples-of-toolmaking.html#flexbison-to-compile-data-parser-for-june-20-2018-form"><i class="fa fa-check"></i><b>8.7</b> Flex/Bison to compile data parser for June 20, 2018 form</a></li>
 </ul></li>
-<li class="chapter" data-level="9" data-path="runs-test.html"><a href="runs-test.html"><i class="fa fa-check"></i><b>9</b> Runs test</a></li>
-<li class="chapter" data-level="10" data-path="unsupervised-learning.html"><a href="unsupervised-learning.html"><i class="fa fa-check"></i><b>10</b> Unsupervised learning</a><ul>
-<li class="chapter" data-level="10.1" data-path="unsupervised-learning.html"><a href="unsupervised-learning.html#pca"><i class="fa fa-check"></i><b>10.1</b> PCA</a></li>
-<li class="chapter" data-level="10.2" data-path="unsupervised-learning.html"><a href="unsupervised-learning.html#kmeans-how-diff-knn"><i class="fa fa-check"></i><b>10.2</b> KMeans (how diff KNN?)</a></li>
-</ul></li>
 </ul>
 
       </nav>
@@ -200,7 +195,7 @@
 <h2><span class="header-section-number">5.2</span> Restructuring the data</h2>
 <p>Some of the testing of FICO as a useful metric involved subsetting the data. There were many more variables than the ones used, some of them categorical and some categorical coded as numeric. One potentially useful variable is location, because we know that real estate value are location sensitive. We have four location fields in the database, all derived from the postal zip code:</p>
 <ul>
-<li><p>The zip code itself, which is generally either much smaller or much larger than the real estate market, and also changes at the convenience of the postal service. <em>See</em> the discussion at <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1762013/">On the use of ZIP codes and ZIP code tabulation areas (ZCTAs) for the spatial analysis of epidemiological data</a>.</p></li>
+<li><p>The zip code itself, which is generally either much smaller or much larger than the real estate market, and also changes at the convenience of the postal service. <em>See</em> the discussion at [On the use of ZIP codes and ZIP code tabulation areas (ZCTAs) for the spatial analysis of epidemiological data].</p></li>
 <li><p>The metropolitan area derived from the U.S. Census ZIP code tabulation area, but covers a larger area than most real estate markets</p></li>
 <li><p>Longitude and latitude dervived from the ZCTA’s, used for mapping</p></li>
 </ul>
@@ -216,6 +211,7 @@
 | fico      | double | YES  |     | NULL    |       |
 | dti       | double | YES  |     | NULL    |       |
 | cltv      | double | YES  |     | NULL    |       |
+| obal      | double | YES  |     | NULL    |       |
 | orate     | double | YES  |     | NULL    |       |
 | grade     | text   | YES  |     | NULL    |       |
 | dtype     | text   | YES  |     | NULL    |       |
@@ -229,8 +225,16 @@
 | zip       | text   | YES  |     | NULL    |       |
 | perf      | text   | YES  |     | NULL    |       |
 +-----------+--------+------+-----+---------+-------+
-18 rows in set (0.00 sec)</code></pre>
-<p>Between the first row (a record identifier) and the last row (the performance category) are the sixteen variables we have to predict the performance outcome. For the almost 100,000 records, that is 1.5 million pieces of information. Technically we are in 16-dimensional space, and we need a way of flattening the dimensionality to be able to question the data.</p>
+19 rows in set (0.00 sec)</code></pre>
+<p>Between the first two rows (record identifiers) and the last row (the performance category) are the 17 variables we have to predict the performance outcome. For the almost 100,000 records, that is 1.7 million pieces of information. Technically we are in 17-dimensional space, and we need a way of flattening the dimensionality to be able to question the data.</p>
+</div>
+<div id="principal-component-analysis" class="section level2">
+<h2><span class="header-section-number">5.3</span> Principal component analysis</h2>
+<p><img src="_main_files/figure-html/psa1-1.png" width="672" /></p>
+<p>The cumulative variance is 0.257, 0.483, 0.697, 0.864, 1</p>
+<p>From the loadings chart on the right, we see that <em>obal</em> (the original amount of the loan) and <em>orate</em> (the original rate of interest) are negatively correlated, -0.451. The remaining continuous variables, <em>fico</em>, <em>dti</em> (debt-to-income ratio), <em>cltv</em> (the ratio of first and second loans to the value of the mortgaged property), have small correlations:</p>
+<p>The variables <em>fico</em> and <em>cltv</em> have some correlation (0.295), while <em>fico</em> and <em>dti</em> (-0.036) and <em>dti</em> and <em>cltv</em> (0.121) have low correlations.</p>
+<p>Next, we can use the three highest principal components for k-means clustering.</p>
 
 </div>
 </div>
