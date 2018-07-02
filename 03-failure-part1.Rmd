@@ -509,8 +509,7 @@ The problem is thus a *classification* problem. Do FICO scores allow us to class
 #### Implementing the metric
 
 From the 2007 pool database, we can pull the loan number, deal encoded remittance history and fico. With that we can decode the remittance history. Here's a sample with only loans having FICO scores below 500.
-
-```{r, results="asis", echo = FALSE, warning=FALSE}
+```{r refactor, results="asis", echo = FALSE, warning=FALSE}
 library(tidyverse)
 library(DBI)
 library(knitr)
@@ -557,25 +556,81 @@ The boxplots show that the three categories of loans are broadly similar. The bl
 
 The distributions of the three categories show the same non-normal character as the original pools, but this time we'll calculate them using the Shapiro-Wilk normality test based on a sample of 5,000, due to limitations of the test.
 
-```{r, results="asis", echo = TRUE, warning=FALSE}
+```{r sw1, echo = FALSE, warning=FALSE, message=FALSE}
 perf11A <- perf11 %>% filter(category == 'A')
 shapiro.test(perf11A$fico) # No sampling needed,  n < 5000, function's limit
 
 ```
 
 
-```{r, results="asis", echo = TRUE, warning=FALSE}
+```{r sp2,echo = FALSE, warning=FALSE, message=FALSE}
 perf11B <- perf11 %>% filter(category == 'B')
 smpB <- sample_n(perf11B, 5000)
 shapiro.test(smpB$fico) # more than 5000 in dataset 
 ```
 
-```{r, results="asis", echo = TRUE, warning=FALSE}
+```{r sw3,echo = FALSE, warning=FALSE, message=FALSE}
 perf11C <- perf11 %>% filter(category == 'C')
 shapiro.test(perf11C$fico)
 ``` 
 
 Category A *might* be normally distributed. With only 46 loans, it hardly matters. Categories B and C are definitely not, according to the results of the test.
+
+## Results at this point
+
+The report of "poor performance" of the 2006 mortgage loans as a group was well founded, based on the `r nrow(perf11)` loans that survived into 2007 and had an 11-month payment history. Only `r nrow(perf11A)` loans had a satisfactory record, less than `r round(nrow(perf11A)/nrow(perf11) * 100, )`.
+
+---
+title: "PCA"
+output:
+  html_document:
+    df_print: paged
+date: '2018-07-01'
+---
+
+
+# runs.test: Is it even worthwhile pursuing with all the NaNs?
+
+## Principal component analysis
+
+
+```{r psa1,  echo = FALSE, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(DBI)
+library(RMySQL)
+#library(FacoMineR)
+drv <- dbDriver("MySQL")
+con <- dbConnect(drv, username="root", password="", dbname ="dlf", host="localhost")
+res <- dbGetQuery(con, "SELECT fico, cltv, orate, obal, dti FROM loans")
+cs <- as.tibble(res) # cs contains only the continuous variables
+css <- sample_n(cs,300, replace = FALSE) # loadings similar with n=nrow(cs), n=1000
+# naming conventions following James et al. *An Introduction to Statistical Learning*
+
+pr.out <- prcomp(css, scale = TRUE)
+pr.var <- pr.out$sdev*2
+pve <- pr.var/sum(pr.var)
+# -------------------------------------------------------------------------
+# Plots
+par(mfrow=c(1,2))
+
+screeplot(pr.out, type = "lines")
+
+biplot(pr.out, scale = 0)
+``` 
+
+```{r cov1, echo = FALSE, warning=FALSE, message=FALSE}
+orate_s <- cs$orate
+obal_s <- cs$obal
+```
+
+The cumulative variance is  `r round(cumsum(pve),3)` 
+
+From the loadings chart on the right, we see that *obal* (the original amount of the loan) and *orate* (the original rate of interest) are negatively correlated, `r round(cor(orate_s,obal_s),3)`. The remaining continuous variables, *fico*, *dti* (debt-to-income ratio), *cltv* (the ratio of first and second loans to the value of the mortgaged property), have small correlations:
+
+The variables *fico* and *cltv* have some correlation (`r round(cor(cs$fico,cs$cltv),3)`), while *fico* and *dti* (`r round(cor(cs$fico,cs$dti),3)`) and *dti* and *cltv* (`r round(cor(cs$dti,cs$cltv),3)`) have low correlations.
+
+Next, we can use the three highest principal components for k-means clustering.
+
 
 [credit disclosure]: https://goo.gl/uhX1Pc
 [LBMLT 2006-1]: https://www.sec.gov/Archives/edgar/data/1119605/000114420406002461/v033798_fwp.htm

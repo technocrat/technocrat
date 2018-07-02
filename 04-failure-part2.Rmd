@@ -20,29 +20,27 @@ Some of the testing of FICO as a useful metric involved subsetting the data. The
 
 As a compromise, I converted the 5-digit zip codes into 3-digit zip codes. In metropolitan areas, the 3-digit codes are the sizes comparable to how the multiple listing services divide the market. We'll see if there is any value in this proxy measure of real estate market.
 
-```{r, results='hide', echo = FALSE, warning=FALSE}
+```{r setup4A,echo = FALSE, warning=FALSE, message=FALSE}
 library(tidyverse)
 library(DBI)
 library(RMySQL)
 drv <- dbDriver("MySQL")
 con <- dbConnect(drv, username="root", password="", dbname ="dlf", host="localhost")
-res <- dbGetQuery(con, "SELECT ctapeno, deal, remit, fico, dti, cltv, orate, obal grade, round(zip/100,0), dtype, fpd,ltype, pmiflag, ppp, otype, purpose, ptype FROM y6c")
+res <- dbGetQuery(con, "SELECT ctapeno, deal, remit, fico, dti, cltv, orate, obal, grade, round(zip/100,0), dtype, fpd,ltype, pmiflag, ppp, otype, purpose, ptype FROM y6c")
 cs <- as.tibble(res)
 require(binaryLogic)
 require(stringi)
 reports <- cs %>% rowwise %>% mutate(repbin = toString(as.binary(remit))) %>% rowwise %>% mutate(repstr = str_replace_all(repbin,"[, ]",'')) %>% mutate(reports = str_count(repstr)) %>% select(ctapeno, repstr, reports)
 perf <- reports %>% mutate(category = case_when(str_detect(repstr, '111$') ~ "C", str_count(repstr, '0') <= 9 ~ "B", str_count(repstr, '0') > 9 ~ "A")) %>% select(ctapeno, category)
 y6rf <- cs %>% inner_join(perf, by = "ctapeno")
-#y6rf = y6 refactored
 y6rf <- y6rf %>% mutate(zip = as.character(`round(zip/100,0)`), pmiflag = as.character(pmiflag), ppp = as.character(ppp), perf = category, grade = as.character((grade)))
-y6rf <- y6rf %>% select(ctapeno, deal,fico,dti,cltv,orate, grade, dtype,fpd,ltype, pmiflag, ppp,  otype, purpose, ptype, zip, perf)
-# dbWriteTable(con, "loans", y6rf) 
-# test
-# res <- dbGetQuery(con, "SELECT * from loans limit 25") passed
+y6rf <- y6rf %>% select(ctapeno, deal,fico,dti,cltv,obal, orate, grade, dtype,fpd,ltype, pmiflag, ppp,  otype, purpose, ptype, zip, perf)
+dbWriteTable(con, "loans", y6rf) 
+#test
+res <- dbGetQuery(con, "SELECT * from loans limit 25") 
 ``` 
 
 It was time to reorganize the database into a more streamlined version, that captured the information on performance (relieving the 11-month constraint) and transformed the fields that needed to be treated as categorical, rather than continuous. It's much more efficient to put this in a new SQL table than to keep in memory, especially since sampling will be involved. Here's the revised data layout:
-
 
     MariaDB [dlf]> describe loans;
     +-----------+--------+------+-----+---------+-------+
@@ -54,6 +52,7 @@ It was time to reorganize the database into a more streamlined version, that cap
     | fico      | double | YES  |     | NULL    |       |
     | dti       | double | YES  |     | NULL    |       |
     | cltv      | double | YES  |     | NULL    |       |
+    | obal      | double | YES  |     | NULL    |       |
     | orate     | double | YES  |     | NULL    |       |
     | grade     | text   | YES  |     | NULL    |       |
     | dtype     | text   | YES  |     | NULL    |       |
@@ -67,10 +66,9 @@ It was time to reorganize the database into a more streamlined version, that cap
     | zip       | text   | YES  |     | NULL    |       |
     | perf      | text   | YES  |     | NULL    |       |
     +-----------+--------+------+-----+---------+-------+
-    18 rows in set (0.00 sec)
-
+    19 rows in set (0.00 sec)
     
-Between the first row (a record identifier) and the last row (the performance category) are the sixteen variables we have to predict the performance outcome. For the almost 100,000 records, that is 1.5 million pieces of information. Technically we are in 16-dimensional space, and we need a way of flattening the dimensionality to be able to question the data.
+Between the first two rows (record identifiers) and the last row (the performance category) are the 17 variables we have to predict the performance outcome. For the almost 100,000 records, that is 1.7 million pieces of information. Technically we are in 17-dimensional space, and we need a way of flattening the dimensionality to be able to question the data.
 
 
 [On the use of ZIP codes and ZIP code tabulation areas (ZCTAs) for the spatial analysis of epidemiological data]: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1762013/

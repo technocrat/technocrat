@@ -1,0 +1,47 @@
+---
+title: "Survival"
+output:
+  html_document:
+    df_print: paged
+date: '2018-07-01'
+---
+
+# Does KM or other survival analysis help?
+
+# Why does runs.test produce NaNs?
+
+Is it even worthwhile pursuing?
+
+# Let's go back to PCA
+
+    * Quant first, using stats
+```{r psa1, results="asis", echo = FALSE, warning=FALSE}
+library(tidyverse)
+library(DBI)
+library(RMySQL)
+#library(FacoMineR)
+drv <- dbDriver("MySQL")
+con <- dbConnect(drv, username="root", password="", dbname ="dlf", host="localhost")
+res <- dbGetQuery(con, "SELECT fico, cltv, orate, obal, dti FROM loans")
+cs <- as.tibble(res) # cs contains only the continuous variables
+css <- sample_n(cs,300, replace = FALSE) # loadings similar with n=nrow(cs), n=1000
+# naming conventions following James et al. *An Introduction to Statistical Learning*
+
+pr.out <- prcomp(css, scale = TRUE)
+pr.var <- pr.out$sdev*2
+pve <- pr.var/sum(pr.var)
+# -------------------------------------------------------------------------
+# Plots
+par(mfrow=c(1,2))
+
+screeplot(pr.out, type = "lines")
+
+biplot(pr.out, scale = 0)
+
+round(cor(cs$obal,cs$orate),3)
+
+``` 
+
+From the loadings chart on the right, we see that obal (the original amount of the loan) and orate (the original rate of interest) are negatively correlated.
+    
+    * Qual second

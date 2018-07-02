@@ -25,15 +25,15 @@
 <meta name="author" content="Richard Careaga">
 
 
-<meta name="date" content="2018-06-30">
+<meta name="date" content="2018-07-01">
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   
   
-<link rel="prev" href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html">
-<link rel="next" href="the-enron-email-corpus.html">
+<link rel="prev" href="unsupervised-learning.html">
+<link rel="next" href="why-does-runs-test-produce-nans.html">
 <script src="libs/jquery-2.2.3/jquery.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
@@ -171,6 +171,9 @@
 <li class="chapter" data-level="10.1" data-path="unsupervised-learning.html"><a href="unsupervised-learning.html#pca"><i class="fa fa-check"></i><b>10.1</b> PCA</a></li>
 <li class="chapter" data-level="10.2" data-path="unsupervised-learning.html"><a href="unsupervised-learning.html#kmeans-how-diff-knn"><i class="fa fa-check"></i><b>10.2</b> KMeans (how diff KNN?)</a></li>
 </ul></li>
+<li class="chapter" data-level="11" data-path="does-km-or-other-survival-analysis-help.html"><a href="does-km-or-other-survival-analysis-help.html"><i class="fa fa-check"></i><b>11</b> Does KM or other survival analysis help?</a></li>
+<li class="chapter" data-level="12" data-path="why-does-runs-test-produce-nans.html"><a href="why-does-runs-test-produce-nans.html"><i class="fa fa-check"></i><b>12</b> Why does runs.test produce NaNs?</a></li>
+<li class="chapter" data-level="13" data-path="lets-go-back-to-pca.html"><a href="lets-go-back-to-pca.html"><i class="fa fa-check"></i><b>13</b> Let’s go back to PCA</a></li>
 </ul>
 
       </nav>
@@ -188,59 +191,16 @@
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2" class="section level1">
-<h1><span class="header-section-number">5</span> The subprime mortgage crisis unfolds in early 2007, part 2</h1>
-<p>Keywords: refactoring, principal component analysis</p>
-<div id="the-fall-of-fico" class="section level2">
-<h2><span class="header-section-number">5.1</span> The fall of FICO</h2>
-<p>The problem with the conventional wisdom of long standing is that it loses sight of history. The prominence of FICO in home loan credit underwriting described in the <a href="https://democrats-oversight.house.gov/sites/democrats.oversight.house.gov/files/documents/Fannie%20Freddie%20Testimony%20of%20Edward%20Pinto%2012.9.08%20written%20submission%20Full.pdf">Pinto Testimony</a> had its origins in a different time (the early 1990s) and a different lending environment. Freddie Mac was in a good position to ensure that all other things <em>were</em> equal. It made only what came to be called “prime” loans, generally for no more than 80% of the value of the property, under more stringent limitations on the debt-to-income ratio of the borrower and many other criteria that it kept within a narrow range, and offered only a few varieties of loans.</p>
-<p>In the subprime market that emerged in the late 90s, all of those factors changed. Criteria that were narrow became broad, documentation was relaxed and a widespread assumption was that continually rising home values would preclude any problems. It’s not surprising that FICO lost its predictive power.</p>
-</div>
-<div id="restructuring-the-data" class="section level2">
-<h2><span class="header-section-number">5.2</span> Restructuring the data</h2>
-<p>Some of the testing of FICO as a useful metric involved subsetting the data. There were many more variables than the ones used, some of them categorical and some categorical coded as numeric. One potentially useful variable is location, because we know that real estate value are location sensitive. We have four location fields in the database, all derived from the postal zip code:</p>
-<ul>
-<li><p>The zip code itself, which is generally either much smaller or much larger than the real estate market, and also changes at the convenience of the postal service. <em>See</em> the discussion at <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1762013/">On the use of ZIP codes and ZIP code tabulation areas (ZCTAs) for the spatial analysis of epidemiological data</a>.</p></li>
-<li><p>The metropolitan area derived from the U.S. Census ZIP code tabulation area, but covers a larger area than most real estate markets</p></li>
-<li><p>Longitude and latitude dervived from the ZCTA’s, used for mapping</p></li>
-</ul>
-<p>As a compromise, I converted the 5-digit zip codes into 3-digit zip codes. In metropolitan areas, the 3-digit codes are the sizes comparable to how the multiple listing services divide the market. We’ll see if there is any value in this proxy measure of real estate market.</p>
-<p>It was time to reorganize the database into a more streamlined version, that captured the information on performance (relieving the 11-month constraint) and transformed the fields that needed to be treated as categorical, rather than continuous. It’s much more efficient to put this in a new SQL table than to keep in memory, especially since sampling will be involved. Here’s the revised data layout:</p>
-<pre><code>MariaDB [dlf]&gt; describe loans;
-+-----------+--------+------+-----+---------+-------+
-| Field     | Type   | Null | Key | Default | Extra |
-+-----------+--------+------+-----+---------+-------+
-| row_names | text   | YES  |     | NULL    |       |
-| ctapeno   | double | YES  |     | NULL    |       |
-| deal      | text   | YES  |     | NULL    |       |
-| fico      | double | YES  |     | NULL    |       |
-| dti       | double | YES  |     | NULL    |       |
-| cltv      | double | YES  |     | NULL    |       |
-| orate     | double | YES  |     | NULL    |       |
-| grade     | text   | YES  |     | NULL    |       |
-| dtype     | text   | YES  |     | NULL    |       |
-| fpd       | text   | YES  |     | NULL    |       |
-| ltype     | text   | YES  |     | NULL    |       |
-| pmiflag   | text   | YES  |     | NULL    |       |
-| ppp       | text   | YES  |     | NULL    |       |
-| otype     | text   | YES  |     | NULL    |       |
-| purpose   | text   | YES  |     | NULL    |       |
-| ptype     | text   | YES  |     | NULL    |       |
-| zip       | text   | YES  |     | NULL    |       |
-| perf      | text   | YES  |     | NULL    |       |
-+-----------+--------+------+-----+---------+-------+
-18 rows in set (0.00 sec)</code></pre>
-<p>Between the first row (a record identifier) and the last row (the performance category) are the sixteen variables we have to predict the performance outcome. For the almost 100,000 records, that is 1.5 million pieces of information. Technically we are in 16-dimensional space, and we need a way of flattening the dimensionality to be able to question the data.</p>
-
-</div>
+<div id="does-km-or-other-survival-analysis-help" class="section level1">
+<h1><span class="header-section-number">11</span> Does KM or other survival analysis help?</h1>
 </div>
             </section>
 
           </div>
         </div>
       </div>
-<a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="the-enron-email-corpus.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="unsupervised-learning.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="why-does-runs-test-produce-nans.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>

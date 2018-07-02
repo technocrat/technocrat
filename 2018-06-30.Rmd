@@ -1,0 +1,28 @@
+---
+title: "R Notebook"
+output: html_notebook
+date: 2018-06-30 
+---
+
+# Runs test
+```{r, results="asis", echo = FALSE, warning=FALSE}
+library(tseries)
+# x <- factor(sign(rnorm(100)))
+# runs.test(x)
+# x is a list of factors
+# no empty or singlets allowed
+```
+
+# Unsupervised learning
+
+## PCA
+    * Continuous data
+        * PCA
+    * Categorical
+        * CA
+        * MCA
+        * LDA
+        * FA (not that common?)
+    
+## KMeans (how diff KNN?)
+
