@@ -1,6 +1,6 @@
 # The subprime mortgage crisis unfolds in early 2007, part 2
 
-Keywords: refactoring, principal component analysis
+Keywords: refactoring, unsupervised learning, principal component analysis, k-means clustering
 
 ## The fall of FICO
 
@@ -21,23 +21,25 @@ Some of the testing of FICO as a useful metric involved subsetting the data. The
 As a compromise, I converted the 5-digit zip codes into 3-digit zip codes. In metropolitan areas, the 3-digit codes are the sizes comparable to how the multiple listing services divide the market. We'll see if there is any value in this proxy measure of real estate market.
 
 ```{r setup4A,echo = FALSE, warning=FALSE, message=FALSE}
-library(tidyverse)
-library(DBI)
-library(RMySQL)
-drv <- dbDriver("MySQL")
-con <- dbConnect(drv, username="root", password="", dbname ="dlf", host="localhost")
-res <- dbGetQuery(con, "SELECT ctapeno, deal, remit, fico, dti, cltv, orate, obal, grade, round(zip/100,0), dtype, fpd,ltype, pmiflag, ppp, otype, purpose, ptype FROM y6c")
-cs <- as.tibble(res)
-require(binaryLogic)
-require(stringi)
-reports <- cs %>% rowwise %>% mutate(repbin = toString(as.binary(remit))) %>% rowwise %>% mutate(repstr = str_replace_all(repbin,"[, ]",'')) %>% mutate(reports = str_count(repstr)) %>% select(ctapeno, repstr, reports)
-perf <- reports %>% mutate(category = case_when(str_detect(repstr, '111$') ~ "C", str_count(repstr, '0') <= 9 ~ "B", str_count(repstr, '0') > 9 ~ "A")) %>% select(ctapeno, category)
-y6rf <- cs %>% inner_join(perf, by = "ctapeno")
-y6rf <- y6rf %>% mutate(zip = as.character(`round(zip/100,0)`), pmiflag = as.character(pmiflag), ppp = as.character(ppp), perf = category, grade = as.character((grade)))
-y6rf <- y6rf %>% select(ctapeno, deal,fico,dti,cltv,obal, orate, grade, dtype,fpd,ltype, pmiflag, ppp,  otype, purpose, ptype, zip, perf)
-dbWriteTable(con, "loans", y6rf) 
+# The following lines have been commented out because the results have
+# been captured in a MySQL database
+#library(tidyverse)
+#library(DBI)
+#library(RMySQL)
+#drv <- dbDriver("MySQL")
+#con <- dbConnect(drv, username="root", password="", dbname ="dlf", host="localhost")
+#res <- dbGetQuery(con, "SELECT ctapeno, deal, remit, fico, dti, cltv, orate, obal, grade, round(zip/100,0), dtype, fpd,ltype, pmiflag, ppp, otype, purpose, ptype FROM y6c")
+#cs <- as.tibble(res)
+#require(binaryLogic)
+#require(stringi)
+#reports <- cs %>% rowwise %>% mutate(repbin = toString(as.binary(remit))) %>% rowwise %>% mutate(repstr = str_replace_all(repbin,"[, ]",'')) %>% mutate(reports = str_count(repstr)) %>% select(ctapeno, repstr, reports)
+#perf <- reports %>% mutate(category = case_when(str_detect(repstr, '111$') ~ "C", str_count(repstr, '0') <= 9 ~ "B", str_count(repstr, '0') > 9 ~ "A")) %>% select(ctapeno, category)
+#y6rf <- cs %>% inner_join(perf, by = "ctapeno")
+#y6rf <- y6rf %>% mutate(zip = as.character(`round(zip/100,0)`), pmiflag = as.character(pmiflag), ppp = as.character(ppp), perf = category, grade = as.character((grade)))
+#y6rf <- y6rf %>% select(ctapeno, deal,fico,dti,cltv,obal, orate, grade, dtype,fpd,ltype, pmiflag, ppp,  otype, purpose, ptype, zip, perf)
+#dbWriteTable(con, "loans", y6rf) 
 #test
-res <- dbGetQuery(con, "SELECT * from loans limit 25") 
+#res <- dbGetQuery(con, "SELECT * from loans limit 25") 
 ``` 
 
 It was time to reorganize the database into a more streamlined version, that captured the information on performance (relieving the 11-month constraint) and transformed the fields that needed to be treated as categorical, rather than continuous. It's much more efficient to put this in a new SQL table than to keep in memory, especially since sampling will be involved. Here's the revised data layout:
@@ -70,9 +72,90 @@ It was time to reorganize the database into a more streamlined version, that cap
     
 Between the first two rows (record identifiers) and the last row (the performance category) are the 17 variables we have to predict the performance outcome. For the almost 100,000 records, that is 1.7 million pieces of information. Technically we are in 17-dimensional space, and we need a way of flattening the dimensionality to be able to question the data.
 
+## Principal component analysis
 
-[On the use of ZIP codes and ZIP code tabulation areas (ZCTAs) for the spatial analysis of epidemiological data]: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1762013/
+```{r psa1,  echo = FALSE, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(DBI)
+library(RMySQL)
+#library(FacoMineR)
+drv <- dbDriver("MySQL")
+con <- dbConnect(drv, username="root", password="", dbname ="dlf", host="localhost")
+res <- dbGetQuery(con, "SELECT fico, cltv, orate, obal, dti FROM loans")
+cs <- as.tibble(res) # cs contains only the continuous variables
+css <- sample_n(cs,300, replace = FALSE) 
+# naming conventions following James et al. *An Introduction to Statistical Learning*
 
+pr.out <- prcomp(css, scale = TRUE)
+pr.var <- pr.out$sdev*2
+pve <- pr.var/sum(pr.var)
+# ------------------------------------------------------------------------
+# Plots
+par(mfrow=c(1,2))
+
+screeplot(pr.out, type = "lines")
+
+biplot(pr.out, scale = 0)
+``` 
+
+```{r cov1, echo = FALSE, warning=FALSE, message=FALSE}
+orate_s <- cs$orate
+obal_s <- cs$obal
+```
+
+The cumulative variance is  `r round(cumsum(pve),3)` for this sample of 300.
+
+From the loadings chart on the right, we see that *obal* (the original amount of the loan) and *orate* (the original rate of interest) are negatively correlated, `r round(cor(orate_s,obal_s),3)`. The remaining continuous variables, *fico*, *dti* (debt-to-income ratio), *cltv* (the ratio of first and second loans to the value of the mortgaged property), have small correlations:
+
+The variables *fico* and *cltv* have some correlation (`r round(cor(cs$fico,cs$cltv),3)`), while *fico* and *dti* (`r round(cor(cs$fico,cs$dti),3)`) and *dti* and *cltv* (`r round(cor(cs$dti,cs$cltv),3)`) have low correlations.
+
+The variable *orate,* however, is clearly discrete, so we re-run without it and increase the size of the sample to 9,000.
+
+```{r, results="asis", echo = FALSE, warning=FALSE}
+res <- dbGetQuery(con, "SELECT fico, cltv, obal, dti FROM loans")
+cs <- as.tibble(res) # cs contains only the continuous variables
+css <- sample_n(cs,9000, replace = FALSE)
+pr.out <- prcomp(css, scale = TRUE)
+pr.var <- pr.out$sdev*2
+pve <- pr.var/sum(pr.var)
+par(mfrow=c(1,2))
+
+screeplot(pr.out, type = "lines")
+
+biplot(pr.out, scale = 0)
+
+``` 
+
+The variances are
+```{r, results="asis", echo = FALSE, warning=FALSE}
+pve
+```
+
+
+## K-means clustering
+
+The following represents the unsupervised classification of the *fico, cltv, obal*, and *dti* of an approximately 10% samplefrom the **loans** dataset.
+
+```{r, results="asis", echo = FALSE, warning=FALSE}
+css.k <- kmeans(css, 3, iter.max = 20, nstart = 50)
+plot(css, col=(css.k$cluster+1), main="K-Means Clustering Result with K=3, n = 9,000, nstart = 50, max.iter = 20", pch=20, cex=2)
+```
+
+Using the entire population, rather than a sample creates somewhat better defined clusters
+
+```{r, results="asis", echo = FALSE, warning=FALSE}
+## Not run
+## cs.k <- kmeans(cs, 3, iter.max = 20, nstart = 50)
+## use load("kmeans_loans.Rda")
+## Not run
+## plot(cs, col=(cs.k$cluster+1), main="K-Means Clustering Result with K=3, n = all_loans, nstart = 50, max.iter = 20", pch=20, cex=2)
+## Use provided link (long running process)
+```
+![K-means clustering of all loans in loans database](http://media.richard-careaga.com/img/Kmeans_loans.png)
+ 
+Consideration might be given to separately clustering high-balance loans. Other outliers, such as the zero FICO scores, can be safely ignored, as can be the anomalous loan with a 97% *dti* ratio.
+
+[credit disclosure]: https://goo.gl/uhX1Pc
+[LBMLT 2006-1]: https://www.sec.gov/Archives/edgar/data/1119605/000114420406002461/v033798_fwp.htm
 
 [Pinto testimony]: https://democrats-oversight.house.gov/sites/democrats.oversight.house.gov/files/documents/Fannie%20Freddie%20Testimony%20of%20Edward%20Pinto%2012.9.08%20written%20submission%20Full.pdf
-

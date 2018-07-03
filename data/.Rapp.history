@@ -1,418 +1,420 @@
-v_
-V <- v_ %>% select(deal, fico_array)
-V
-Deal1Fico <- V %>% join(abs_, "deal")
-Deal1Fico <- V %>% join(abs_, by = "deal")
-Deal1Fico <- V %>% left_join(abs_, by = "deal")
-Deal1Fico
-q1 <- Deal1Fico %>%  ggplot(aes(sample=fico_array)) + stat_qq() + #
-           geom_abline(intercept=intercept, slope=slope) + ylab("FICO") + labs(title = "QQ Plot of FICO Scores")
-q1
-q1 <- ggplot(aes(sample=Deal1$fico_array)) + stat_qq() + #
-           geom_abline(intercept=intercept, slope=slope) + ylab("FICO") + labs(title = "QQ Plot of FICO Scores")
-q1 <- ggplot(aes(sample=Deal1Fico$fico_array)) + stat_qq() + #
-           geom_abline(intercept=intercept, slope=slope) + ylab("FICO") + labs(title = "QQ Plot of FICO Scores")
-q1 <- ggplot(aes(Deal1Fico, sample=fico_array)) + stat_qq() geom_abline(intercept=intercept, slope=slope) + ylab("FICO") + labs(title = "QQ Plot of FICO Scores")
-q1 <- ggplot(aes(Deal1Fico, sample=fico_array)) + stat_qq() + geom_abline(intercept=intercept, slope=slope) + ylab("FICO") + labs(title = "QQ Plot of FICO Scores")
-qqplot(Deal1Fico$fico_array)
-Deal1Fico$fico_array)
-class(Deal1Fico$fico_array)
-hist(Deal1Fico$fico_array)
-boxplot(Deal1Fico$fico_array)
-q1 <- ggplot(data = Deal1Fico, aes(sample=fico_array)) + stat_qq() + geom_abline(intercept=intercept, slope=slope) + ylab("FICO") + labs(title = "QQ Plot of FICO Scores")
-q11
-q1
-q1 <- ggplot(data = Deal1Fico, aes(sample=Deal1Fico$fico_array)) + stat_qq() + geom_abline(intercept=intercept, slope=slope) + ylab("FICO") + labs(title = "QQ Plot of FICO Scores")
-q1
-q1 <- ggplot(data = Deal1Fico) + stat_qq(sample=fico_array)
-q1 <- ggplot() + stat_qq(data = Deal1Fico, sample=fico_array)
-q1 <- ggplot() + stat_qq(data = Deal1Fico, sample=Deal1Fico$fico_array)
-q1
-q1 <- ggplot() + stat_qq(data = Deal1Fico, aes(sample=Deal1Fico$fico_array))
-q1
-q1 <- ggplot(Deal1Fico, aes(x=fico_array)) + geom_histogram(binwidth=5)
-q1
-qqplot(Deal1$Fico$fico_array)
-qqplot(Deal1Fico$fico_array)
-hist(Deal1Fico$fico_array)
-boxplot(Deal1Fico$fico_array)
-qqplot(Deal1Fico$fico_array)
-class(Deal1Fico$fico_array)
-Deal1Fico$fico_array <- sort(Deal1Fico$fico_array)
-class(Deal1$Fico$fico_array)
-class(Deal1Fico$fico_array)
-help(list)
-f q1 <- ggplot(Deal1Fico, aes(x=fico_array)) + geom_histogram(binwidth=5)
-f <- as.list(Deal1Fico$fico_array, sorted)
-head(f)
-f <- sort(f)
-f.sort()
-q1 <- ggplot(data = Deal1Fico, aes(sample=fico_array))
-q1
-q1 + + stat_qq()
-q1 <- ggplot(Deal1Fico, aes(sample=fico_array)) + stat_qq()
-q1
-help(stat_qq)
-q1 <- ggplot(Deal1Fico, aes(sample=fico_array)) + stat_qq() + geom_point(stat = "qq")
-q1
-q1 <- ggplot(Deal1Fico) + stat_qq(aes(sample=fico_array))
-q1
-q1 <- ggplot(Deal1Fico) + stat_qq(aes(array(sample=fico_array))) + geom_point(stat = "qq")
-q1
-q1 <- ggplot(Deal1Fico, aes(sample=array(fico_array))) + stat_qq()
-q1
-help stat_qq
-help(stat_qq)
-q1 <- ggplot(Deal1Fico, aes(x=fico_array))
-q1
-q1 + geom_histogram()
-q1 <- ggplot(Deal1Fico, aes(x=as.numeric(fico_array)) + stat_qq()
-)
-q1 <- ggplot(Deal1Fico, aes(x=as.numeric(fico_array)))
-q1 + stat_qq
-q1 + geom_histogram()
-class(as.numeric(Deal1Fico$fico.array))
-class(as.numeric(Deal1Fico$fico_array))
-boxplot(Deal1Fico$fico_array)
-qqplot(Deal1Fico$fico_array)
-q1 + geom_boxplot()
-V
-abs
-abs_
-v
-q1<- ggplot(v, aes(sample=fico)) + stat_qq() + geom_abline(intercept=abs_$intercept, slope=abs_$slope) + ylab("FICO") + labs(title = "QQ Plot of FICO Scores for LBMLT 2006-1")
-q1
-v_ <- cs %>% filter(deal == "LBMLT 2006-1", fico)#
-abs_ <- filter(abs, deal == "LBMLT 2006-1")#
-q_<- ggplot(v_, aes(sample=fico)) + stat_qq() + geom_abline(intercept=abs_$intercept, slope=abs_$slope) + ylab("FICO") + ggtitle(paste("QQ Plot of FICO Scores for " deal)
-v_
-abs_$intercept
-abs_slope
-abs_$slope
-v_ <- cs %>% filter(deal == "LBMLT 2006-1", fico)#
-abs_ <- filter(abs, deal == "LBMLT 2006-1")#
-q_<- ggplot(v_, aes(sample=fico)) + stat_qq() + geom_abline(intercept=abs_$intercept, slope=abs_$slope) + ylab("FICO") + ggtitle(paste("QQ Plot of FICO Scores for ", deal)
-)
-help(ggtitle)
-q_<- ggplot(v_, aes(sample=fico)) + stat_qq() + geom_abline(intercept=abs_$intercept, slope=abs_$slope) + ylab("FICO") + labs(paste("QQ Plot of FICO Scores for ", deal))
-v_
-v_ <- cs %>% filter(deal == "LBMLT 2006-1", fico)#
-abs_ <- filter(abs, deal == "LBMLT 2006-1")#
-q_<- ggplot(v_, aes(sample=fico)) + stat_qq() + geom_abline(intercept=abs_$intercept, slope=abs_$slope) + ylab("FICO") + labs(paste("QQ Plot of FICO Scores for ", abs_$deal))
-q_
-q_<- ggplot(v_, aes(sample=fico)) + stat_qq() + geom_abline(intercept=abs_$intercept, slope=abs_$slope) + ylab("FICO") + ggtitle(paste("QQ Plot of FICO Scores for ", abs_$deal))
-q_
-deals <- v$deal
-q
-deals
-deals <- v$deal %>% summarize()
-deals <- v$deal[[0]]
-deals <- v$deal[0]
-deals
-deals <- v$deal[0]
-abs
-deals <- abs$deal
-deals
-class(deals)
-# generate plots for each deal#
-deals <- abs$deal#
-dealqq <- function {#
-v_ <- cs %>% filter(deal == "LBMLT 2006-1", fico)#
-abs_ <- filter(abs, deal == "LBMLT 2006-1")#
-q_<- ggplot(v_, aes(sample=fico)) + stat_qq() + geom_abline(intercept=abs_$intercept, slope=abs_$slope) + ylab("FICO") + ggtitle(paste("QQ Plot of FICO Scores for ", abs_$deal)) #
-q_#
-}#
-map(deals, dealsqq)
-deals
-map(deals,print())
-map(deals,print(deals))
-class(deals)
-deals = list(deals)
-map(deals,print(deals))
-deals <- list(abs$deal)#
-dealqq <- function {#
-v_ <- cs %>% filter(deal == deal, fico)#
-abs_ <- filter(abs, deal == deal)#
-q_<- ggplot(v_, aes(sample=fico)) + stat_qq() + geom_abline(intercept=abs_$intercept, slope=abs_$slope) + ylab("FICO") + ggtitle(paste("QQ Plot of FICO Scores for ", abs_$deal)) #
-q_#
-}#
-map(deals, dealsqq)
-deals <- list(abs$deal)#
-#
-dealqq <- function {#
-v_ <- cs %>% filter(deal == deal, fico)#
-abs_ <- filter(abs, deal == deal)#
-q_<- ggplot(v_, aes(sample=fico)) + stat_qq() + geom_abline(intercept=abs_$intercept, slope=abs_$slope) + ylab("FICO") + ggtitle(paste("QQ Plot of FICO Scores for ", abs_$deal)) #
-q_#
-}#
-output <- vector("double", ncol(df))  # 1. output#
-for (i in seq_along(v_)) {            # 2. sequence#
-  output[[i]] <-dealqq(V_[[i]])       # 3. body#
-}#
-output
-dealqq <- function {#
-v_ <- cs %>% filter(deal == deal, fico)#
-abs_ <- filter(abs, deal == deal)#
-q_<- ggplot(v_, aes(sample=fico)) + stat_qq() + geom_abline(intercept=abs_$intercept, slope=abs_$slope) + ylab("FICO") + ggtitle(paste("QQ Plot of FICO Scores for ", abs_$deal)) #
-}#
-output <- vector("double", ncol(df))  # 1. output#
-for (i in seq_along(v_)) {            # 2. sequence#
-  output[[i]] <-dealqq(V_[[i]])       # 3. body#
-}#
-output
-dealqq <- function {#
-v_ <- cs %>% filter(deal == deal, fico)#
-abs_ <- filter(abs, deal == deal)#
-q_<- ggplot(v_, aes(sample=fico)) + stat_qq() + geom_abline(intercept=abs_$intercept, slope=abs_$slope) + ylab("FICO") + ggtitle(paste("QQ Plot of FICO Scores for ", abs_$deal)) #
-}
-v_ <- cs %>% filter(deal == deal, fico)#
-abs_ <- filter(abs, deal == deal)#
-q_<- ggplot(v_, aes(sample=fico)) + stat_qq() + geom_abline(intercept=abs_$intercept, slope=abs_$slope) + ylab("FICO") + ggtitle(paste("QQ Plot of FICO Scores for ", abs_$deal)) #
-}#
-output <- vector("double", ncol(df))  # 1. output#
-for (i in seq_along(v_)) {            # 2. sequence#
-  output[[i]] <-dealqq(q_[[i]])       # 3. body#
-}#
-output
-dealqq <- function(deals) {#
-v_ <- cs %>% filter(deal == deal, fico)#
-abs_ <- filter(abs, deal == deal)#
-q_<- ggplot(v_, aes(sample=fico)) + stat_qq() + geom_abline(intercept=abs_$intercept, slope=abs_$slope) + ylab("FICO") + ggtitle(paste("QQ Plot of FICO Scores for ", abs_$deal)) #
-}
-output <- vector("double", ncol(df))  # 1. output#
-for (i in seq_along(v_)) {            # 2. sequence#
-  output[[i]] <-dealqq(q_[[i]])       # 3. body#
-}
-for (i in seq_along(v_)) {#
-  dealqq(i)#
-}
-i
-v_[2]
-v_
-dealqq <- function(deals) {#
-v_ <- cs %>% filter(deal == deal, fico)#
-abs_ <- filter(abs, deal == deal)#
-q_<- ggplot(v_, aes(sample=fico)) + stat_qq() + geom_abline(intercept=abs_$intercept, slope=abs_$slope) + ylab("FICO") + ggtitle(paste("QQ Plot of FICO Scores for ", abs_$deal))#
-return(q_) #
-}#
-#
-for (i in seq_along(v_)) {#
-  dealqq(i)#
-}
-q_
-rm(q_)
-for (i in seq_along(deals)) {#
-  dealqq(i)#
-}
-q_
-for (i in seq_along(deals)) {#
-  dealqq(i)#
-  q_#
-}
-for (i in deals) {#
-  dealqq(i)#
-  q_#
-}
-for (i in deals) {#
-  dealqq(i)#
-  print(q_)#
-}
-deals
-for  in seq_along(deals) {#
-  dealqq(i)#
-  print(q_)#
-}
-dealqq <- function(deals) {#
-v_ <- cs %>% filter(deal == deal, fico)#
-abs_ <- filter(abs, deal == deal)#
-q_<- ggplot(v_, aes(sample=fico)) + stat_qq() + geom_abline(intercept=abs_$intercept, slope=abs_$slope) + ylab("FICO") + ggtitle(paste("QQ Plot of FICO Scores for ", abs_$deal))#
-q_ #
-}
-dealqq('LBMLT 2006-2')
-dealqq <- function(deal) {#
-v_ <- cs %>% filter(deal == deal, fico)#
-abs_ <- filter(abs, deal == deal)#
-q_<- ggplot(v_, aes(sample=fico)) + stat_qq() + geom_abline(intercept=abs_$intercept, slope=abs_$slope) + ylab("FICO") + ggtitle(paste("QQ Plot of FICO Scores for ", abs_$deal))#
-q_ #
-}
-dealqq('LBMLT 2006-2')
-v_
-dealqq <- function(ta) {#
-v_ <- cs %>% filter(deal == ta, fico)#
-abs_ <- filter(abs, deal == ta)#
-q_<- v_ %>% ggplot(aes(sample=fico)) + stat_qq() + geom_abline(intercept=abs_$intercept, slope=abs_$slope) + ylab("FICO") + ggtitle(paste("QQ Plot of FICO Scores for ", abs_$deal))#
-q_ #
-}
-dealqq("LBMLT 2006-2")
-for  in seq_along(deals) {#
-  dealqq(i)#
-  print(q_)#
-}
-for  in seq_along(deals) {#
-  dealqq(i)#
-}
-for i in seq_along(deals) {#
-  dealqq(i)#
-}
-map(deals,dealqq)
-deals
-dealqq("LBMLT 2006-1")#
-dealqq("LBMLT 2006-10")#
-dealqq("LBMLT 2006-11")#
-dealqq("LBMLT 2006-2")#
-dealqq("LBMLT 2006-3")#
-dealqq("LBMLT 2006-4")#
-dealqq("LBMLT 2006-5")#
-dealqq("LBMLT 2006-6")#
-dealqq("LBMLT 2006-7")#
-dealqq("LBMLT 2006-8")#
-dealqq("LBMLT 2006-9")#
-dealqq("LBMLT 2006-WL1")#
-dealqq("LBMLT 2006-WL2")#
-dealqq("LBMLT 2006-WL3")
-si <- find_intercepts(cs$fico)#
-slope <- si %>% slice(1)#
-intercept <- si %>% slice(2)
-class(si)
-si <- find_intercepts(cs$fico)
-si
-dealqq("LBMLT 2006-1")
-si <- find_intercepts(cs$fico)#
-slope <- si %>% slice(1)#
-intercept <- si %>% slice(2)
-class(cs$fico)
-si <- find_intercepts(cs$fico)#
-slope <- si %>% slice[[1]]#
-intercept <- si %>% slice[[2]]
-si
-slice(si[[1]])
-slice(si[1])
-si <- find_intercepts(cs$fico)#
-slope <- si %>% slice(1)#
-intercept <- si %>% slice(2)
-si
-slice(si[[1]])
-si[[1]]
-abs
-deals
-dealqq("LBMLT 2006-1")
-quit
+c[1][1][1]
+c[[[1]]]
+c[[1]]]
+c[1]
+c[1][1]
+c[1][1][1]
+c[1][1][1][1]
+c[1][1][1][1][1]
+str(c[1][1][1][1][1])
+c[1]$p.value
+c[1]$runs
+c[1]$parameter
+c[0]$parameter
+c[1][1]$statistic
+c[1]
+str(c[1])
+class(c[1])
+c[1]$method
+help(runs.test)
+c <- lapply(b,runs.test(plot=TRUE))
+runs.test(sweepotato$yield,plot=TRUE)
+runs.test(sweetpotato$yield,plot=TRUE)
+??htest
+tidy(c)
+library(tidyverse)
+tidy(c)
+glance(c)
+library(broom)
+tidy(c)
+glance(c)
+tt <- t.test(rnorm(10))#
+tidy(tt)#
+glance(tt)  # same output for all htests
+tt <- t.test(mpg ~ am, data = mtcars)#
+tidy(tt)
+class(tt)
+class(c)
+class(c)[1]
+help(runs.test)
+d <- runs.test(sweetpotato$yield)
+tidy(d)
+d
+d$1
+d$runs
+d <- runs.test(sweetpotato$yield)
+d$runs
+class(d)
+str(c)
+c[10]
+tidy(c[10])
+tidy(c[10][1])
+d <- runs.test(sweetpotato$yield)
+head(b)
+c <- lapply(b,runs.test)
+str(c[0])
+str(c[1])
+c[1]..$runs
+c[1]$runs
+colnames(c)
+head(c)
+c[[1]]
+tidy(c[[1]])
+d <- lapply(c,tidy)
+head(d)
+class(d)
+e <- as.tibble(d)
+d
+e <- unlist(d)
+head(e)
+tail(e)
+e <- as.tibble(e)
+e
+d[0][5]
+d[1][5]
+d[[1]]
+d[[1]]$p.value
+save(d, file = "runs.Rda")
+hquit
 quit()
 library(tidyverse)#
 library(DBI)#
-library(knitr)#
-library(kableExtra)#
 library(RMySQL)#
+library(FacoMineR)#
 drv <- dbDriver("MySQL")#
 con <- dbConnect(drv, username="root", password="", dbname ="dlf", host="localhost")#
-# created db with loans that dropped during 2006;#
-# create table drops select deal, fico, icode from y6 where ctapeno not in (select ytemp.ctapeno from ytemp )#
-res2 <- dbGetQuery(con, "SELECT deal, icode, fico FROM drops")#
-#cds is shorthand for drops#
-# #
-cds <- as.tibble(res)#
-p <- ggplot(cds, aes(x=fico)) + geom_histogram(binwidth = 5) + coord_cartesian(xlim = c(300,850))#
-p + ggtitle("FICO scores for 2006 dropped transactions in increments of 5") + labs(x = "FICO", y = "Number of Loans")
-cds
-cds <- as.tibble(res2)#
-p <- ggplot(cds, aes(x=fico)) + geom_histogram(binwidth = 5) + coord_cartesian(xlim = c(300,850))#
-p + ggtitle("FICO scores for 2006 dropped transactions in increments of 5") + labs(x = "FICO", y = "Number of Loans")
-cds
-summary(cds$fico)#
-nofico <-  filter(cds, fico < 300)#
-lowfico <- filter(cds, fico < 500 & fico > 0)
-nofico
-lowfico
-summary(cs$fico)
+res <- dbGetQuery(con, "SELECT fico, cltv, orate, obal, deal FROM loans")#
 cs <- as.tibble(res)
-summary(cs$fico)
+res <- dbGetQuery(con, "SELECT ctapeno, deal, remit, fico, dti, cltv, orate, obal grade, round(zip/100,0), dtype, fpd,ltype, pmiflag, ppp, otype, purpose, ptype FROM y6c")#
+cs <- as.tibble(res)#
+require(binaryLogic)#
+require(stringi)#
+reports <- cs %>% rowwise %>% mutate(repbin = toString(as.binary(remit))) %>% rowwise %>% mutate(repstr = str_replace_all(repbin,"[, ]",'')) %>% mutate(reports = str_count(repstr)) %>% select(ctapeno, repstr, reports)#
+perf <- reports %>% mutate(category = case_when(str_detect(repstr, '111$') ~ "C", str_count(repstr, '0') <= 9 ~ "B", str_count(repstr, '0') > 9 ~ "A")) %>% select(ctapeno, category)#
+y6rf <- cs %>% inner_join(perf, by = "ctapeno")#
+y6rf <- y6rf %>% mutate(zip = as.character(`round(zip/100,0)`), pmiflag = as.character(pmiflag), ppp = as.character(ppp), perf = category, grade = as.character((grade)))#
+y6rf <- y6rf %>% select(ctapeno, deal,fico,dti,cltv,obal, orate, grade, dtype,fpd,ltype, pmiflag, ppp,  otype, purpose, ptype, zip, perf)#
+dbWriteTable(con, "loans", y6rf) #
+test#
+res <- dbGetQuery(con, "SELECT * from loans limit 25")
+res
+y6rf
+y6rf <- y6rf %>% select(ctapeno, deal,fico,dti,cltv,obal, orate, grade, dtype,fpd,ltype, pmiflag, ppp,  otype, purpose, ptype, zip, perf)
+res <- dbGetQuery(con, "SELECT ctapeno, deal, remit, fico, dti, cltv, orate, obal, grade, round(zip/100,0), dtype, fpd,ltype, pmiflag, ppp, otype, purpose, ptype FROM y6c")#
+cs <- as.tibble(res)#
+require(binaryLogic)#
+require(stringi)#
+reports <- cs %>% rowwise %>% mutate(repbin = toString(as.binary(remit))) %>% rowwise %>% mutate(repstr = str_replace_all(repbin,"[, ]",'')) %>% mutate(reports = str_count(repstr)) %>% select(ctapeno, repstr, reports)#
+perf <- reports %>% mutate(category = case_when(str_detect(repstr, '111$') ~ "C", str_count(repstr, '0') <= 9 ~ "B", str_count(repstr, '0') > 9 ~ "A")) %>% select(ctapeno, category)#
+y6rf <- cs %>% inner_join(perf, by = "ctapeno")#
+y6rf <- y6rf %>% mutate(zip = as.character(`round(zip/100,0)`), pmiflag = as.character(pmiflag), ppp = as.character(ppp), perf = category, grade = as.character((grade)))#
+y6rf <- y6rf %>% select(ctapeno, deal,fico,dti,cltv,obal, orate, grade, dtype,fpd,ltype, pmiflag, ppp,  otype, purpose, ptype, zip, perf)
+y6rf
+dbWriteTable(con, "loans", y6rf) #
+#test#
+res <- dbGetQuery(con, "SELECT * from loans limit 25")
+dbWriteTable(con, "loans", y6rf) #
+#test#
+res <- dbGetQuery(con, "SELECT * from loans limit 25", overwrite = TRUE)
+dbWriteTable(con, "loans", y6rf) #
+#test#
+res <- dbGetQuery(con, "SELECT * from loans limit 25")
+res
+quit()
+library(tidyverse)#
+library(DBI)#
+library(RMySQL)#
+library(FacoMineR)#
+drv <- dbDriver("MySQL")#
+con <- dbConnect(drv, username="root", password="", dbname ="dlf", host="localhost")#
+res <- dbGetQuery(con, "SELECT fico, cltv, orate, obal, deal FROM loans")#
+cs <- as.tibble(res)
 cs
-summary(cs)
-res <- dbGetQuery(con, "SELECT deal, fico FROM y6")#
-#cs is shorthand for credit score#
+help(PCA)
+??PCA
+PCA(cs)
+rcess
+sessionInfo()
+update.packages()
+library(FactoMineR)
+PCA(cs)
+pca
+cs
+qs <- cs %>% select (fico,cltv,orate)
+res <- dbGetQuery(con, "SELECT fico, cltv, orate, obal, dti, FROM loans")#
 cs <- as.tibble(res)
-summary(cs$fico)
-summary(cds$fico)
-getmode(cs$fico)
-getmode <- function(v) {#
-   uniqv <- unique(v)#
-   uniqv[which.max(tabulate(match(v, uniqv)))]#
-}
-getmode(cs$fico)
-getmode(cds$fico)
-find_intercepts <- function(obj){#
-  y = quantile(obj, c(0.25, 0.75), type=5)  #
-  x = qnorm(c(0.25, 0.75))#
-  slope = diff(y)/diff(x)#
-  intc = y[1] - slope * x[1]#
-  return(c(slope,intc))#
-}
-find_intercepts(cds$fico)
-find_intercepts(cd$fico)
-find_intercepts(cs$fico)
-slope <- find_intercepts(cs$fico)[[1]]
-slope
-intercept <- find_intercepts(cs$fico)[[2]]
-slope <- find_intercepts(cds$fico)[[1]]
-intercept <- find_intercepts(cds$fico)[[2]]
-slope
-intercept
-d <- ggplot(cds, aes(sample=fico)) + stat_qq() +             #
-    geom_abline(intercept=intercept, slope=slope) + ylab("FICO") + ggtitle(paste("QQ Plot of FICO Scores for Dropped Loans "))''
-d <- ggplot(cds, aes(sample=fico)) + stat_qq()
-d
-d <- ggplot(cds, aes(sample=fico)) + stat_qq() + geom_abline(intercept=intercept, slope=slope) + ylab("FICO")
-d
-nofico
-length(nofico)
-lowfico
-d <- ggplot(cds, aes(sample=fico)) + stat_qq() + geom_abline(intercept=intercept, slope=slope) + ylab("FICO") + ggtitle("QQ Plot of FICO Scores for Dropped Loans")
+res <- dbGetQuery(con, "SELECT fico, cltv, orate, obal, dti FROM loans")#
+cs <- as.tibble(res)
+PCA(cs)
+csp <- PCA(cs)
+summary(csp)
+csp$call
+csp
+csp$cll$esart.type
+csp$call$esart.type
+csp$call$ecart.type
+csp$var
+lapply(dimdesc(csp),lappy,round,2)
+lapply(dimdesc(csp),lapply,round,2)
+?biplot
+quit()
+library(tidyverse)#
+library(DBI)#
+library(RMySQL)#
+#library(FacoMineR)#
+drv <- dbDriver("MySQL")#
+con <- dbConnect(drv, username="root", password="", dbname ="dlf", host="localhost")#
+res <- dbGetQuery(con, "SELECT fico, cltv, orate, obal, dti FROM loans")#
+cs <- as.tibble(res)
+cs.pca <- prcomp(cs.pca, scale = TRUE)
+cs.pca
+cs
+cs.pca <- prcomp(cs, scale = TRUE)
+cs.pca
+cs.pca$rotation
+biplot(cs.pca, scale = 0)
+cs.val <- cs.pca$sdev*2
+cs.val
+cs.pve <- cs.var/sum(cs.var)
+cs.var <- cs.pca$sdev*2
+rm(cs.val)
+cs.pre = cs.var/sum(cs.var)
+cs.pre
+plot(cs.pre, xlab = "Principal Component", ylab="Porportion of Variance Explained"), ylim = c(0,1), type ='b')
+plot(cs.pre, xlim = "Principal Component", ylab="Porportion of Variance Explained"), ylim = c(0,1), type ='b')
+plot(cs.pre, xlim = "Principal Component", ylab="Porportion of Variance Explained", ylim = c(0,1), type ='b')
+plot(cs.pre, xlab = "Principal Component", ylab="Porportion of Variance Explained", ylim = c(0,1), type ='b')
+plot(cumsum(cs.pre), xlab = "Principal Component", ylab="Porportion of Variance Explained", ylim = c(0,1), type ='b')
+css <- sample(cs,1000)
+nrow(cs)
+css <- sample(cs,100)
+css <- sample(cs,1000)
+css <- sample(cs,1000, replace = TRUE)
+css <- sample(css,1000, replace = TRUE)#
+css.pca <- prcomp(cs, scale = TRUE)#
+biplot(css.pca, scale = 0)#
+css.val <- css.pca$sdev*2
+css
+cs
+css <- sample_n(cs,1000)
+css
+css.pca <- prcomp(cs, scale = TRUE)
+css.pca
+biplot(css.pca, scale = 0)
+css <- sample_n(cs,100)#
+css.pca <- prcomp(cs, scale = TRUE)#
+css.val <- css.pca$sdev*2#
+css.val <- css.pca$sdev*2#
+css.val#
+css.pve <- css.var/sum(css.var)#
+css.var <- css.pca$sdev*2#
+css.pre = css.var/sum(css.var)#
+plsot(css.pre, xlab = "Principal Component", ylab="Porportion of Variance Explained", ylim = c(0,1), type ='b')#
+plsot(cumsum(css.pre), xlab = "Principal Component", ylab="Porportion of Variance Explained", ylim = c(0,1), type ='b')
+css <- sample_n(cs,100)#
+css.pca <- prcomp(cs, scale = TRUE)#
+css.val <- css.pca$sdev*2
+css.pve <- css.var/sum(css.var)#
+css.var <- css.pca$sdev*2
+css <- sample_n(cs,100)#
+css.pca <- prcomp(cs, scale = TRUE)#
+css.val <- css.pca$sdev*2#
+css.var <- css.pca$sdev*2#
+css.pve <- css.var/sum(css.var)#
+plsot(css.pve, xlab = "Principal Component", ylab="Porportion of Variance Explained", ylim = c(0,1), type ='b')#
+plsot(cumsum(css.pve), xlab = "Principal Component", ylab="Porportion of Variance Explained", ylim = c(0,1), type ='b')
+css <- sample_n(cs,100)#
+css.pca <- prcomp(cs, scale = TRUE)#
+css.val <- css.pca$sdev*2#
+css.var <- css.pca$sdev*2#
+css.pve <- css.var/sum(css.var)#
+plot(css.pve, xlab = "Principal Component", ylab="Porportion of Variance Explained", ylim = c(0,1), type ='b')#
+plot(cumsum(css.pve), xlab = "Principal Component", ylab="Porportion of Variance Explained", ylim = c(0,1), type ='b')
+css <- sample_n(cs,100)#
+css.pca <- prcomp(cs, scale = TRUE)#
+css.val <- css.pca$sdev*2#
+css.var <- css.pca$sdev*2#
+css.pve <- css.var/sum(css.var)#
+plot(css.pve, xlab = "Principal Component", ylab="Porportion of Variance Explained", ylim = c(0,1), type ='b')
+css <- sample_n(cs,100)#
+css.pca <- prcomp(cs, scale = TRUE)#
+css.var <- css.pca$sdev*2#
+css.pve <- css.var/sum(css.var)#
+plot(css.pve, xlab = "Principal Component", ylab="Porportion of Variance Explained", ylim = c(0,1), type ='b')
+biplot(css.pca, scale = 0)
+biplot(css.pve, scale = 0)
+css <- sample_n(cs,100)#
+pr.out <- prcomp(css, scale = TRUE)#
+biplot(pr.out, scale = 0)#
+pr.var <- pr.out$sdev*2#
+pre <- pr.var/sum(pr.var)
+css <- sample_n(cs,1000)#
+pr.out <- prcomp(css, scale = TRUE)#
+biplot(pr.out, scale = 0)#
+pr.var <- pr.out$sdev*2#
+pre <- pr.var/sum(pr.var)
+css <- sample_n(cs,1000, replace = FALSE)#
+pr.out <- prcomp(css, scale = TRUE)#
+biplot(pr.out, scale = 0)#
+pr.var <- pr.out$sdev*2#
+pre <- pr.var/sum(pr.var)
+css <- sample_n(cs,300, replace = FALSE)#
+pr.out <- prcomp(css, scale = TRUE)#
+biplot(pr.out, scale = 0)
+par(mfrow=c(2,2))
+biplot(pr.out, scale = 0)
+plot(pve, xlab = "Principal Component", ylab="Porportion of Variance Explained", ylim = c(0,1), type ='b')#
+#
+plot(cumsum(pve), xlab = "Principal Component", ylab="Porportion of Variance Explained", ylim = c(0,1), type ='b')
+pr.var <- pr.out$sdev*2#
+pve <- pr.var/sum(pr.var)#
+plot(pve, xlab = "Principal Component", ylab="Porportion of Variance Explained", ylim = c(0,1), type ='b')#
+#
+plot(cumsum(pve), xlab = "Principal Component", ylab="Porportion of Variance Explained", ylim = c(0,1), type ='b')
+pve
+cumsum(pve)
+par(mfrow=c(2,2))
+print(pr.out)
+screeplot(pve)
+screeplot(pr.out)
+screeplot(pve)
+pve
+screeplot(pve)
+screeplot(pr.out
+)
+require(graphics)
+screeplot(pr.out)
+screeplot(pr.out, type = "lines")
+library(tidyverse)#
+library(DBI)#
+library(RMySQL)#
+#library(FacoMineR)#
+drv <- dbDriver("MySQL")#
+con <- dbConnect(drv, username="root", password="", dbname ="dlf", host="localhost")#
+res <- dbGetQuery(con, "SELECT fico, cltv, orate, obal, dti FROM loans")#
+cs <- as.tibble(res) # cs contains only the continuous variables#
+css <- sample_n(cs,300, replace = FALSE) # loadings similar with n=nrow(cs), n=1000#
+# naming conventions following James et al. *An Introduction to Statistical Learning*#
+#
+pr.out <- prcomp(css, scale = TRUE)#
+#
+pr.var <- pr.out$sdev*2#
+pve <- pr.var/sum(pr.var)#
+par(mfrow=c(2,2)#
+#
+screeplot(pr.out, type = "lines")#
+#
+biplot(pr.out, scale = 0)#
+#
+plot(pve, xlab = "Principal Component", ylab="Porportion of Variance Explained", ylim = c(0,1), type ='b')#
+#
+plot(cumsum(pve), xlab = "Principal Component", ylab="Porportion of Variance Explained", ylim = c(0,1), type ='b')#
+#
+pve#
+sumsum(pre)
+library(tidyverse)#
+library(DBI)#
+library(RMySQL)#
+#library(FacoMineR)#
+drv <- dbDriver("MySQL")#
+con <- dbConnect(drv, username="root", password="", dbname ="dlf", host="localhost")#
+res <- dbGetQuery(con, "SELECT fico, cltv, orate, obal, dti FROM loans")#
+cs <- as.tibble(res) # cs contains only the continuous variables#
+css <- sample_n(cs,300, replace = FALSE) # loadings similar with n=nrow(cs), n=1000#
+# naming conventions following James et al. *An Introduction to Statistical Learning*#
+#
+pr.out <- prcomp(css, scale = TRUE)#
+#
+pr.var <- pr.out$sdev*2#
+pve <- pr.var/sum(pr.var)#
+par(mfrow=c(2,2)#
+#
+screeplot(pr.out, type = "lines")#
+#
+biplot(pr.out, scale = 0)#
+#
+plot(pve, xlab = "Principal Component", ylab="Porportion of Variance Explained", ylim = c(0,1), type ='b')#
+#
+plot(cumsum(pve), xlab = "Principal Component", ylab="Porportion of Variance Explained", ylim = c(0,1), type ='b')#
+#
+pve#
+cumsum(pre)
+screeplot(pr.out, type = "lines")
+screeplot(pr.out, type = "lines", main = xlab = "Principal Component", title "Screeplot")
+screeplot(pr.out, type = "lines", main(xlab = "Principal Component", title "Screeplot"))
+screeplot(pr.out, type = "lines", main(xlab = "Principal Component", title = "Screeplot"))
+mod <- (cs$scale(orate) ~ cs$scale(obal))
+summary(mod)
+mod <- lm(cs$scale(orate) ~ cs$scale(obal))
+mod <- lm(cs$(scale(orate)) ~ cs$(scale(obal)))
+mod <- lm(cs$(scale(orate)) ~ cs$(scale(obal))
+mod <- lm(cs$(scale(orate)) ~ cs$(scale(obal)))
+orate_s <- cs$orate
+obal_s <- cs$obal
+mod <- lm(orate_s ~ obal_s)
+summary(mod)
+par(mfrow=c(2,2))
+plot(mod)
+cor(cs$obal,cs$orate)
+cor(cs$obal_s,cs$orate_s)
+cor(obal_s, orate_s)
+cov(orate_s,obal_s)
+var(orate_s,obal_s)
+var(obal_s,orate_s)
+var(obal,orate)
+var(cs$obal,cs$orate)
+cor(cs$obal,cs$orate)
+cov(cs$obal,cs$orate)
+cor(cs$obal,cs$orate)
+sumsum(pve)
+cumsum(pve)
+cor(cs$FICO,cs$DTI)
+cor(cs$FICO,cs$dti)
+cor(cs$fico,cs$dti)
+cor(cs$fico,cs$cltv)
+cor(cs$dti,cs$cltv)
+round(cumsum(pve),3)
+round(cor(orate_s,obal_s),3)
+round(cor(cs$fico,cs$cltv).3)
+quit()
+library(tidyverse)#
+library(DBI)#
+library(RMySQL)#
+#library(FacoMineR)#
+drv <- dbDriver("MySQL")#
+con <- dbConnect(drv, username="root", password="", dbname ="dlf", host="localhost")#
+res <- dbGetQuery(con, "SELECT fico, cltv, obal, dti FROM loans")#
+cs <- as.tibble(res)#
+#
+pr.out <- prcomp(cs, scale = TRUE)#
+pr.var <- pr.out$sdev*2#
+pve <- pr.var/sum(pr.var)
+pr.out
+pr.var
+pve
+cum(pre)
+cumsum(pre)
+cumsum(pve)
+screeplot(pr.out, type = "lines")
+cs.k <- kmeans(cs, 3, iter.max = 20, nstart = 50)
+plot(css, col=(css.k$cluster+1), main="K-Means Clustering Result with K=3, n = 9,000, nstart = 50, max.iter = 20", pch=20, cex=2)
+plot(cs, col=(cs.k$cluster+1), main="K-Means Clustering Result with K=3, n = all_loans, nstart = 50, max.iter = 20", pch=20, cex=2)
+cs.k <- kmeans(cs, 3, iter.max = 20, nstart = 50)
 getwd()
 setwd("/Users/rc/projects/technocrat/data")
-liq <- read.csv("totliq.csv", header = FALSE, stringsAsFactors = FALSE)
-liq <- read.csv("/totliq.csv", header = FALSE, stringsAsFactors = FALSE)
-liq <- read.csv("/Users/rc/projects/technocrat/data/totliq.csv", header = FALSE, stringsAsFactors = FALSE)
-liq <- read.csv("/totliq.csv", header = FALSE, stringsAsFactors = FALSE)
-liq <- read.csv("/Users/rc/projects/technocrat/data/totliq.csv", header = FALSE, stringsAsFactors = FALSE)
-summary(liq)
-liq
-liq$V1
-liq$liquidated
-liq <- read.csv("/Users/rc/projects/technocrat/data/totliq.csv", header = FALSE, stringsAsFactors = FALSE)
-summary(liq)
-liq
-liq <- read.csv("/Users/rc/projects/technocrat/data/totliq.csv", header = true, stringsAsFactors = FALSE)
-liq <- read.csv("/Users/rc/projects/technocrat/data/totliq.csv", header = TRUE, stringsAsFactors = FALSE)
-liq
-help(read.csv)
-liq <- read.csv("/Users/rc/projects/technocrat/data/totliq.csv", header = TRUE, stringsAsFactors = FALSE, sep = ",")
-liq
-summary(liq)
-sum(liq$liquidated)
-liq <- read.csv("/Users/rc/projects/technocrat/data/totliq.csv", header = TRUE, stringsAsFactors = FALSE, sep = ",")
-sum(liq$liquidated)
-liq
-liq <- read.csv("/Users/rc/projects/technocrat/data/totliq.csv", header = TRUE, stringsAsFactors = FALSE, sep = ",")
-liq
-summary(liq)
-sum(liq$liquidated)
-liq <- read.csv("totliq.csv", header = TRUE, stringsAsFactors = FALSE, sep = ",")
-length(cds)
-cds
-nrows(cds)
-nrow(cds)
-round(sum($liq$liquidated)/nrow(cds)*100,2)
-round(sum(liq$liquidated)/nrow(cds)*100,2)
-res <- dbGetQuery(con, "SELECT deal, remit, fico FROM y7")#
-#cs is shorthand for credit score#
-cs <- as.tibble(res)#
-cs %>% summarize(remit == 0)
-res
-class(cs)
-head(res)
-head(cs)
+save(cs.k, file = "kmeans_loans.Rda")
+plot(cs, col=(cs.k$cluster+1), main="K-Means Clustering Result with K=3, n = all_loans, nstart = 50, max.iter = 20", pch=20, cex=2)
+table(cs.k)
+cs.k
+table(cs.k$cluster)
+table(cs.k$centers)
+table(cs.k$size)
+table(cs.k$totss)
+?scatterplot
+pairs(cs~fico,cltv,obal,dti)
+pairs(~cs+fico+cltv+obal+dti)
+pairs(~cs+cs$fico+cs$cltv+cs$obal+cs$dti)
 cs
-cs res <- dbGetQuery(con, "SELECT deal, remit, fico FROM y7")#
-#cs is shorthand for credit score#
-cs <- as.tibble(res)#
-cs %>% summarize(remit == 0)
+help(pairs)
+pairs(~ fico + cltv + obal + dti, data = cs)
+quit()

@@ -19,7 +19,8 @@ Its intent is to provide prospective employers with concrete evidence of my abil
 * 2018-06-23 added qqnorm tests to FICO example in Failure Analysis chapter, part 1
 * 2018-06-26 stratified Failure Analysis 125K dataset to censor loan dropouts during 2006, classified remaining loans into performance categories based on monthly payment/nonpayment data and compared FICO distributions in the categories
 * 2018-06-28 illustrated non-normality of FICO distributions with Shapiro-Wilks test; refactored database for principal component analysis
-* 2018-07-01 performed PCA
+* 2018-07-01 performed PCA on sample
+* 2018-07-02 performed K-means clustering
 
 ## Literate programming: the tight integration of code and text
 
@@ -61,11 +62,12 @@ I've completed the following online courses, to consolidate and expand my previo
 ![Harvard PH125.5x, Productivity, certificate issuance pending](https://s3-us-west-2.amazonaws.com/tuva/HarvardX%3B+PH125.5x.png)
  
 ![HarvardX PH559x Certificate](https://s3-us-west-2.amazonaws.com/tuva/HarvardX+PH559x+Certificate+%7C+edX.png)
+
 ### Undergraduate level
 
-!["BerkeleyX Data8.1x Certificate"](https://s3-us-west-2.amazonaws.com/tuva/BerkeleyX+Data8.1x+Certificate+%7C+edX.png)
+![BerkeleyX Data8.1x Certificate](https://s3-us-west-2.amazonaws.com/tuva/BerkeleyX+Data8.1x+Certificate+%7C+edX.png)
 
-## Prior analytic and programming experience
+### Prior analytic and programming experience
 
 My prior analytic education and experience was in geology/geophysics (M.S.) and law (J.D.) I have been on *nix as my own sysadm since 1984, including Venix (a v7 derivative), Irix (SGI), Ubuntu and other Linux versions, and Mac OSx. My orientation is strongly CLI, rather than GUI, but I have used Excel and Word since their early release. I have non-PC experience with the IBM S/34 and implementation of payroll, general ledger and budgeting. During the mid-90s, I installed, configured and operated http, mail, news, proxy, certificate and LDAP servers. I am familiar with many of the important bash tools (which I use on a daily basis) and with C and Perl (which I can still read, but seldom use).
 

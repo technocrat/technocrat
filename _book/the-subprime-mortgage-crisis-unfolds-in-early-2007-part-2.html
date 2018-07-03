@@ -25,7 +25,7 @@
 <meta name="author" content="Richard Careaga">
 
 
-<meta name="date" content="2018-07-01">
+<meta name="date" content="2018-07-02">
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -70,8 +70,8 @@
 <li class="chapter" data-level="1.5" data-path="index.html"><a href="index.html#current-credentials"><i class="fa fa-check"></i><b>1.5</b> Current Credentials</a><ul>
 <li class="chapter" data-level="1.5.1" data-path="index.html"><a href="index.html#graduate-school-level"><i class="fa fa-check"></i><b>1.5.1</b> Graduate school level</a></li>
 <li class="chapter" data-level="1.5.2" data-path="index.html"><a href="index.html#undergraduate-level"><i class="fa fa-check"></i><b>1.5.2</b> Undergraduate level</a></li>
+<li class="chapter" data-level="1.5.3" data-path="index.html"><a href="index.html#prior-analytic-and-programming-experience"><i class="fa fa-check"></i><b>1.5.3</b> Prior analytic and programming experience</a></li>
 </ul></li>
-<li class="chapter" data-level="1.6" data-path="index.html"><a href="index.html#prior-analytic-and-programming-experience"><i class="fa fa-check"></i><b>1.6</b> Prior analytic and programming experience</a></li>
 </ul></li>
 <li class="chapter" data-level="2" data-path="counted.html"><a href="counted.html"><i class="fa fa-check"></i><b>2</b> 2015 Police Involved Homicides</a><ul>
 <li class="chapter" data-level="2.1" data-path="counted.html"><a href="counted.html#introduction"><i class="fa fa-check"></i><b>2.1</b> Introduction</a></li>
@@ -122,6 +122,7 @@
 <li class="chapter" data-level="5.1" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html#the-fall-of-fico"><i class="fa fa-check"></i><b>5.1</b> The fall of FICO</a></li>
 <li class="chapter" data-level="5.2" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html#restructuring-the-data"><i class="fa fa-check"></i><b>5.2</b> Restructuring the data</a></li>
 <li class="chapter" data-level="5.3" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html#principal-component-analysis"><i class="fa fa-check"></i><b>5.3</b> Principal component analysis</a></li>
+<li class="chapter" data-level="5.4" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html#k-means-clustering"><i class="fa fa-check"></i><b>5.4</b> K-means clustering</a></li>
 </ul></li>
 <li class="chapter" data-level="6" data-path="the-enron-email-corpus.html"><a href="the-enron-email-corpus.html"><i class="fa fa-check"></i><b>6</b> The Enron Email Corpus</a><ul>
 <li class="chapter" data-level="6.1" data-path="the-enron-email-corpus.html"><a href="the-enron-email-corpus.html#case-description-2"><i class="fa fa-check"></i><b>6.1</b> Case Description</a></li>
@@ -185,7 +186,7 @@
             <section class="normal" id="section-">
 <div id="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2" class="section level1">
 <h1><span class="header-section-number">5</span> The subprime mortgage crisis unfolds in early 2007, part 2</h1>
-<p>Keywords: refactoring, principal component analysis</p>
+<p>Keywords: refactoring, unsupervised learning, principal component analysis, k-means clustering</p>
 <div id="the-fall-of-fico" class="section level2">
 <h2><span class="header-section-number">5.1</span> The fall of FICO</h2>
 <p>The problem with the conventional wisdom of long standing is that it loses sight of history. The prominence of FICO in home loan credit underwriting described in the <a href="https://democrats-oversight.house.gov/sites/democrats.oversight.house.gov/files/documents/Fannie%20Freddie%20Testimony%20of%20Edward%20Pinto%2012.9.08%20written%20submission%20Full.pdf">Pinto Testimony</a> had its origins in a different time (the early 1990s) and a different lending environment. Freddie Mac was in a good position to ensure that all other things <em>were</em> equal. It made only what came to be called “prime” loans, generally for no more than 80% of the value of the property, under more stringent limitations on the debt-to-income ratio of the borrower and many other criteria that it kept within a narrow range, and offered only a few varieties of loans.</p>
@@ -231,10 +232,23 @@
 <div id="principal-component-analysis" class="section level2">
 <h2><span class="header-section-number">5.3</span> Principal component analysis</h2>
 <p><img src="_main_files/figure-html/psa1-1.png" width="672" /></p>
-<p>The cumulative variance is 0.257, 0.483, 0.697, 0.864, 1</p>
+<p>The cumulative variance is 0.258, 0.503, 0.706, 0.872, 1 for this sample of 300.</p>
 <p>From the loadings chart on the right, we see that <em>obal</em> (the original amount of the loan) and <em>orate</em> (the original rate of interest) are negatively correlated, -0.451. The remaining continuous variables, <em>fico</em>, <em>dti</em> (debt-to-income ratio), <em>cltv</em> (the ratio of first and second loans to the value of the mortgaged property), have small correlations:</p>
 <p>The variables <em>fico</em> and <em>cltv</em> have some correlation (0.295), while <em>fico</em> and <em>dti</em> (-0.036) and <em>dti</em> and <em>cltv</em> (0.121) have low correlations.</p>
-<p>Next, we can use the three highest principal components for k-means clustering.</p>
+<p>The variable <em>orate,</em> however, is clearly discrete, so we re-run without it and increase the size of the sample to 9,000.</p>
+<p><img src="_main_files/figure-html/unnamed-chunk-1-1.png" width="672" /></p>
+<p>The variances are [1] 0.2880082 0.2646717 0.2512490 0.1960711</p>
+</div>
+<div id="k-means-clustering" class="section level2">
+<h2><span class="header-section-number">5.4</span> K-means clustering</h2>
+<p>The following represents the unsupervised classification of the <em>fico, cltv, obal</em>, and <em>dti</em> of an approximately 10% samplefrom the <strong>loans</strong> dataset.</p>
+<p><img src="_main_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<p>Using the entire population, rather than a sample creates somewhat better defined clusters</p>
+<div class="figure">
+<img src="http://media.richard-careaga.com/img/Kmeans_loans.png" alt="K-means clustering of all loans in loans database" />
+<p class="caption">K-means clustering of all loans in loans database</p>
+</div>
+<p>Consideration might be given to separately clustering high-balance loans. Other outliers, such as the zero FICO scores, can be safely ignored, as can be the anomalous loan with a 97% <em>dti</em> ratio.</p>
 
 </div>
 </div>
