@@ -1,0 +1,171 @@
+<p>2016&#8211;03&#8211;07 </p>
+
+<h2>What we need to keep living together</h2>
+
+<p><strong>Safety</strong>
+ * Ability to get out of a burning house
+ * Ability to get up after a fall or to summon help
+ * Ability to get medication from prepared boxes when and in the amounts required</p>
+
+<p><strong>Independence</strong>
+ * Ability to get in and out of sitting and lying position
+ * Daily hygiene
+ * Bathing with minimal help drying
+ * Ability to get a pre-made meal from fridge and heat it in microwave for lunch
+ * Ability to serve self drinks and snacks
+ * Ability to reach &#8220;stuff&#8221; used every day or week</p>
+
+<p><strong>Enjoyment</strong>
+ * Ability to use TV, DVD, iPad without repetitive instruction
+ * Ability to maintain and expand circle of friends
+ * Ability and willingness to enjoy the garden
+ * Ability and willingness to do some activities outside the home</p>
+
+<h2>Alternatives</h2>
+
+<pre><code>* Aging in place together
+    - More independence needed
+    - Outside help if decline or dementiq 
+* CCCR together
+    - Must be able to pass their ADL criteria
+* ALF apart
+</code></pre>
+
+<h2>Paths</h2>
+
+<pre><code>- Home -&gt; Rehab -&gt; ALF
+- Home -&gt; CCRC -&gt; Rehab -&gt; CCRC
+</code></pre>
+
+<h2>My goals</h2>
+
+<pre><code>* I'm totally OK with IADL, including scheduling getting home early enough to put newly cooked dinner on the table by 7 or earlier
+* I'm ok with helping you dry after a shower, helping  you wash your hair, getting your shoes and socks on and cutting your meat
+* I'm **not** ok with being a substitute for a walker or a chair if you are capable of using one
+* I'm **not** ok with being a butler for things you could get for yourself or at least could ask for without dribbling requests out, making me a human yo
+* If you are safe and able to take minimal care of your own needs, I want to come and go as I please
+* Otherwise
+    - Substantial in-home help
+      - CCRC if not too late
+    - ALF
+</code></pre>
+
+<p>## What happens if
+ * I become disabled -&gt; ALF
+ * You need more ADL help
+ - Two options
+ + ALF
+ + Home health aide @$19/hour</p>
+
+<h2>How to resolve?</h2>
+
+<ul>
+<li>Is this something we can negotiate without falling into an emotional black hole of recriminations?</li>
+<li>Find a neutral mediator?
+
+<ul>
+<li>Dr. Teng</li>
+<li>Some other mediator?</li>
+<li>Bev, if obstacles can be overcome?</li>
+</ul></li>
+<li>Poker &#8211; who folds first?</li>
+</ul>{-# LANGUAGE FlexibleContexts #-}   -- parsec
+{-# LANGUAGE OverloadedStrings #-}  -- yaml
+
+module Alt where
+-- yaml
+
+import Data.Yaml hiding (Parser) -- namespace conflict with Parsec
+import qualified Data.Maybe as M -- optional conflict
+
+-- parsec
+
+import Control.Applicative
+--import Control.Monad (void)
+--import System.Environment
+import Text.Parsec
+import qualified Text.Parsec.Prim as P
+import Text.Parsec.Combinator
+import Text.ParserCombinators.Parsec
+import Control.Monad 
+import Control.Monad.Identity (Identity) 
+import System.Environment (getArgs) 
+import Text.Parsec hiding (spaces) 
+
+-- testing
+
+import Data.Char (toUpper, toLower)
+
+-- record structure
+
+data ReadData = ReadData { stripComments     :: Bool -- these are constructors
+                           , stripLabel      :: Bool
+                           , zeroDot         :: Bool
+                           , justifyLeft     :: Bool
+                           , stubHeader      :: String
+                           , subHeader       :: String
+                           } deriving (Eq, Ord, Show)
+
+instance FromJSON ReadData where
+    parseJSON (Object v) = ReadData <$>
+                           v .: "stripComments" <*>
+                           v .: "stripLabel"    <*>
+                           v .: "zeroDot"       <*>
+                           v .: "justifyLeft"   <*>
+                           v .: "stubHeader"    <*>
+                           v .: "subHeader" 
+    parseJSON _ = error "Can't parse ReadData from YAML/JSON"
+
+-- tokens
+pctsign, backslash, ampersand :: Char
+pctsign   = '%'
+backslash = '\\'
+ampersand = '&'
+
+-- compound tokens
+label' :: String
+label' =  [backslash] ++ "label{2}"
+
+--------------------------------------------------------------------------------
+
+-- read yaml file and unwrap
+getMeta = do
+         mydata <- decodeFile "table.yaml" :: IO (Maybe ReadData)
+         let metae = M.fromJust mydata
+         return metae
+
+--------------------------------------------------------------------------------
+-- Consume a comment (from a '%' character to the end of the line) and
+-- return nothing. http://bit.ly/1MuWINf
+-- usage: parse noLaTeXComment "latexComment" "% this is a comment\n"
+-- result: Right ()
+
+noLaTeXComment :: Stream s m Char => ParsecT s u m ()
+noLaTeXComment =  (<?> "expecting line beginning with %") 
+                  $  char '%' >> void (manyTill anyChar endOfLine)
+
+-- Consume a label line (from a  \label{2} to the end of the line) and
+-- return nothing.
+
+-- usage: parse noLaTeXLabel "latexLabel" "\\label{2}\n"
+-- result: Right ()
+
+noLaTeXLabel   :: Stream s m Char => ParsecT s u m ()
+noLaTeXLabel   =  (<?> "discard lines beginning with \\label {2}string") 
+               $ string label'  >> void (manyTill anyChar endOfLine)
+
+-------------------------------------------------------------------------------- 
+parseFromFile' p fname = do
+    input <- readFile fname
+    ; return (P.runParser p () fname input)
+
+-- io f = interact (unlines . f . lines)
+
+
+-- temp hardwire
+getStuff = do
+  input <- readFile "tester.Rmd"
+  return input
+
+
+

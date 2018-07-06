@@ -146,7 +146,7 @@ Using the entire population, rather than a sample creates somewhat better define
 ```{r, results="asis", echo = FALSE, warning=FALSE}
 ## Not run
 ## cs.k <- kmeans(cs, 3, iter.max = 20, nstart = 50)
-## use load("kmeans_loans.Rda")
+## use load("kmeans_loans.Rda") # brings in cs.k
 ## Not run
 ## plot(cs, col=(cs.k$cluster+1), main="K-Means Clustering Result with K=3, n = all_loans, nstart = 50, max.iter = 20", pch=20, cex=2)
 ## Use provided link (long running process)
