@@ -1,6 +1,6 @@
 # The subprime mortgage crisis unfolds in early 2007, part 2
 
-Keywords: refactoring, unsupervised learning, principal component analysis, k-means clustering
+Keywords: refactoring, unsupervised learning, principal component analysis, k-means clustering, correspondence analysis, chi-squared test, contingency table, pivot, correlation table
 
 ## The fall of FICO
 
@@ -134,7 +134,7 @@ pve
 
 ## K-means clustering
 
-The following represents the unsupervised classification of the *fico, cltv, obal*, and *dti* of an approximately 10% samplefrom the **loans** dataset.
+The following represents the unsupervised classification of the *fico, cltv, obal*, and *dti* of an approximately 10% sample from the **loans** dataset.
 
 ```{r, results="asis", echo = FALSE, warning=FALSE}
 css.k <- kmeans(css, 3, iter.max = 20, nstart = 50)
@@ -154,6 +154,98 @@ Using the entire population, rather than a sample creates somewhat better define
 ![K-means clustering of all loans in loans database](http://media.richard-careaga.com/img/Kmeans_loans.png)
  
 Consideration might be given to separately clustering high-balance loans. Other outliers, such as the zero FICO scores, can be safely ignored, as can be the anomalous loan with a 97% *dti* ratio.
+
+### Housekeeping
+
+Since PCA is a relatively expensive calculation for 100K records, I saved the result to and Rda file for reuse. Now, I'll add it to the loans database as another categorical variable.
+
+Because I don't run the MySQL server with rollback and to avoid a proliferation of names
+
+    MariaDB [dlf]> CREATE TABLE loans_bak AS SELECT * from loans;
+    Query OK, 96147 rows affected (1.06 sec)
+    Records: 96147  Duplicates: 0  Warnings: 0
+
+The strategy is to create df loans w/all fields and cbind cs.k$clusters, renam "value" to kcluster and write back to loans, after dropping it
+
+    dbWriteTable(con, "loans", cs)
+
+Here's the code (not run, to avoid churn)
+
+    library(tidyverse)
+    library(DBI)
+    library(RMySQL)
+    library(FactoMineR)
+
+    drv <- dbDriver("MySQL")
+    con <- dbConnect(drv, username="root", password="", dbname ="dlf", host="localhost")
+    res <- dbGetQuery(con, "SELECT * from loans_bak")
+    cs <- as.tibble(res)
+    load("data/kmeans_loans.Rda") # brings in cs.k
+    #check for missing values
+    nrow(cs) == length(cs.k$cluster)
+    # convert to data frame
+    csk <- as.tibble(cs.k$cluster)
+    # rename the column
+    csk <- csk %>% transmute(kcluster = value)
+    # combine
+    loans <- bind_cols(cs,csk)
+    # remove duplicate rownames column
+    loans <- loans[-1]
+    # write back to SQL
+    #dbWriteTable(con, "loans", loans) 
+    # test
+    #dbGetQuery(con, "SELECT * from loans limit 25")
+
+## Do the clusters predict loan performance?
+
+We previously classified loans in the pool based on payment history into three categories:
+
+* A: no more than 1 missed payment during the life of the loan
+* B: more than 1 missed payment during the life of the loan but current in the most recent report
+* C: delinquent at least three times as of the most recent three payment reports
+
+Do the three principal components of the numeric variables, *obal*, *orate*, *dti* and *cltv* have an association with the payment categories?
+
+If they do, we have the makings of a model; otherwise, we need to look at the other data available. 
+
+### Correspondence analysis
+
+Principal component analysis and many other data tools work only on continuous data; for discrete (or categorical) values, we turn to contingency tables, where one variable is in the rows and the other in the columns, so this is sometimes called an *r x c* table.
+
+I'll use three 10% samples to check if the results are consistent. The idea is to see if the porportion of results are *independent.* In formal terms, that will be the null hypothosis. The test statistic is the chi-square test of independence. I'll use the conventional *p-value* of 0.05 as the cutoff; anything less than that means that I cannot reject the null hypothesis that the performance categories and the factors are independent. Here are the contingency tables:
+
+```{r contab, results="asis", echo = FALSE, warning=FALSE}
+library(tidyverse)
+library(DBI)
+library(RMySQL)
+library(FactoMineR)
+library(knitr)
+library(kableExtra)
+drv <- dbDriver("MySQL")
+con <- dbConnect(drv, username="root", password="", dbname ="dlf", host="localhost")
+cs <- as.tibble(dbGetQuery(con, "SELECT perf, kcluster from loans"))
+s1 <- cs %>% sample_n(9000,replace=TRUE)
+s2 <- cs %>% sample_n(9000,replace=TRUE)
+s3 <- cs %>% sample_n(9000,replace=TRUE)
+kable(table(s1), format.args = list(big.mark = ","), caption = "Sample 1 contingency table of performance (row) by cluster (column)") %>% kable_styling(bootstrap_options = "striped", full_width = F) 
+kable(table(s2), format.args = list(big.mark = ","), caption = "Sample 2 contingency table of performance (row) by cluster (column)")  %>% kable_styling(bootstrap_options = "striped", full_width = F) 
+kable(table(s3), format.args = list(big.mark = ","), caption = "Sample 3 contingency table of performance (row) by cluster (column)")  %>% kable_styling(bootstrap_options = "striped", full_width = F) 
+``` 
+
+and the chi-square tests are consistent.
+
+```{r chisq, results="asis", echo = FALSE, warning=FALSE}
+print("Sample 1 chi square test for independence")
+print(chisq.test(table(s1)))
+
+print("Sample 2 chi square test for independence")
+print(chisq.test(table(s2)))
+
+print("Sample 3 chi square test for independence")
+print(chisq.test(table(s3)))
+``` 
+
+The chi square test doesn't allow us to conclude that the loan performance and PCA-dervived clusters are not independent. Put more plainly, the one seems to have nothing to do with the other.
 
 [credit disclosure]: https://goo.gl/uhX1Pc
 [LBMLT 2006-1]: https://www.sec.gov/Archives/edgar/data/1119605/000114420406002461/v033798_fwp.htm

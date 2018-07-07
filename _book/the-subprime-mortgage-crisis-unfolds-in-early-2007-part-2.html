@@ -25,7 +25,7 @@
 <meta name="author" content="Richard Careaga">
 
 
-<meta name="date" content="2018-07-02">
+<meta name="date" content="2018-07-06">
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -47,6 +47,7 @@
 
 
 
+<script src="libs/kePrint-0.0.1/kePrint.js"></script>
 
 
 
@@ -122,7 +123,12 @@
 <li class="chapter" data-level="5.1" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html#the-fall-of-fico"><i class="fa fa-check"></i><b>5.1</b> The fall of FICO</a></li>
 <li class="chapter" data-level="5.2" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html#restructuring-the-data"><i class="fa fa-check"></i><b>5.2</b> Restructuring the data</a></li>
 <li class="chapter" data-level="5.3" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html#principal-component-analysis"><i class="fa fa-check"></i><b>5.3</b> Principal component analysis</a></li>
-<li class="chapter" data-level="5.4" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html#k-means-clustering"><i class="fa fa-check"></i><b>5.4</b> K-means clustering</a></li>
+<li class="chapter" data-level="5.4" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html#k-means-clustering"><i class="fa fa-check"></i><b>5.4</b> K-means clustering</a><ul>
+<li class="chapter" data-level="5.4.1" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html#housekeeping"><i class="fa fa-check"></i><b>5.4.1</b> Housekeeping</a></li>
+</ul></li>
+<li class="chapter" data-level="5.5" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html#do-the-clusters-predict-loan-performance"><i class="fa fa-check"></i><b>5.5</b> Do the clusters predict loan performance?</a><ul>
+<li class="chapter" data-level="5.5.1" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html#correspondence-analysis"><i class="fa fa-check"></i><b>5.5.1</b> Correspondence analysis</a></li>
+</ul></li>
 </ul></li>
 <li class="chapter" data-level="6" data-path="the-enron-email-corpus.html"><a href="the-enron-email-corpus.html"><i class="fa fa-check"></i><b>6</b> The Enron Email Corpus</a><ul>
 <li class="chapter" data-level="6.1" data-path="the-enron-email-corpus.html"><a href="the-enron-email-corpus.html#case-description-2"><i class="fa fa-check"></i><b>6.1</b> Case Description</a></li>
@@ -186,7 +192,7 @@
             <section class="normal" id="section-">
 <div id="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2" class="section level1">
 <h1><span class="header-section-number">5</span> The subprime mortgage crisis unfolds in early 2007, part 2</h1>
-<p>Keywords: refactoring, unsupervised learning, principal component analysis, k-means clustering</p>
+<p>Keywords: refactoring, unsupervised learning, principal component analysis, k-means clustering, correspondence analysis, chi-squared test, contingency table, pivot, correlation table</p>
 <div id="the-fall-of-fico" class="section level2">
 <h2><span class="header-section-number">5.1</span> The fall of FICO</h2>
 <p>The problem with the conventional wisdom of long standing is that it loses sight of history. The prominence of FICO in home loan credit underwriting described in the <a href="https://democrats-oversight.house.gov/sites/democrats.oversight.house.gov/files/documents/Fannie%20Freddie%20Testimony%20of%20Edward%20Pinto%2012.9.08%20written%20submission%20Full.pdf">Pinto Testimony</a> had its origins in a different time (the early 1990s) and a different lending environment. Freddie Mac was in a good position to ensure that all other things <em>were</em> equal. It made only what came to be called “prime” loans, generally for no more than 80% of the value of the property, under more stringent limitations on the debt-to-income ratio of the borrower and many other criteria that it kept within a narrow range, and offered only a few varieties of loans.</p>
@@ -232,16 +238,16 @@
 <div id="principal-component-analysis" class="section level2">
 <h2><span class="header-section-number">5.3</span> Principal component analysis</h2>
 <p><img src="_main_files/figure-html/psa1-1.png" width="672" /></p>
-<p>The cumulative variance is 0.262, 0.495, 0.704, 0.86, 1 for this sample of 300.</p>
+<p>The cumulative variance is 0.253, 0.497, 0.708, 0.858, 1 for this sample of 300.</p>
 <p>From the loadings chart on the right, we see that <em>obal</em> (the original amount of the loan) and <em>orate</em> (the original rate of interest) are negatively correlated, -0.451. The remaining continuous variables, <em>fico</em>, <em>dti</em> (debt-to-income ratio), <em>cltv</em> (the ratio of first and second loans to the value of the mortgaged property), have small correlations:</p>
 <p>The variables <em>fico</em> and <em>cltv</em> have some correlation (0.295), while <em>fico</em> and <em>dti</em> (-0.036) and <em>dti</em> and <em>cltv</em> (0.121) have low correlations.</p>
 <p>The variable <em>orate,</em> however, is clearly discrete, so we re-run without it and increase the size of the sample to 9,000.</p>
 <p><img src="_main_files/figure-html/unnamed-chunk-1-1.png" width="672" /></p>
-<p>The variances are [1] 0.2885885 0.2653345 0.2508713 0.1952057</p>
+<p>The variances are [1] 0.2875106 0.2654761 0.2497528 0.1972605</p>
 </div>
 <div id="k-means-clustering" class="section level2">
 <h2><span class="header-section-number">5.4</span> K-means clustering</h2>
-<p>The following represents the unsupervised classification of the <em>fico, cltv, obal</em>, and <em>dti</em> of an approximately 10% samplefrom the <strong>loans</strong> dataset.</p>
+<p>The following represents the unsupervised classification of the <em>fico, cltv, obal</em>, and <em>dti</em> of an approximately 10% sample from the <strong>loans</strong> dataset.</p>
 <p><img src="_main_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
 <p>Using the entire population, rather than a sample creates somewhat better defined clusters</p>
 <div class="figure">
@@ -249,7 +255,261 @@
 <p class="caption">K-means clustering of all loans in loans database</p>
 </div>
 <p>Consideration might be given to separately clustering high-balance loans. Other outliers, such as the zero FICO scores, can be safely ignored, as can be the anomalous loan with a 97% <em>dti</em> ratio.</p>
+<div id="housekeeping" class="section level3">
+<h3><span class="header-section-number">5.4.1</span> Housekeeping</h3>
+<p>Since PCA is a relatively expensive calculation for 100K records, I saved the result to and Rda file for reuse. Now, I’ll add it to the loans database as another categorical variable.</p>
+<p>Because I don’t run the MySQL server with rollback and to avoid a proliferation of names</p>
+<pre><code>MariaDB [dlf]&gt; CREATE TABLE loans_bak AS SELECT * from loans;
+Query OK, 96147 rows affected (1.06 sec)
+Records: 96147  Duplicates: 0  Warnings: 0</code></pre>
+<p>The strategy is to create df loans w/all fields and cbind cs.k$clusters, renam “value” to kcluster and write back to loans, after dropping it</p>
+<pre><code>dbWriteTable(con, &quot;loans&quot;, cs)</code></pre>
+<p>Here’s the code (not run, to avoid churn)</p>
+<pre><code>library(tidyverse)
+library(DBI)
+library(RMySQL)
+library(FactoMineR)
 
+drv &lt;- dbDriver(&quot;MySQL&quot;)
+con &lt;- dbConnect(drv, username=&quot;root&quot;, password=&quot;&quot;, dbname =&quot;dlf&quot;, host=&quot;localhost&quot;)
+res &lt;- dbGetQuery(con, &quot;SELECT * from loans_bak&quot;)
+cs &lt;- as.tibble(res)
+load(&quot;data/kmeans_loans.Rda&quot;) # brings in cs.k
+#check for missing values
+nrow(cs) == length(cs.k$cluster)
+# convert to data frame
+csk &lt;- as.tibble(cs.k$cluster)
+# rename the column
+csk &lt;- csk %&gt;% transmute(kcluster = value)
+# combine
+loans &lt;- bind_cols(cs,csk)
+# remove duplicate rownames column
+loans &lt;- loans[-1]
+# write back to SQL
+#dbWriteTable(con, &quot;loans&quot;, loans) 
+# test
+#dbGetQuery(con, &quot;SELECT * from loans limit 25&quot;)</code></pre>
+</div>
+</div>
+<div id="do-the-clusters-predict-loan-performance" class="section level2">
+<h2><span class="header-section-number">5.5</span> Do the clusters predict loan performance?</h2>
+<p>We previously classified loans in the pool based on payment history into three categories:</p>
+<ul>
+<li>A: no more than 1 missed payment during the life of the loan</li>
+<li>B: more than 1 missed payment during the life of the loan but current in the most recent report</li>
+<li>C: delinquent at least three times as of the most recent three payment reports</li>
+</ul>
+<p>Do the three principal components of the numeric variables, <em>obal</em>, <em>orate</em>, <em>dti</em> and <em>cltv</em> have an association with the payment categories?</p>
+<p>If they do, we have the makings of a model; otherwise, we need to look at the other data available.</p>
+<div id="correspondence-analysis" class="section level3">
+<h3><span class="header-section-number">5.5.1</span> Correspondence analysis</h3>
+<p>Principal component analysis and many other data tools work only on continuous data; for discrete (or categorical) values, we turn to contingency tables, where one variable is in the rows and the other in the columns, so this is sometimes called an <em>r x c</em> table.</p>
+<p>I’ll use three 10% samples to check if the results are consistent. The idea is to see if the porportion of results are <em>independent.</em> In formal terms, that will be the null hypothosis. The test statistic is the chi-square test of independence. I’ll use the conventional <em>p-value</em> of 0.05 as the cutoff; anything less than that means that I cannot reject the null hypothesis that the performance categories and the factors are independent. Here are the contingency tables:</p>
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+<span id="tab:contab">Table 5.1: </span>Sample 1 contingency table of performance (row) by cluster (column)
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:right;">
+1
+</th>
+<th style="text-align:right;">
+2
+</th>
+<th style="text-align:right;">
+3
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+A
+</td>
+<td style="text-align:right;">
+37
+</td>
+<td style="text-align:right;">
+32
+</td>
+<td style="text-align:right;">
+15
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+B
+</td>
+<td style="text-align:right;">
+2,340
+</td>
+<td style="text-align:right;">
+4,672
+</td>
+<td style="text-align:right;">
+829
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+C
+</td>
+<td style="text-align:right;">
+322
+</td>
+<td style="text-align:right;">
+645
+</td>
+<td style="text-align:right;">
+108
+</td>
+</tr>
+</tbody>
+</table>
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+<span id="tab:contab">Table 5.1: </span>Sample 2 contingency table of performance (row) by cluster (column)
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:right;">
+1
+</th>
+<th style="text-align:right;">
+2
+</th>
+<th style="text-align:right;">
+3
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+A
+</td>
+<td style="text-align:right;">
+34
+</td>
+<td style="text-align:right;">
+29
+</td>
+<td style="text-align:right;">
+26
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+B
+</td>
+<td style="text-align:right;">
+2,414
+</td>
+<td style="text-align:right;">
+4,548
+</td>
+<td style="text-align:right;">
+825
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+C
+</td>
+<td style="text-align:right;">
+350
+</td>
+<td style="text-align:right;">
+667
+</td>
+<td style="text-align:right;">
+107
+</td>
+</tr>
+</tbody>
+</table>
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+<span id="tab:contab">Table 5.1: </span>Sample 3 contingency table of performance (row) by cluster (column)
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:right;">
+1
+</th>
+<th style="text-align:right;">
+2
+</th>
+<th style="text-align:right;">
+3
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+A
+</td>
+<td style="text-align:right;">
+33
+</td>
+<td style="text-align:right;">
+31
+</td>
+<td style="text-align:right;">
+13
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+B
+</td>
+<td style="text-align:right;">
+2,493
+</td>
+<td style="text-align:right;">
+4,574
+</td>
+<td style="text-align:right;">
+783
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+C
+</td>
+<td style="text-align:right;">
+322
+</td>
+<td style="text-align:right;">
+624
+</td>
+<td style="text-align:right;">
+127
+</td>
+</tr>
+</tbody>
+</table>
+<p>and the chi-square tests are consistent.</p>
+<p>[1] “Sample 1 chi square test for independence”</p>
+<pre><code>Pearson&#39;s Chi-squared test</code></pre>
+<p>data: table(s1) X-squared = 16.61, df = 4, p-value = 0.0023</p>
+<p>[1] “Sample 2 chi square test for independence”</p>
+<pre><code>Pearson&#39;s Chi-squared test</code></pre>
+<p>data: table(s2) X-squared = 41.977, df = 4, p-value = 1.687e-08</p>
+<p>[1] “Sample 3 chi square test for independence”</p>
+<pre><code>Pearson&#39;s Chi-squared test</code></pre>
+<p>data: table(s3) X-squared = 14.77, df = 4, p-value = 0.005203</p>
+<p>The chi square test doesn’t allow us to conclude that the loan performance and PCA-dervived clusters are not independent. Put more plainly, the one seems to have nothing to do with the other.</p>
+
+</div>
 </div>
 </div>
             </section>
