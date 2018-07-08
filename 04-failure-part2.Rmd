@@ -28,23 +28,24 @@ As a compromise, I converted the 5-digit zip codes into 3-digit zip codes. In me
 #library(RMySQL)
 #drv <- dbDriver("MySQL")
 #con <- dbConnect(drv, username="root", password="", dbname ="dlf", host="localhost")
-#res <- dbGetQuery(con, "SELECT ctapeno, deal, remit, fico, dti, cltv, orate, obal, grade, round(zip/100,0), dtype, fpd,ltype, pmiflag, ppp, otype, purpose, ptype FROM y6c")
+#res <- dbGetQuery(con, "SELECT ctapeno, deal, remit, fico, dti, cltv, orate, obal, grade, round(zip/100,0), dtype, fpd,ltype, otype, purpose, ptype, metro FROM y6c")
 #cs <- as.tibble(res)
 #require(binaryLogic)
 #require(stringi)
 #reports <- cs %>% rowwise %>% mutate(repbin = toString(as.binary(remit))) %>% rowwise %>% mutate(repstr = str_replace_all(repbin,"[, ]",'')) %>% mutate(reports = str_count(repstr)) %>% select(ctapeno, repstr, reports)
 #perf <- reports %>% mutate(category = case_when(str_detect(repstr, '111$') ~ "C", str_count(repstr, '0') <= 9 ~ "B", str_count(repstr, '0') > 9 ~ "A")) %>% select(ctapeno, category)
 #y6rf <- cs %>% inner_join(perf, by = "ctapeno")
-#y6rf <- y6rf %>% mutate(zip = as.character(`round(zip/100,0)`), pmiflag = as.character(pmiflag), ppp = as.character(ppp), perf = category, grade = as.character((grade)))
-#y6rf <- y6rf %>% select(ctapeno, deal,fico,dti,cltv,obal, orate, grade, dtype,fpd,ltype, pmiflag, ppp,  otype, purpose, ptype, zip, perf)
+#y6rf <- y6rf %>% mutate(zip = as.character(`round(zip/100,0)`), perf = category, grade = as.character((grade)))
+#y6rf <- y6rf %>% select(ctapeno, deal,fico,dti,cltv,obal, orate, grade, dtype,fpd,ltype, otype, purpose, ptype, zip, metro, perf)
 #dbWriteTable(con, "loans", y6rf) 
 #test
 #res <- dbGetQuery(con, "SELECT * from loans limit 25") 
+#res
 ``` 
 
 It was time to reorganize the database into a more streamlined version, that captured the information on performance (relieving the 11-month constraint) and transformed the fields that needed to be treated as categorical, rather than continuous. It's much more efficient to put this in a new SQL table than to keep in memory, especially since sampling will be involved. Here's the revised data layout:
 
-    MariaDB [dlf]> describe loans;
+MariaDB [dlf]> describe loans;
     +-----------+--------+------+-----+---------+-------+
     | Field     | Type   | Null | Key | Default | Extra |
     +-----------+--------+------+-----+---------+-------+
@@ -60,17 +61,16 @@ It was time to reorganize the database into a more streamlined version, that cap
     | dtype     | text   | YES  |     | NULL    |       |
     | fpd       | text   | YES  |     | NULL    |       |
     | ltype     | text   | YES  |     | NULL    |       |
-    | pmiflag   | text   | YES  |     | NULL    |       |
-    | ppp       | text   | YES  |     | NULL    |       |
     | otype     | text   | YES  |     | NULL    |       |
     | purpose   | text   | YES  |     | NULL    |       |
     | ptype     | text   | YES  |     | NULL    |       |
     | zip       | text   | YES  |     | NULL    |       |
+    | metro     | text   | YES  |     | NULL    |       |
     | perf      | text   | YES  |     | NULL    |       |
     +-----------+--------+------+-----+---------+-------+
-    19 rows in set (0.00 sec)
+    18 rows in set (0.00 sec)
     
-Between the first two rows (record identifiers) and the last row (the performance category) are the 17 variables we have to predict the performance outcome. For the almost 100,000 records, that is 1.7 million pieces of information. Technically we are in 17-dimensional space, and we need a way of flattening the dimensionality to be able to question the data.
+Between the first two rows (record identifiers) and the last row (the performance category) are the 17 variables we have to predict the performance outcome. For the almost 100,000 records, that is 1.5 million pieces of information. Technically we are in 15-dimensional space, and we need a way of flattening the dimensionality to be able to question the data.
 
 ## Principal component analysis
 
@@ -204,7 +204,7 @@ We previously classified loans in the pool based on payment history into three c
 * B: more than 1 missed payment during the life of the loan but current in the most recent report
 * C: delinquent at least three times as of the most recent three payment reports
 
-Do the three principal components of the numeric variables, *obal*, *orate*, *dti* and *cltv* have an association with the payment categories?
+Do the clusters derived from the principal components of the numeric variables, *obal*, *orate*, *dti* and *cltv* have an association with the payment categories?
 
 If they do, we have the makings of a model; otherwise, we need to look at the other data available. 
 
@@ -232,20 +232,127 @@ kable(table(s2), format.args = list(big.mark = ","), caption = "Sample 2 conting
 kable(table(s3), format.args = list(big.mark = ","), caption = "Sample 3 contingency table of performance (row) by cluster (column)")  %>% kable_styling(bootstrap_options = "striped", full_width = F) 
 ``` 
 
-and the chi-square tests are consistent.
+and the chi-square tests are variable, depending on the particular sample.
 
 ```{r chisq, results="asis", echo = FALSE, warning=FALSE}
-print("Sample 1 chi square test for independence")
+
 print(chisq.test(table(s1)))
 
-print("Sample 2 chi square test for independence")
 print(chisq.test(table(s2)))
 
 print("Sample 3 chi square test for independence")
 print(chisq.test(table(s3)))
 ``` 
 
-The chi square test doesn't allow us to conclude that the loan performance and PCA-dervived clusters are not independent. Put more plainly, the one seems to have nothing to do with the other.
+The chi square tests don't allow us to conclude that the loan performance and PCA-dervived clusters are not independent. Put more plainly, the one seems to have nothing to do with the other.
+
+### What do other categorical contingency tables tell us?
+
+One of the available categorical variables is credit *grade* from the [credit disclosure].
+
+```{r gradevperf, results="asis", echo = FALSE, warning=TRUE}
+library(tidyverse)
+library(DBI)
+library(RMySQL)
+drv <- dbDriver("MySQL")
+con <- dbConnect(drv, username="root", password="", dbname ="dlf", host="localhost")
+cs <- as.tibble(dbGetQuery(con, "SELECT grade,perf FROM loans"))# WHERE grade = 'A+' OR grade = 'AP'"))
+kable(table(cs), format.args = list(big.mark = ","), caption = "Contingency table of credit grade (row) by performance (column)") %>% kable_styling(bootstrap_options = "striped", full_width = F) 
+chisq.test(table(cs))
+
+``` 
+
+The warning message
+
+    Warning message:
+    In chisq.test(table(s1)) : Chi-squared approximation may be incorrect
+
+can be easy to overlook, but it has an important message: Some of the grades are too few to occupy the *expected value* slots of the chi-squared distribution.
+
+
+We can restrict the selection to only the A- and AP categories easily enough.
+
+```{r gradperf, results="asis", echo = FALSE, warning=FALSE}
+cs <- as.tibble(dbGetQuery(con, "SELECT grade,perf FROM loans WHERE grade = 'A+' OR grade = 'AP'"))
+kable(table(cs), format.args = list(big.mark = ","), caption = "Contingency table of credit grades A+ and AP (row) by performance (column)") %>% kable_styling(bootstrap_options = "striped", full_width = F) 
+chisq.test(table(cs))
+``` 
+
+These results would be encouraging, with a *p-value* greater than 0.05, allowing us to accept the alternative to independence (that those two credit grades, at least, have something to do with performance) but it is disturbing that samples fail to yield consistent results. But it fails to account for the other credit grades.
+
+Let's try another categorical variabe, which transaction contained each loan, compared to that loan's performance.
+
+```{r loanbydeal, results="asis", echo = FALSE, warning=FALSE}
+cs <- as.tibble(dbGetQuery(con, "SELECT deal,perf FROM loans"))
+kable(table(cs), format.args = list(big.mark = ","), caption = "Contingency table of deal (row) by performance (column)") %>% kable_styling(bootstrap_options = "striped", full_width = F) 
+chisq.test(table(cs))
+
+``` 
+
+On the other hand, the initial interest rates we have to consider as independent of performance.
+
+```{r loanbymargin, results="asis", echo = FALSE, warning=FALSE}
+cs <- as.tibble(dbGetQuery(con, "SELECT orate,perf FROM loans"))
+kable(table(cs), format.args = list(big.mark = ","), caption = "Contingency table of interest rate (row) by performance (column)") %>% kable_styling(bootstrap_options = "striped", full_width = F) 
+chisq.test(table(cs))
+``` 
+
+The first payment date, indicating the time of origination, has an association with performance.
+
+```{r fpd, results="oasis", echo = FALSE, warning=FALSE}
+cs <- as.tibble(dbGetQuery(con, "SELECT fpd,perf FROM loans"))
+kable(table(cs), format.args = list(big.mark = ","), caption = "Contingency table of first payment date (row) by performance (column)") %>% kable_styling(bootstrap_options = "striped", full_width = F) 
+chisq.test(table(cs))
+``` 
+
+The loan type is independent of performance.
+
+```{r loanbyltype, results="asis", echo = FALSE, warning=FALSE}
+cs <- as.tibble(dbGetQuery(con, "SELECT ltype, perf FROM loans"))
+kable(table(cs), format.args = list(big.mark = ","), caption = "Contingency table of loan type (row) by performance (column)") %>% kable_styling(bootstrap_options = "striped", full_width = F) 
+chisq.test(table(cs))
+``` 
+
+Occupancy type is independent of performance.
+
+```{r loanbyotype, results="asis", echo = FALSE, warning=FALSE}
+cs <- as.tibble(dbGetQuery(con, "SELECT otype,perf FROM loans"))
+kable(table(cs), format.args = list(big.mark = ","), caption = "Contingency table of occupancy type (row) by performance (column)") %>% kable_styling(bootstrap_options = "striped", full_width = F) 
+chisq.test(table(cs))
+``` 
+
+Loan documentation type is independent of performance..
+
+```{r loanbydtype, results="asis", echo = FALSE, warning=FALSE}
+cs <- as.tibble(dbGetQuery(con, "SELECT dtype,perf FROM loans"))
+kable(table(cs), format.args = list(big.mark = ","), caption = "Contingency table of documentation type (row) by performance (column)") %>% kable_styling(bootstrap_options = "striped", full_width = F) 
+chisq.test(table(cs))
+``` 
+
+Loan purpose (purchase, rate/term refinance/ cash-out refinance) is independent of performance.
+
+```{r loanbypurp, results="asis", echo = FALSE, warning=FALSE}
+cs <- as.tibble(dbGetQuery(con, "SELECT purpose,perf FROM loans"))
+kable(table(cs), format.args = list(big.mark = ","), caption = "Contingency table of loan purpose (row) by performance (column)") %>% kable_styling(bootstrap_options = "striped", full_width = F) 
+chisq.test(table(cs))
+``` 
+Property type is independent of perforannce.
+
+```{r loanbyptype, results="asis", echo = FALSE, warning=FALSE}
+cs <- as.tibble(dbGetQuery(con, "SELECT ptype,perf FROM loans"))
+kable(table(cs), format.args = list(big.mark = ","), caption = "Contingency table of property type (row) by performance (column)") %>% kable_styling(bootstrap_options = "striped", full_width = F) 
+chisq.test(table(cs))
+``` 
+
+The metropolitan region of the property is independent of performance.
+
+```{r loanbymetro, results="asis", echo = FALSE, warning=FALSE}
+cs <- as.tibble(dbGetQuery(con, "SELECT metro,perf FROM loans"))
+kable(table(cs), format.args = list(big.mark = ","), caption = "Contingency table of metropolitan area (row) by performance (column)") %>% kable_styling(bootstrap_options = "striped", full_width = F) 
+chisq.test(table(cs))
+``` 
+
+
 
 [credit disclosure]: https://goo.gl/uhX1Pc
 [LBMLT 2006-1]: https://www.sec.gov/Archives/edgar/data/1119605/000114420406002461/v033798_fwp.htm

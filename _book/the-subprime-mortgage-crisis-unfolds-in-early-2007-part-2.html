@@ -25,7 +25,7 @@
 <meta name="author" content="Richard Careaga">
 
 
-<meta name="date" content="2018-07-06">
+<meta name="date" content="2018-07-08">
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -128,6 +128,7 @@
 </ul></li>
 <li class="chapter" data-level="5.5" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html#do-the-clusters-predict-loan-performance"><i class="fa fa-check"></i><b>5.5</b> Do the clusters predict loan performance?</a><ul>
 <li class="chapter" data-level="5.5.1" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html#correspondence-analysis"><i class="fa fa-check"></i><b>5.5.1</b> Correspondence analysis</a></li>
+<li class="chapter" data-level="5.5.2" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html#what-do-other-categorical-contingency-tables-tell-us"><i class="fa fa-check"></i><b>5.5.2</b> What do other categorical contingency tables tell us?</a></li>
 </ul></li>
 </ul></li>
 <li class="chapter" data-level="6" data-path="the-enron-email-corpus.html"><a href="the-enron-email-corpus.html"><i class="fa fa-check"></i><b>6</b> The Enron Email Corpus</a><ul>
@@ -208,42 +209,18 @@
 </ul>
 <p>As a compromise, I converted the 5-digit zip codes into 3-digit zip codes. In metropolitan areas, the 3-digit codes are the sizes comparable to how the multiple listing services divide the market. We’ll see if there is any value in this proxy measure of real estate market.</p>
 <p>It was time to reorganize the database into a more streamlined version, that captured the information on performance (relieving the 11-month constraint) and transformed the fields that needed to be treated as categorical, rather than continuous. It’s much more efficient to put this in a new SQL table than to keep in memory, especially since sampling will be involved. Here’s the revised data layout:</p>
-<pre><code>MariaDB [dlf]&gt; describe loans;
-+-----------+--------+------+-----+---------+-------+
-| Field     | Type   | Null | Key | Default | Extra |
-+-----------+--------+------+-----+---------+-------+
-| row_names | text   | YES  |     | NULL    |       |
-| ctapeno   | double | YES  |     | NULL    |       |
-| deal      | text   | YES  |     | NULL    |       |
-| fico      | double | YES  |     | NULL    |       |
-| dti       | double | YES  |     | NULL    |       |
-| cltv      | double | YES  |     | NULL    |       |
-| obal      | double | YES  |     | NULL    |       |
-| orate     | double | YES  |     | NULL    |       |
-| grade     | text   | YES  |     | NULL    |       |
-| dtype     | text   | YES  |     | NULL    |       |
-| fpd       | text   | YES  |     | NULL    |       |
-| ltype     | text   | YES  |     | NULL    |       |
-| pmiflag   | text   | YES  |     | NULL    |       |
-| ppp       | text   | YES  |     | NULL    |       |
-| otype     | text   | YES  |     | NULL    |       |
-| purpose   | text   | YES  |     | NULL    |       |
-| ptype     | text   | YES  |     | NULL    |       |
-| zip       | text   | YES  |     | NULL    |       |
-| perf      | text   | YES  |     | NULL    |       |
-+-----------+--------+------+-----+---------+-------+
-19 rows in set (0.00 sec)</code></pre>
-<p>Between the first two rows (record identifiers) and the last row (the performance category) are the 17 variables we have to predict the performance outcome. For the almost 100,000 records, that is 1.7 million pieces of information. Technically we are in 17-dimensional space, and we need a way of flattening the dimensionality to be able to question the data.</p>
+<p>MariaDB [dlf]&gt; describe loans; +———–+——–+——+—–+———+——-+ | Field | Type | Null | Key | Default | Extra | +———–+——–+——+—–+———+——-+ | row_names | text | YES | | NULL | | | ctapeno | double | YES | | NULL | | | deal | text | YES | | NULL | | | fico | double | YES | | NULL | | | dti | double | YES | | NULL | | | cltv | double | YES | | NULL | | | obal | double | YES | | NULL | | | orate | double | YES | | NULL | | | grade | text | YES | | NULL | | | dtype | text | YES | | NULL | | | fpd | text | YES | | NULL | | | ltype | text | YES | | NULL | | | otype | text | YES | | NULL | | | purpose | text | YES | | NULL | | | ptype | text | YES | | NULL | | | zip | text | YES | | NULL | | | metro | text | YES | | NULL | | | perf | text | YES | | NULL | | +———–+——–+——+—–+———+——-+ 18 rows in set (0.00 sec)</p>
+<p>Between the first two rows (record identifiers) and the last row (the performance category) are the 17 variables we have to predict the performance outcome. For the almost 100,000 records, that is 1.5 million pieces of information. Technically we are in 15-dimensional space, and we need a way of flattening the dimensionality to be able to question the data.</p>
 </div>
 <div id="principal-component-analysis" class="section level2">
 <h2><span class="header-section-number">5.3</span> Principal component analysis</h2>
 <p><img src="_main_files/figure-html/psa1-1.png" width="672" /></p>
-<p>The cumulative variance is 0.253, 0.497, 0.708, 0.858, 1 for this sample of 300.</p>
+<p>The cumulative variance is 0.261, 0.491, 0.701, 0.863, 1 for this sample of 300.</p>
 <p>From the loadings chart on the right, we see that <em>obal</em> (the original amount of the loan) and <em>orate</em> (the original rate of interest) are negatively correlated, -0.451. The remaining continuous variables, <em>fico</em>, <em>dti</em> (debt-to-income ratio), <em>cltv</em> (the ratio of first and second loans to the value of the mortgaged property), have small correlations:</p>
 <p>The variables <em>fico</em> and <em>cltv</em> have some correlation (0.295), while <em>fico</em> and <em>dti</em> (-0.036) and <em>dti</em> and <em>cltv</em> (0.121) have low correlations.</p>
 <p>The variable <em>orate,</em> however, is clearly discrete, so we re-run without it and increase the size of the sample to 9,000.</p>
 <p><img src="_main_files/figure-html/unnamed-chunk-1-1.png" width="672" /></p>
-<p>The variances are [1] 0.2875106 0.2654761 0.2497528 0.1972605</p>
+<p>The variances are [1] 0.2893538 0.2666241 0.2476954 0.1963267</p>
 </div>
 <div id="k-means-clustering" class="section level2">
 <h2><span class="header-section-number">5.4</span> K-means clustering</h2>
@@ -299,7 +276,7 @@ loans &lt;- loans[-1]
 <li>B: more than 1 missed payment during the life of the loan but current in the most recent report</li>
 <li>C: delinquent at least three times as of the most recent three payment reports</li>
 </ul>
-<p>Do the three principal components of the numeric variables, <em>obal</em>, <em>orate</em>, <em>dti</em> and <em>cltv</em> have an association with the payment categories?</p>
+<p>Do the clusters derived from the principal components of the numeric variables, <em>obal</em>, <em>orate</em>, <em>dti</em> and <em>cltv</em> have an association with the payment categories?</p>
 <p>If they do, we have the makings of a model; otherwise, we need to look at the other data available.</p>
 <div id="correspondence-analysis" class="section level3">
 <h3><span class="header-section-number">5.5.1</span> Correspondence analysis</h3>
@@ -330,13 +307,13 @@ loans &lt;- loans[-1]
 A
 </td>
 <td style="text-align:right;">
-37
+34
 </td>
 <td style="text-align:right;">
-32
+22
 </td>
 <td style="text-align:right;">
-15
+24
 </td>
 </tr>
 <tr>
@@ -344,13 +321,13 @@ A
 B
 </td>
 <td style="text-align:right;">
-2,340
+2,432
 </td>
 <td style="text-align:right;">
-4,672
+4,613
 </td>
 <td style="text-align:right;">
-829
+770
 </td>
 </tr>
 <tr>
@@ -358,13 +335,13 @@ B
 C
 </td>
 <td style="text-align:right;">
-322
+321
 </td>
 <td style="text-align:right;">
-645
+658
 </td>
 <td style="text-align:right;">
-108
+126
 </td>
 </tr>
 </tbody>
@@ -394,13 +371,13 @@ C
 A
 </td>
 <td style="text-align:right;">
-34
+31
 </td>
 <td style="text-align:right;">
-29
+31
 </td>
 <td style="text-align:right;">
-26
+27
 </td>
 </tr>
 <tr>
@@ -408,13 +385,13 @@ A
 B
 </td>
 <td style="text-align:right;">
-2,414
+2,404
 </td>
 <td style="text-align:right;">
-4,548
+4,569
 </td>
 <td style="text-align:right;">
-825
+805
 </td>
 </tr>
 <tr>
@@ -422,13 +399,13 @@ B
 C
 </td>
 <td style="text-align:right;">
-350
+359
 </td>
 <td style="text-align:right;">
-667
+671
 </td>
 <td style="text-align:right;">
-107
+103
 </td>
 </tr>
 </tbody>
@@ -458,13 +435,13 @@ C
 A
 </td>
 <td style="text-align:right;">
-33
-</td>
-<td style="text-align:right;">
 31
 </td>
 <td style="text-align:right;">
-13
+19
+</td>
+<td style="text-align:right;">
+22
 </td>
 </tr>
 <tr>
@@ -472,13 +449,13 @@ A
 B
 </td>
 <td style="text-align:right;">
-2,493
+2,324
 </td>
 <td style="text-align:right;">
-4,574
+4,692
 </td>
 <td style="text-align:right;">
-783
+779
 </td>
 </tr>
 <tr>
@@ -486,28 +463,5479 @@ B
 C
 </td>
 <td style="text-align:right;">
-322
+339
 </td>
 <td style="text-align:right;">
-624
+683
 </td>
 <td style="text-align:right;">
-127
+111
 </td>
 </tr>
 </tbody>
 </table>
-<p>and the chi-square tests are consistent.</p>
-<p>[1] “Sample 1 chi square test for independence”</p>
+<p>and the chi-square tests are variable, depending on the particular sample.</p>
 <pre><code>Pearson&#39;s Chi-squared test</code></pre>
-<p>data: table(s1) X-squared = 16.61, df = 4, p-value = 0.0023</p>
-<p>[1] “Sample 2 chi square test for independence”</p>
+<p>data: table(s1) X-squared = 51.469, df = 4, p-value = 1.781e-10</p>
 <pre><code>Pearson&#39;s Chi-squared test</code></pre>
-<p>data: table(s2) X-squared = 41.977, df = 4, p-value = 1.687e-08</p>
+<p>data: table(s2) X-squared = 45.233, df = 4, p-value = 3.557e-09</p>
 <p>[1] “Sample 3 chi square test for independence”</p>
 <pre><code>Pearson&#39;s Chi-squared test</code></pre>
-<p>data: table(s3) X-squared = 14.77, df = 4, p-value = 0.005203</p>
-<p>The chi square test doesn’t allow us to conclude that the loan performance and PCA-dervived clusters are not independent. Put more plainly, the one seems to have nothing to do with the other.</p>
+<p>data: table(s3) X-squared = 47.718, df = 4, p-value = 1.081e-09</p>
+<p>The chi square tests don’t allow us to conclude that the loan performance and PCA-dervived clusters are not independent. Put more plainly, the one seems to have nothing to do with the other.</p>
+</div>
+<div id="what-do-other-categorical-contingency-tables-tell-us" class="section level3">
+<h3><span class="header-section-number">5.5.2</span> What do other categorical contingency tables tell us?</h3>
+<p>One of the available categorical variables is credit <em>grade</em> from the <a href="https://goo.gl/uhX1Pc">credit disclosure</a>.</p>
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+<span id="tab:gradevperf">Table 5.2: </span>Contingency table of credit grade (row) by performance (column)
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:right;">
+A
+</th>
+<th style="text-align:right;">
+B
+</th>
+<th style="text-align:right;">
+C
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+A
+</td>
+<td style="text-align:right;">
+62
+</td>
+<td style="text-align:right;">
+5,901
+</td>
+<td style="text-align:right;">
+918
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+A-
+</td>
+<td style="text-align:right;">
+30
+</td>
+<td style="text-align:right;">
+1,693
+</td>
+<td style="text-align:right;">
+273
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+A+
+</td>
+<td style="text-align:right;">
+64
+</td>
+<td style="text-align:right;">
+8,080
+</td>
+<td style="text-align:right;">
+1,149
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+AA
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+AP
+</td>
+<td style="text-align:right;">
+585
+</td>
+<td style="text-align:right;">
+60,263
+</td>
+<td style="text-align:right;">
+8,548
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+AP+
+</td>
+<td style="text-align:right;">
+30
+</td>
+<td style="text-align:right;">
+2,129
+</td>
+<td style="text-align:right;">
+316
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+B
+</td>
+<td style="text-align:right;">
+27
+</td>
+<td style="text-align:right;">
+1,754
+</td>
+<td style="text-align:right;">
+257
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+B-
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+B+
+</td>
+<td style="text-align:right;">
+18
+</td>
+<td style="text-align:right;">
+1,358
+</td>
+<td style="text-align:right;">
+191
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+C
+</td>
+<td style="text-align:right;">
+38
+</td>
+<td style="text-align:right;">
+2,139
+</td>
+<td style="text-align:right;">
+320
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+D
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+</tbody>
+</table>
+<pre><code>## Warning in chisq.test(table(cs)): Chi-squared approximation may be
+## incorrect</code></pre>
+<pre><code>Pearson&#39;s Chi-squared test</code></pre>
+<p>data: table(cs) X-squared = 45.353, df = 20, p-value = 0.0009879</p>
+<p>The warning message</p>
+<pre><code>Warning message:
+In chisq.test(table(s1)) : Chi-squared approximation may be incorrect</code></pre>
+<p>can be easy to overlook, but it has an important message: Some of the grades are too few to occupy the <em>expected value</em> slots of the chi-squared distribution.</p>
+<p>We can restrict the selection to only the A- and AP categories easily enough.</p>
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+<span id="tab:gradperf">Table 5.3: </span>Contingency table of credit grades A+ and AP (row) by performance (column)
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:right;">
+A
+</th>
+<th style="text-align:right;">
+B
+</th>
+<th style="text-align:right;">
+C
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+A+
+</td>
+<td style="text-align:right;">
+64
+</td>
+<td style="text-align:right;">
+8,080
+</td>
+<td style="text-align:right;">
+1,149
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+AP
+</td>
+<td style="text-align:right;">
+585
+</td>
+<td style="text-align:right;">
+60,263
+</td>
+<td style="text-align:right;">
+8,548
+</td>
+</tr>
+</tbody>
+</table>
+<pre><code>Pearson&#39;s Chi-squared test</code></pre>
+<p>data: table(cs) X-squared = 2.391, df = 2, p-value = 0.3025</p>
+<p>These results would be encouraging, with a <em>p-value</em> greater than 0.05, allowing us to accept the alternative to independence (that those two credit grades, at least, have something to do with performance) but it is disturbing that samples fail to yield consistent results. But it fails to account for the other credit grades.</p>
+<p>Let’s try another categorical variabe, which transaction contained each loan, compared to that loan’s performance.</p>
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+<span id="tab:loanbydeal">Table 5.4: </span>Contingency table of deal (row) by performance (column)
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:right;">
+A
+</th>
+<th style="text-align:right;">
+B
+</th>
+<th style="text-align:right;">
+C
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+LBMLT 2006-1
+</td>
+<td style="text-align:right;">
+92
+</td>
+<td style="text-align:right;">
+6,988
+</td>
+<td style="text-align:right;">
+984
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LBMLT 2006-10
+</td>
+<td style="text-align:right;">
+33
+</td>
+<td style="text-align:right;">
+3,728
+</td>
+<td style="text-align:right;">
+517
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LBMLT 2006-11
+</td>
+<td style="text-align:right;">
+51
+</td>
+<td style="text-align:right;">
+5,166
+</td>
+<td style="text-align:right;">
+747
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LBMLT 2006-2
+</td>
+<td style="text-align:right;">
+96
+</td>
+<td style="text-align:right;">
+9,434
+</td>
+<td style="text-align:right;">
+1,369
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LBMLT 2006-3
+</td>
+<td style="text-align:right;">
+57
+</td>
+<td style="text-align:right;">
+5,505
+</td>
+<td style="text-align:right;">
+812
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LBMLT 2006-4
+</td>
+<td style="text-align:right;">
+58
+</td>
+<td style="text-align:right;">
+6,778
+</td>
+<td style="text-align:right;">
+985
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LBMLT 2006-5
+</td>
+<td style="text-align:right;">
+63
+</td>
+<td style="text-align:right;">
+6,657
+</td>
+<td style="text-align:right;">
+949
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LBMLT 2006-6
+</td>
+<td style="text-align:right;">
+66
+</td>
+<td style="text-align:right;">
+5,792
+</td>
+<td style="text-align:right;">
+828
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LBMLT 2006-7
+</td>
+<td style="text-align:right;">
+61
+</td>
+<td style="text-align:right;">
+5,677
+</td>
+<td style="text-align:right;">
+803
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LBMLT 2006-8
+</td>
+<td style="text-align:right;">
+45
+</td>
+<td style="text-align:right;">
+4,965
+</td>
+<td style="text-align:right;">
+695
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LBMLT 2006-9
+</td>
+<td style="text-align:right;">
+56
+</td>
+<td style="text-align:right;">
+5,380
+</td>
+<td style="text-align:right;">
+803
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LBMLT 2006-WL1
+</td>
+<td style="text-align:right;">
+59
+</td>
+<td style="text-align:right;">
+5,326
+</td>
+<td style="text-align:right;">
+743
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LBMLT 2006-WL2
+</td>
+<td style="text-align:right;">
+62
+</td>
+<td style="text-align:right;">
+5,836
+</td>
+<td style="text-align:right;">
+818
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LBMLT 2006-WL3
+</td>
+<td style="text-align:right;">
+55
+</td>
+<td style="text-align:right;">
+6,089
+</td>
+<td style="text-align:right;">
+919
+</td>
+</tr>
+</tbody>
+</table>
+<pre><code>Pearson&#39;s Chi-squared test</code></pre>
+<p>data: table(cs) X-squared = 18.148, df = 26, p-value = 0.8703</p>
+<p>On the other hand, the initial interest rates we have to consider as independent of performance.</p>
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+<span id="tab:loanbymargin">Table 5.5: </span>Contingency table of interest rate (row) by performance (column)
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:right;">
+A
+</th>
+<th style="text-align:right;">
+B
+</th>
+<th style="text-align:right;">
+C
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+5
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+16
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+6
+</td>
+<td style="text-align:right;">
+41
+</td>
+<td style="text-align:right;">
+3,221
+</td>
+<td style="text-align:right;">
+437
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+7
+</td>
+<td style="text-align:right;">
+192
+</td>
+<td style="text-align:right;">
+15,986
+</td>
+<td style="text-align:right;">
+2,297
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+8
+</td>
+<td style="text-align:right;">
+254
+</td>
+<td style="text-align:right;">
+21,456
+</td>
+<td style="text-align:right;">
+3,181
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+9
+</td>
+<td style="text-align:right;">
+179
+</td>
+<td style="text-align:right;">
+15,285
+</td>
+<td style="text-align:right;">
+2,201
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+10
+</td>
+<td style="text-align:right;">
+95
+</td>
+<td style="text-align:right;">
+12,158
+</td>
+<td style="text-align:right;">
+1,698
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+11
+</td>
+<td style="text-align:right;">
+64
+</td>
+<td style="text-align:right;">
+10,549
+</td>
+<td style="text-align:right;">
+1,497
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+12
+</td>
+<td style="text-align:right;">
+25
+</td>
+<td style="text-align:right;">
+4,326
+</td>
+<td style="text-align:right;">
+622
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+13
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+313
+</td>
+<td style="text-align:right;">
+35
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+14
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+15
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+</tbody>
+</table>
+<pre><code>Pearson&#39;s Chi-squared test</code></pre>
+<p>data: table(cs) X-squared = 59.913, df = 20, p-value = 7.345e-06</p>
+<p>The first payment date, indicating the time of origination, has an association with performance.</p>
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+<span id="tab:fpd">Table 5.6: </span>Contingency table of first payment date (row) by performance (column)
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:right;">
+A
+</th>
+<th style="text-align:right;">
+B
+</th>
+<th style="text-align:right;">
+C
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+2003-09-01
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2004-06-01
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2004-07-01
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2004-11-01
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2004-12-01
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2005-01-01
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2005-02-01
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+9
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2005-03-01
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+15
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2005-04-01
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+15
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2005-05-01
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+32
+</td>
+<td style="text-align:right;">
+4
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2005-06-01
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+117
+</td>
+<td style="text-align:right;">
+17
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2005-07-01
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+620
+</td>
+<td style="text-align:right;">
+78
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2005-08-01
+</td>
+<td style="text-align:right;">
+22
+</td>
+<td style="text-align:right;">
+1,301
+</td>
+<td style="text-align:right;">
+180
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2005-09-01
+</td>
+<td style="text-align:right;">
+16
+</td>
+<td style="text-align:right;">
+976
+</td>
+<td style="text-align:right;">
+123
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2005-10-01
+</td>
+<td style="text-align:right;">
+39
+</td>
+<td style="text-align:right;">
+3,900
+</td>
+<td style="text-align:right;">
+534
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2005-11-01
+</td>
+<td style="text-align:right;">
+73
+</td>
+<td style="text-align:right;">
+7,923
+</td>
+<td style="text-align:right;">
+1,156
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2005-12-01
+</td>
+<td style="text-align:right;">
+32
+</td>
+<td style="text-align:right;">
+4,214
+</td>
+<td style="text-align:right;">
+634
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2006-01-01
+</td>
+<td style="text-align:right;">
+64
+</td>
+<td style="text-align:right;">
+4,913
+</td>
+<td style="text-align:right;">
+690
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2006-02-01
+</td>
+<td style="text-align:right;">
+64
+</td>
+<td style="text-align:right;">
+5,541
+</td>
+<td style="text-align:right;">
+847
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2006-03-01
+</td>
+<td style="text-align:right;">
+52
+</td>
+<td style="text-align:right;">
+4,864
+</td>
+<td style="text-align:right;">
+709
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2006-04-01
+</td>
+<td style="text-align:right;">
+54
+</td>
+<td style="text-align:right;">
+5,583
+</td>
+<td style="text-align:right;">
+821
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2006-05-01
+</td>
+<td style="text-align:right;">
+61
+</td>
+<td style="text-align:right;">
+6,504
+</td>
+<td style="text-align:right;">
+894
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2006-06-01
+</td>
+<td style="text-align:right;">
+57
+</td>
+<td style="text-align:right;">
+6,135
+</td>
+<td style="text-align:right;">
+875
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2006-07-01
+</td>
+<td style="text-align:right;">
+57
+</td>
+<td style="text-align:right;">
+5,609
+</td>
+<td style="text-align:right;">
+817
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2006-08-01
+</td>
+<td style="text-align:right;">
+59
+</td>
+<td style="text-align:right;">
+5,292
+</td>
+<td style="text-align:right;">
+753
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2006-09-01
+</td>
+<td style="text-align:right;">
+44
+</td>
+<td style="text-align:right;">
+4,670
+</td>
+<td style="text-align:right;">
+660
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2006-10-01
+</td>
+<td style="text-align:right;">
+55
+</td>
+<td style="text-align:right;">
+5,654
+</td>
+<td style="text-align:right;">
+821
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2006-11-01
+</td>
+<td style="text-align:right;">
+47
+</td>
+<td style="text-align:right;">
+4,403
+</td>
+<td style="text-align:right;">
+622
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2006-12-01
+</td>
+<td style="text-align:right;">
+44
+</td>
+<td style="text-align:right;">
+4,702
+</td>
+<td style="text-align:right;">
+691
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2007-01-01
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+309
+</td>
+<td style="text-align:right;">
+42
+</td>
+</tr>
+</tbody>
+</table>
+<pre><code>## 
+##  Pearson&#39;s Chi-squared test
+## 
+## data:  table(cs)
+## X-squared = 47.693, df = 58, p-value = 0.8308</code></pre>
+<p>The loan type is independent of performance.</p>
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+<span id="tab:loanbyltype">Table 5.7: </span>Contingency table of loan type (row) by performance (column)
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:right;">
+A
+</th>
+<th style="text-align:right;">
+B
+</th>
+<th style="text-align:right;">
+C
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+2/28 LIBOR
+</td>
+<td style="text-align:right;">
+231
+</td>
+<td style="text-align:right;">
+23,661
+</td>
+<td style="text-align:right;">
+3,392
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2/38 LIBOR
+</td>
+<td style="text-align:right;">
+269
+</td>
+<td style="text-align:right;">
+19,531
+</td>
+<td style="text-align:right;">
+2,740
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2nd Fixed
+</td>
+<td style="text-align:right;">
+66
+</td>
+<td style="text-align:right;">
+13,230
+</td>
+<td style="text-align:right;">
+1,803
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+3/27 LIBOR
+</td>
+<td style="text-align:right;">
+32
+</td>
+<td style="text-align:right;">
+3,077
+</td>
+<td style="text-align:right;">
+468
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+3/37 LIBOR
+</td>
+<td style="text-align:right;">
+37
+</td>
+<td style="text-align:right;">
+3,127
+</td>
+<td style="text-align:right;">
+447
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+5/25 LIBOR
+</td>
+<td style="text-align:right;">
+39
+</td>
+<td style="text-align:right;">
+3,656
+</td>
+<td style="text-align:right;">
+592
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+5/35 LIBOR
+</td>
+<td style="text-align:right;">
+31
+</td>
+<td style="text-align:right;">
+2,300
+</td>
+<td style="text-align:right;">
+347
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+6 Month LIBOR
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+42
+</td>
+<td style="text-align:right;">
+4
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Fixed
+</td>
+<td style="text-align:right;">
+81
+</td>
+<td style="text-align:right;">
+10,573
+</td>
+<td style="text-align:right;">
+1,586
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+I/O 2/28 LIBOR
+</td>
+<td style="text-align:right;">
+44
+</td>
+<td style="text-align:right;">
+3,030
+</td>
+<td style="text-align:right;">
+429
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+I/O 3/27 LIBOR
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+322
+</td>
+<td style="text-align:right;">
+58
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+I/O 3/37 LIBOR
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+54
+</td>
+<td style="text-align:right;">
+5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+I/O 5/25 LIBOR
+</td>
+<td style="text-align:right;">
+15
+</td>
+<td style="text-align:right;">
+718
+</td>
+<td style="text-align:right;">
+101
+</td>
+</tr>
+</tbody>
+</table>
+<pre><code>Pearson&#39;s Chi-squared test</code></pre>
+<p>data: table(cs) X-squared = 163.21, df = 24, p-value &lt; 2.2e-16</p>
+<p>Occupancy type is independent of performance.</p>
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+<span id="tab:loanbyotype">Table 5.8: </span>Contingency table of occupancy type (row) by performance (column)
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:right;">
+A
+</th>
+<th style="text-align:right;">
+B
+</th>
+<th style="text-align:right;">
+C
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+NOO
+</td>
+<td style="text-align:right;">
+69
+</td>
+<td style="text-align:right;">
+9,708
+</td>
+<td style="text-align:right;">
+1,364
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+OO
+</td>
+<td style="text-align:right;">
+767
+</td>
+<td style="text-align:right;">
+72,677
+</td>
+<td style="text-align:right;">
+10,461
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+sechome
+</td>
+<td style="text-align:right;">
+18
+</td>
+<td style="text-align:right;">
+936
+</td>
+<td style="text-align:right;">
+147
+</td>
+</tr>
+</tbody>
+</table>
+<pre><code>Pearson&#39;s Chi-squared test</code></pre>
+<p>data: table(cs) X-squared = 18.39, df = 4, p-value = 0.001035</p>
+<p>Loan documentation type is independent of performance..</p>
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+<span id="tab:loanbydtype">Table 5.9: </span>Contingency table of documentation type (row) by performance (column)
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:right;">
+A
+</th>
+<th style="text-align:right;">
+B
+</th>
+<th style="text-align:right;">
+C
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Full
+</td>
+<td style="text-align:right;">
+427
+</td>
+<td style="text-align:right;">
+45,632
+</td>
+<td style="text-align:right;">
+6,622
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Limited
+</td>
+<td style="text-align:right;">
+30
+</td>
+<td style="text-align:right;">
+3,299
+</td>
+<td style="text-align:right;">
+452
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Stated
+</td>
+<td style="text-align:right;">
+397
+</td>
+<td style="text-align:right;">
+34,390
+</td>
+<td style="text-align:right;">
+4,898
+</td>
+</tr>
+</tbody>
+</table>
+<pre><code>Pearson&#39;s Chi-squared test</code></pre>
+<p>data: table(cs) X-squared = 11.47, df = 4, p-value = 0.02176</p>
+<p>Loan purpose (purchase, rate/term refinance/ cash-out refinance) is independent of performance.</p>
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+<span id="tab:loanbypurp">Table 5.10: </span>Contingency table of loan purpose (row) by performance (column)
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:right;">
+A
+</th>
+<th style="text-align:right;">
+B
+</th>
+<th style="text-align:right;">
+C
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Purchase
+</td>
+<td style="text-align:right;">
+456
+</td>
+<td style="text-align:right;">
+53,930
+</td>
+<td style="text-align:right;">
+7,668
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Refi - Cashout
+</td>
+<td style="text-align:right;">
+360
+</td>
+<td style="text-align:right;">
+25,907
+</td>
+<td style="text-align:right;">
+3,762
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Refi - No Cashout
+</td>
+<td style="text-align:right;">
+38
+</td>
+<td style="text-align:right;">
+3,484
+</td>
+<td style="text-align:right;">
+542
+</td>
+</tr>
+</tbody>
+</table>
+<pre><code>Pearson&#39;s Chi-squared test</code></pre>
+<p>data: table(cs) X-squared = 53.664, df = 4, p-value = 6.188e-11 Property type is independent of perforannce.</p>
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+<span id="tab:loanbyptype">Table 5.11: </span>Contingency table of property type (row) by performance (column)
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:right;">
+A
+</th>
+<th style="text-align:right;">
+B
+</th>
+<th style="text-align:right;">
+C
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+2-4 Units
+</td>
+<td style="text-align:right;">
+69
+</td>
+<td style="text-align:right;">
+5,577
+</td>
+<td style="text-align:right;">
+814
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Condo
+</td>
+<td style="text-align:right;">
+64
+</td>
+<td style="text-align:right;">
+7,143
+</td>
+<td style="text-align:right;">
+1,048
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+PUD
+</td>
+<td style="text-align:right;">
+105
+</td>
+<td style="text-align:right;">
+10,432
+</td>
+<td style="text-align:right;">
+1,504
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+SFR
+</td>
+<td style="text-align:right;">
+616
+</td>
+<td style="text-align:right;">
+59,983
+</td>
+<td style="text-align:right;">
+8,579
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Townhouse
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+186
+</td>
+<td style="text-align:right;">
+27
+</td>
+</tr>
+</tbody>
+</table>
+<pre><code>Pearson&#39;s Chi-squared test</code></pre>
+<p>data: table(cs) X-squared = 6.2699, df = 8, p-value = 0.617</p>
+<p>The metropolitan region of the property is independent of performance.</p>
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+<span id="tab:loanbymetro">Table 5.12: </span>Contingency table of metropolitan area (row) by performance (column)
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:right;">
+A
+</th>
+<th style="text-align:right;">
+B
+</th>
+<th style="text-align:right;">
+C
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Abilene, TX
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+15
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Albany-Schenectady-Troy,
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+69
+</td>
+<td style="text-align:right;">
+15
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Albany, GA
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+3
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Albuquerque, NM
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+75
+</td>
+<td style="text-align:right;">
+9
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Alexandria, LA
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+14
+</td>
+<td style="text-align:right;">
+5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Allentown-Bethlehem-Easto
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+115
+</td>
+<td style="text-align:right;">
+10
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Altoona, PA
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Amarillo, TX
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+36
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Anchorage, AK
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+209
+</td>
+<td style="text-align:right;">
+32
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Anniston, AL
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+11
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Appleton-Oshkosh-Neenah,
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+22
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Asheville, NC
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+3
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Athens, GA
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+13
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Atlanta, GA
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+2,003
+</td>
+<td style="text-align:right;">
+310
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Auburn-Opelika, AL
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Augusta-Aiken, GA-SC
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+30
+</td>
+<td style="text-align:right;">
+5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Austin-San Marcos, TX
+</td>
+<td style="text-align:right;">
+7
+</td>
+<td style="text-align:right;">
+493
+</td>
+<td style="text-align:right;">
+70
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Bakersfield, CA
+</td>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+1,064
+</td>
+<td style="text-align:right;">
+146
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Bangor, ME
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Barnstable-Yarmouth, MA
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+25
+</td>
+<td style="text-align:right;">
+3
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Baton Rouge, LA
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+98
+</td>
+<td style="text-align:right;">
+11
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Beaumont-Port Arthur, TX
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+52
+</td>
+<td style="text-align:right;">
+5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Bellingham, WA
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+73
+</td>
+<td style="text-align:right;">
+12
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Benton Harbor, MI
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+73
+</td>
+<td style="text-align:right;">
+11
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Billings, MT
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+11
+</td>
+<td style="text-align:right;">
+7
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Binghamton, NY
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+9
+</td>
+<td style="text-align:right;">
+3
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Birmingham, AL
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+287
+</td>
+<td style="text-align:right;">
+35
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Bismarck, ND
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Bloomington-Normal, IL
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Bloomington, IN
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Boise City, ID
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+53
+</td>
+<td style="text-align:right;">
+10
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Boston-Worcester-Lawrence
+</td>
+<td style="text-align:right;">
+7
+</td>
+<td style="text-align:right;">
+862
+</td>
+<td style="text-align:right;">
+122
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Brownsville-Harlingen-San
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+150
+</td>
+<td style="text-align:right;">
+20
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Bryan-College Station, TX
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+13
+</td>
+<td style="text-align:right;">
+3
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Buffalo-Niagara Falls, NY
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+35
+</td>
+<td style="text-align:right;">
+8
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Burlington, VT
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+6
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Canton-Massillon, OH
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+21
+</td>
+<td style="text-align:right;">
+9
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Casper, WY
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+7
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Cedar Rapids, IA
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Champaign-Urbana, IL
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+7
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Charleston-North Charlest
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+96
+</td>
+<td style="text-align:right;">
+14
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Charleston, WV
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Charlotte-Gastonia-Rock H
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+300
+</td>
+<td style="text-align:right;">
+47
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Charlottesville, VA
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+9
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Chattanooga, TN-GA
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+144
+</td>
+<td style="text-align:right;">
+19
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Cheyenne, WY
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+20
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Chicago-Gary-Kenosha, IL-
+</td>
+<td style="text-align:right;">
+41
+</td>
+<td style="text-align:right;">
+4,191
+</td>
+<td style="text-align:right;">
+584
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Chico-Paradise, CA
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+80
+</td>
+<td style="text-align:right;">
+14
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Cincinnati-Hamilton, OH-K
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+70
+</td>
+<td style="text-align:right;">
+10
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Clarksville-Hopkinsville,
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Cleveland-Akron, OH (C)
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+569
+</td>
+<td style="text-align:right;">
+75
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Colorado Springs, CO
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+215
+</td>
+<td style="text-align:right;">
+46
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Columbia, MO
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Columbia, SC
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+86
+</td>
+<td style="text-align:right;">
+12
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Columbus, GA-AL
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+40
+</td>
+<td style="text-align:right;">
+3
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Columbus, OH
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+159
+</td>
+<td style="text-align:right;">
+17
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Corpus Christi, TX
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+85
+</td>
+<td style="text-align:right;">
+10
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Corvalis, OR
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+9
+</td>
+<td style="text-align:right;">
+4
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Cumberland, MD-WV
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:right;">
+3
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Dallas-Fort Worth, TX (C)
+</td>
+<td style="text-align:right;">
+11
+</td>
+<td style="text-align:right;">
+2,962
+</td>
+<td style="text-align:right;">
+396
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Danville, VA
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Davenport-Moline-Rock Isl
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+23
+</td>
+<td style="text-align:right;">
+3
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Dayton-Springfield, OH
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+46
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Daytona Beach, FL
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+172
+</td>
+<td style="text-align:right;">
+25
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Decatur, AL
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Decatur, IL
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Denver-Boulder-Greeley, C
+</td>
+<td style="text-align:right;">
+14
+</td>
+<td style="text-align:right;">
+1,108
+</td>
+<td style="text-align:right;">
+176
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Des Moines, IA
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+51
+</td>
+<td style="text-align:right;">
+4
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Detroit-Ann Arbor-Flint,
+</td>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:right;">
+1,977
+</td>
+<td style="text-align:right;">
+274
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Dothan, AL
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Dover, DE
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+14
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Dubuque, IA
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Duluth-Superior, MN-WI
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+18
+</td>
+<td style="text-align:right;">
+6
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Eau Claire, WI
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+7
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+El Paso, TX
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+312
+</td>
+<td style="text-align:right;">
+39
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Elkhart-Goshen, IN
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+11
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Elmira, NY
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Enid, OK
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Erie, PA
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Eugene-Springfield, OR
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+95
+</td>
+<td style="text-align:right;">
+13
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Evansville-Henderson, IN-
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+17
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Fargo-Moorhead, ND-MN
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Fayetteville-Springdale-R
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+28
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Fayetteville, NC
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+145
+</td>
+<td style="text-align:right;">
+26
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Flagstaff, AZ-UT
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+4
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Florence, AL
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+15
+</td>
+<td style="text-align:right;">
+4
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Florence, SC
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+3
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Fort Collins-Loveland, CO
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+39
+</td>
+<td style="text-align:right;">
+4
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Fort Myers-Cape Coral, FL
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+323
+</td>
+<td style="text-align:right;">
+62
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Fort Pierce-Port St. Luci
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+231
+</td>
+<td style="text-align:right;">
+33
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Fort Smith, AR-OK
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+20
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Fort Walton Beach, FL
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+17
+</td>
+<td style="text-align:right;">
+5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Fort Wayne, IN
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+201
+</td>
+<td style="text-align:right;">
+24
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Fresno, CA
+</td>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+1,128
+</td>
+<td style="text-align:right;">
+167
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Gadsden, AL
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+17
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Gainesville, FL
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+45
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Glens Falls, NY
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+7
+</td>
+<td style="text-align:right;">
+4
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Goldsboro, NC
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Grand Forks, ND-MN
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Grand Junction, CO
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+57
+</td>
+<td style="text-align:right;">
+8
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Grand Rapids-Muskegon-Hol
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+236
+</td>
+<td style="text-align:right;">
+57
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Great Falls, MT
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Green Bay, WI
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Greensboro–Winston Salem
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+136
+</td>
+<td style="text-align:right;">
+31
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Greenville-Spartanburg-An
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+119
+</td>
+<td style="text-align:right;">
+18
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Greenville, NC
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+28
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Harrisburg-Lebanon-Carlis
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+71
+</td>
+<td style="text-align:right;">
+11
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Hartford, CT
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+218
+</td>
+<td style="text-align:right;">
+36
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Hickory-Morganton-Lenoir,
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+13
+</td>
+<td style="text-align:right;">
+3
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Honolulu, HI
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+131
+</td>
+<td style="text-align:right;">
+19
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Houma, LA
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Houston-Galveston-Brazori
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+2,333
+</td>
+<td style="text-align:right;">
+337
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Huntington-Ashland, WV-KY
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+16
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Huntsville, AL
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+27
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Indianapolis, IN
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+559
+</td>
+<td style="text-align:right;">
+84
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Iowa City, IA
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Jackson, MI
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+45
+</td>
+<td style="text-align:right;">
+4
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Jackson, TN
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+55
+</td>
+<td style="text-align:right;">
+13
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Jacksonville, FL
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+278
+</td>
+<td style="text-align:right;">
+32
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Jacksonville, NC
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+21
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Jamestown, NY
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Janesville-Beloit, WI
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+15
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Johnson City-Kingsport-Br
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+42
+</td>
+<td style="text-align:right;">
+8
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Johnstown, PA
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+4
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Jonesboro, AR
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+13
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Joplin, MO
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+31
+</td>
+<td style="text-align:right;">
+4
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Kalamazoo-Battle Creek, M
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+77
+</td>
+<td style="text-align:right;">
+15
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Kansas City, MO-KS
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+387
+</td>
+<td style="text-align:right;">
+59
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Killeen-Temple, TX
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+76
+</td>
+<td style="text-align:right;">
+7
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Knoxville, TN
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+257
+</td>
+<td style="text-align:right;">
+31
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Kokomo, IN
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+9
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+La Crosse, WI-MN
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Lafayette, IN
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Lafayette, LA
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+15
+</td>
+<td style="text-align:right;">
+5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Lake Charles, LA
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+18
+</td>
+<td style="text-align:right;">
+3
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Lakeland-Winter Haven, FL
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+171
+</td>
+<td style="text-align:right;">
+29
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Lancaster, PA
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+46
+</td>
+<td style="text-align:right;">
+7
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Lansing-East Lansing, MI
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+131
+</td>
+<td style="text-align:right;">
+18
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Laredo, TX
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+88
+</td>
+<td style="text-align:right;">
+15
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Las Cruces, NM
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+21
+</td>
+<td style="text-align:right;">
+3
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Las Vegas, NV-AZ
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+517
+</td>
+<td style="text-align:right;">
+74
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Lawrence, KS
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Lawton, OK
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+4
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Lewiston-Auburn, ME
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+7
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Lexington, KY
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+4
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Lima, OH
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Lincoln, NE
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+107
+</td>
+<td style="text-align:right;">
+7
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Little Rock-North Little
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+61
+</td>
+<td style="text-align:right;">
+5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Longview-Marshall, TX
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+68
+</td>
+<td style="text-align:right;">
+9
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Los Angeles-Riverside-Ora
+</td>
+<td style="text-align:right;">
+128
+</td>
+<td style="text-align:right;">
+7,276
+</td>
+<td style="text-align:right;">
+1,013
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Louisville, KY-IN
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+154
+</td>
+<td style="text-align:right;">
+15
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Lubbock, TX
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+33
+</td>
+<td style="text-align:right;">
+8
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Lynchburg, VA
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+16
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Macon, GA
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+64
+</td>
+<td style="text-align:right;">
+12
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Madison, WI
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+25
+</td>
+<td style="text-align:right;">
+6
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Mansfield, OH
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+23
+</td>
+<td style="text-align:right;">
+3
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+McAllen-Edinburg-Mission,
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+213
+</td>
+<td style="text-align:right;">
+36
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Medford-Ashland, OR
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+37
+</td>
+<td style="text-align:right;">
+6
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Melbourne-Titusville-Palm
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+154
+</td>
+<td style="text-align:right;">
+30
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Memphis, TN-AR-MS
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+847
+</td>
+<td style="text-align:right;">
+104
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Merced, CA
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+568
+</td>
+<td style="text-align:right;">
+74
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Miami-Fort Lauderdale, FL
+</td>
+<td style="text-align:right;">
+28
+</td>
+<td style="text-align:right;">
+3,632
+</td>
+<td style="text-align:right;">
+527
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Milwaukee-Racine, WI (C)
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+488
+</td>
+<td style="text-align:right;">
+78
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Minneapolis-St. Paul, MN-
+</td>
+<td style="text-align:right;">
+7
+</td>
+<td style="text-align:right;">
+453
+</td>
+<td style="text-align:right;">
+70
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Missoula, MT
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+21
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Mobile, AL
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+79
+</td>
+<td style="text-align:right;">
+6
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Modesto, CA
+</td>
+<td style="text-align:right;">
+15
+</td>
+<td style="text-align:right;">
+1,017
+</td>
+<td style="text-align:right;">
+136
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Monroe, LA
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+20
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Montgomery, AL
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+41
+</td>
+<td style="text-align:right;">
+6
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Muncie, IN
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+38
+</td>
+<td style="text-align:right;">
+3
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Myrtle Beach, SC
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+22
+</td>
+<td style="text-align:right;">
+3
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Naples, FL
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+85
+</td>
+<td style="text-align:right;">
+17
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Nashville, TN
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+273
+</td>
+<td style="text-align:right;">
+36
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+New London-Norwich, CT-RI
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+41
+</td>
+<td style="text-align:right;">
+9
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+New Orleans, LA
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+66
+</td>
+<td style="text-align:right;">
+7
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+New York, Northern New Je
+</td>
+<td style="text-align:right;">
+73
+</td>
+<td style="text-align:right;">
+3,603
+</td>
+<td style="text-align:right;">
+528
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Non-metro
+</td>
+<td style="text-align:right;">
+49
+</td>
+<td style="text-align:right;">
+5,871
+</td>
+<td style="text-align:right;">
+859
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Norfolk-Virginia Beach-Ne
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+203
+</td>
+<td style="text-align:right;">
+32
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Ocala, FL
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+79
+</td>
+<td style="text-align:right;">
+8
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Odessa-Midland, TX
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+46
+</td>
+<td style="text-align:right;">
+7
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Oklahoma City, OK
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+172
+</td>
+<td style="text-align:right;">
+34
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Omaha, NE-IA
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+302
+</td>
+<td style="text-align:right;">
+52
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Orlando, FL
+</td>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:right;">
+1,010
+</td>
+<td style="text-align:right;">
+147
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Owensboro, KY
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Panama City, FL
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+16
+</td>
+<td style="text-align:right;">
+5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Parkersburg-Marietta, WV-
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Pensacola, FL
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+32
+</td>
+<td style="text-align:right;">
+7
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Peoria-Pekin, IL
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+4
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Philadelphia-Wilmington-A
+</td>
+<td style="text-align:right;">
+20
+</td>
+<td style="text-align:right;">
+1,566
+</td>
+<td style="text-align:right;">
+215
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Phoenix-Mesa, AZ
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+1,510
+</td>
+<td style="text-align:right;">
+234
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Pine Bluff, AR
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+14
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Pittsburgh, PA
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+119
+</td>
+<td style="text-align:right;">
+20
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Pittsfield, MA
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Pocatello, ID
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Portland-Salem, OR-WA (C)
+</td>
+<td style="text-align:right;">
+15
+</td>
+<td style="text-align:right;">
+1,676
+</td>
+<td style="text-align:right;">
+248
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Portland, ME
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Providence-Fall River-War
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+207
+</td>
+<td style="text-align:right;">
+33
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Provo-Orem, UT
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+49
+</td>
+<td style="text-align:right;">
+7
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Pueblo, CO
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+216
+</td>
+<td style="text-align:right;">
+20
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Punta Gorda, FL
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+40
+</td>
+<td style="text-align:right;">
+11
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Raleigh-Durham-Chapel Hil
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+251
+</td>
+<td style="text-align:right;">
+53
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Rapid City, SD
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+16
+</td>
+<td style="text-align:right;">
+5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Reading, PA
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+66
+</td>
+<td style="text-align:right;">
+6
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Redding, CA
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+72
+</td>
+<td style="text-align:right;">
+19
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Reno, NV
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+63
+</td>
+<td style="text-align:right;">
+9
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Richland-Kennewick-Pasco,
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+58
+</td>
+<td style="text-align:right;">
+10
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Richmond-Petersburg, VA
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+138
+</td>
+<td style="text-align:right;">
+22
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Roanoke, VA
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+13
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Rochester, MN
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Rochester, NY
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+40
+</td>
+<td style="text-align:right;">
+5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Rockford, IL
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+60
+</td>
+<td style="text-align:right;">
+8
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Rocky Mount, NC
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+56
+</td>
+<td style="text-align:right;">
+7
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Sacramento-Yolo, CA (C)
+</td>
+<td style="text-align:right;">
+30
+</td>
+<td style="text-align:right;">
+2,012
+</td>
+<td style="text-align:right;">
+257
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Saginaw-Bay City-Midland,
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+42
+</td>
+<td style="text-align:right;">
+8
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Salinas, CA
+</td>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+350
+</td>
+<td style="text-align:right;">
+41
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Salt Lake City-Ogden, UT
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+326
+</td>
+<td style="text-align:right;">
+49
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+San Angelo, TX
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+18
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+San Antonio, TX
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+715
+</td>
+<td style="text-align:right;">
+106
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+San Diego, CA
+</td>
+<td style="text-align:right;">
+16
+</td>
+<td style="text-align:right;">
+683
+</td>
+<td style="text-align:right;">
+99
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+San Francisco-Oakland-San
+</td>
+<td style="text-align:right;">
+98
+</td>
+<td style="text-align:right;">
+5,358
+</td>
+<td style="text-align:right;">
+784
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+San Luis Obispo-Atascader
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+49
+</td>
+<td style="text-align:right;">
+8
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Santa Barbara-Santa Maria
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+107
+</td>
+<td style="text-align:right;">
+11
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Santa Fe, NM
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+13
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Sarasota-Bradenton, FL
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+284
+</td>
+<td style="text-align:right;">
+35
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Savannah, GA
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+42
+</td>
+<td style="text-align:right;">
+5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Scranton–Wilkes-Barre–H
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+202
+</td>
+<td style="text-align:right;">
+32
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Seattle-Tacoma-Bremerton,
+</td>
+<td style="text-align:right;">
+26
+</td>
+<td style="text-align:right;">
+2,123
+</td>
+<td style="text-align:right;">
+286
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Sharon, PA
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Sheboygan, WI
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+7
+</td>
+<td style="text-align:right;">
+3
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Sherman-Denison, TX
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+40
+</td>
+<td style="text-align:right;">
+4
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Shreveport-Bossier City,
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+84
+</td>
+<td style="text-align:right;">
+11
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Sioux City, IA-NE
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+13
+</td>
+<td style="text-align:right;">
+3
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Sioux Falls, SD
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+27
+</td>
+<td style="text-align:right;">
+6
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+South Bend, IN
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+67
+</td>
+<td style="text-align:right;">
+6
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Spokane, WA
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+96
+</td>
+<td style="text-align:right;">
+13
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Springfield, IL
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Springfield, MA
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+119
+</td>
+<td style="text-align:right;">
+18
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Springfield, MO
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+48
+</td>
+<td style="text-align:right;">
+6
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+St. Cloud, MN
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+15
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+St. Joseph, MO
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+11
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+St. Louis, MO-IL
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+493
+</td>
+<td style="text-align:right;">
+65
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+State College, PA
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Steubenville-Weirton, OH-
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Stockton-Lodi, CA
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+1,028
+</td>
+<td style="text-align:right;">
+141
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Sumter, SC
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Syracuse, NY
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+35
+</td>
+<td style="text-align:right;">
+8
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Tallahassee, FL
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+23
+</td>
+<td style="text-align:right;">
+5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Tampa-St. Petersburg-Clea
+</td>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:right;">
+1,069
+</td>
+<td style="text-align:right;">
+154
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Terre Haute, IN
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+23
+</td>
+<td style="text-align:right;">
+3
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Texarkana, TX-Texarkana,
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Toledo, OH
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+25
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Topeka, KS
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+9
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Tucson, AZ
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+192
+</td>
+<td style="text-align:right;">
+34
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Tulsa, OK
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+137
+</td>
+<td style="text-align:right;">
+15
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Tuscaloosa, AL
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+16
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Tyler, TX
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+80
+</td>
+<td style="text-align:right;">
+9
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Utica-Rome, NY
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+4
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Victoria, TX
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+18
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Visalia-Tulare-Portervill
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+533
+</td>
+<td style="text-align:right;">
+63
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Waco, TX
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+52
+</td>
+<td style="text-align:right;">
+10
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Washington-Baltimore, DC-
+</td>
+<td style="text-align:right;">
+59
+</td>
+<td style="text-align:right;">
+4,481
+</td>
+<td style="text-align:right;">
+614
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Waterloo-Cedar Falls, IA
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Wausau, WI
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+West Palm Beach-Boca Rato
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+640
+</td>
+<td style="text-align:right;">
+98
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Wheeling, WV-OH
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Wichita Falls, TX
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+34
+</td>
+<td style="text-align:right;">
+3
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Wichita, KS
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+30
+</td>
+<td style="text-align:right;">
+7
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Williamsport, PA
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Wilmington, NC
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+23
+</td>
+<td style="text-align:right;">
+7
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Yakima, WA
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+79
+</td>
+<td style="text-align:right;">
+18
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+York, PA
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+66
+</td>
+<td style="text-align:right;">
+7
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Youngstown-Warren, OH
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+26
+</td>
+<td style="text-align:right;">
+3
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Yuba City, CA
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+148
+</td>
+<td style="text-align:right;">
+23
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Yuma, AZ
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+6
+</td>
+</tr>
+</tbody>
+</table>
+<pre><code>Pearson&#39;s Chi-squared test</code></pre>
+<p>data: table(cs) X-squared = 709.71, df = 546, p-value = 2.677e-06</p>
 
 </div>
 </div>

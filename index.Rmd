@@ -22,6 +22,7 @@ Its intent is to provide prospective employers with concrete evidence of my abil
 * 2018-07-01 performed PCA on sample
 * 2018-07-02 performed K-means clustering
 * 2018-07-06 Correspondence analysis performance x clusters
+* 2018-07-08 Correspondence analysis of categorical variables
 
 ## Literate programming: the tight integration of code and text
 
