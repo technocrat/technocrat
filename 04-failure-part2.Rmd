@@ -278,7 +278,7 @@ kable(table(cs), format.args = list(big.mark = ","), caption = "Contingency tabl
 chisq.test(table(cs))
 ``` 
 
-These results would be encouraging, with a *p-value* greater than 0.05, allowing us to accept the alternative to independence (that those two credit grades, at least, have something to do with performance) but it is disturbing that samples fail to yield consistent results. But it fails to account for the other credit grades.
+These results would be encouraging, with a *p-value* greater than 0.05, allowing us to accept the alternative to independence (that those two credit grades, at least, have something to do with performance) but it  fails to account for the other credit grades.
 
 Let's try another categorical variabe, which transaction contained each loan, compared to that loan's performance.
 
