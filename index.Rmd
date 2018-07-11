@@ -23,6 +23,8 @@ Its intent is to provide prospective employers with concrete evidence of my abil
 * 2018-07-02 performed K-means clustering
 * 2018-07-06 Correspondence analysis performance x clusters
 * 2018-07-08 Correspondence analysis of categorical variables
+* 2018-07-11 Revised qq plots to take advantage of new ggplot2 v 3.0.0 
+  feature and added R package to tools chapter
 
 ## Literate programming: the tight integration of code and text
 

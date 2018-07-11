@@ -1,0 +1,360 @@
+# The subprime mortgage crisis unfolds in early 2007, part 2
+
+Keywords: refactoring, unsupervised learning, principal component analysis, k-means clustering, correspondence analysis, chi-squared test, contingency table, pivot, correlation table
+
+## The fall of FICO
+
+The problem with the conventional wisdom of long standing is that it loses sight of history. The prominence of FICO in home loan credit underwriting described in the [Pinto Testimony] had its origins in a different time (the early 1990s) and a different lending environment. Freddie Mac was in a good position to ensure that all other things *were* equal. It made only what came to be called "prime" loans, generally for no more than 80% of the value of the property, under more stringent limitations on the debt-to-income ratio of the borrower and many other criteria that it kept within a narrow range, and offered only a few varieties of loans.
+
+In the subprime market that emerged in the late 90s, all of those factors changed. Criteria that were narrow became broad, documentation was relaxed and a widespread assumption was that continually rising home values would preclude any problems. It's not surprising that FICO lost its predictive power.
+
+## Restructuring the data
+
+Some of the testing of FICO as a useful metric involved subsetting the data. There were many more variables than the ones used, some of them categorical and some categorical coded as numeric. One potentially useful variable is location, because we know that real estate value are location sensitive. We have four location fields in the database, all derived from the postal zip code:
+
+* The zip code itself, which is generally either much smaller or much larger than the real estate market, and also changes at the convenience of the postal service. *See* the discussion at [On the use of ZIP codes and ZIP code tabulation areas (ZCTAs) for the spatial analysis of epidemiological data].
+
+* The metropolitan area derived from the U.S. Census ZIP code tabulation area, but covers a larger area than most real estate markets
+
+* Longitude and latitude dervived from the ZCTA's, used for mapping
+
+As a compromise, I converted the 5-digit zip codes into 3-digit zip codes. In metropolitan areas, the 3-digit codes are the sizes comparable to how the multiple listing services divide the market. We'll see if there is any value in this proxy measure of real estate market.
+
+```{r setup4A,echo = FALSE, warning=FALSE, message=FALSE}
+# The following lines have been commented out because the results have
+# been captured in a MySQL database
+#library(tidyverse)
+#library(DBI)
+#library(RMySQL)
+#drv <- dbDriver("MySQL")
+#con <- dbConnect(drv, username="root", password="", dbname ="dlf", host="localhost")
+#res <- dbGetQuery(con, "SELECT ctapeno, deal, remit, fico, dti, cltv, orate, obal, grade, round(zip/100,0), dtype, fpd,ltype, otype, purpose, ptype, metro FROM y6c")
+#cs <- as.tibble(res)
+#require(binaryLogic)
+#require(stringi)
+#reports <- cs %>% rowwise %>% mutate(repbin = toString(as.binary(remit))) %>% rowwise %>% mutate(repstr = str_replace_all(repbin,"[, ]",'')) %>% mutate(reports = str_count(repstr)) %>% select(ctapeno, repstr, reports)
+#perf <- reports %>% mutate(category = case_when(str_detect(repstr, '111$') ~ "C", str_count(repstr, '0') <= 9 ~ "B", str_count(repstr, '0') > 9 ~ "A")) %>% select(ctapeno, category)
+#y6rf <- cs %>% inner_join(perf, by = "ctapeno")
+#y6rf <- y6rf %>% mutate(zip = as.character(`round(zip/100,0)`), perf = category, grade = as.character((grade)))
+#y6rf <- y6rf %>% select(ctapeno, deal,fico,dti,cltv,obal, orate, grade, dtype,fpd,ltype, otype, purpose, ptype, zip, metro, perf)
+#dbWriteTable(con, "loans", y6rf) 
+#test
+#res <- dbGetQuery(con, "SELECT * from loans limit 25") 
+#res
+``` 
+
+It was time to reorganize the database into a more streamlined version, that captured the information on performance (relieving the 11-month constraint) and transformed the fields that needed to be treated as categorical, rather than continuous. It's much more efficient to put this in a new SQL table than to keep in memory, especially since sampling will be involved. Here's the revised data layout:
+
+    MariaDB [dlf]> describe loans;
+    +-----------+--------+------+-----+---------+-------+
+    | Field     | Type   | Null | Key | Default | Extra |
+    +-----------+--------+------+-----+---------+-------+
+    | row_names | text   | YES  |     | NULL    |       |
+    | ctapeno   | double | YES  |     | NULL    |       |
+    | deal      | text   | YES  |     | NULL    |       |
+    | fico      | double | YES  |     | NULL    |       |
+    | dti       | double | YES  |     | NULL    |       |
+    | cltv      | double | YES  |     | NULL    |       |
+    | obal      | double | YES  |     | NULL    |       |
+    | orate     | double | YES  |     | NULL    |       |
+    | grade     | text   | YES  |     | NULL    |       |
+    | dtype     | text   | YES  |     | NULL    |       |
+    | fpd       | text   | YES  |     | NULL    |       |
+    | ltype     | text   | YES  |     | NULL    |       |
+    | otype     | text   | YES  |     | NULL    |       |
+    | purpose   | text   | YES  |     | NULL    |       |
+    | ptype     | text   | YES  |     | NULL    |       |
+    | zip       | text   | YES  |     | NULL    |       |
+    | metro     | text   | YES  |     | NULL    |       |
+    | perf      | text   | YES  |     | NULL    |       |
+    +-----------+--------+------+-----+---------+-------+
+    18 rows in set (0.00 sec)
+    
+Between the first two rows (record identifiers) and the last row (the performance category) are the 17 variables we have to predict the performance outcome. For the almost 100,000 records, that is 1.5 million pieces of information. Technically we are in 15-dimensional space, and we need a way of flattening the dimensionality to be able to question the data.
+
+## Principal component analysis
+
+```{r psa1,  echo = FALSE, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(DBI)
+library(RMySQL)
+#library(FacoMineR)
+drv <- dbDriver("MySQL")
+con <- dbConnect(drv, username="root", password="", dbname ="dlf", host="localhost")
+res <- dbGetQuery(con, "SELECT fico, cltv, orate, obal, dti FROM loans")
+cs <- as.tibble(res) # cs contains only the continuous variables
+css <- sample_n(cs,300, replace = FALSE) 
+# naming conventions following James et al. *An Introduction to Statistical Learning*
+
+pr.out <- prcomp(css, scale = TRUE)
+pr.var <- pr.out$sdev*2
+pve <- pr.var/sum(pr.var)
+# ------------------------------------------------------------------------
+# Plots
+par(mfrow=c(1,2))
+
+screeplot(pr.out, type = "lines")
+
+biplot(pr.out, scale = 0)
+``` 
+
+```{r cov1, echo = FALSE, warning=FALSE, message=FALSE}
+orate_s <- cs$orate
+obal_s <- cs$obal
+```
+
+The cumulative variance is  `r round(cumsum(pve),3)` for this sample of 300.
+
+From the loadings chart on the right, we see that *obal* (the original amount of the loan) and *orate* (the original rate of interest) are negatively correlated, `r round(cor(orate_s,obal_s),3)`. The remaining continuous variables, *fico*, *dti* (debt-to-income ratio), *cltv* (the ratio of first and second loans to the value of the mortgaged property), have small correlations:
+
+The variables *fico* and *cltv* have some correlation (`r round(cor(cs$fico,cs$cltv),3)`), while *fico* and *dti* (`r round(cor(cs$fico,cs$dti),3)`) and *dti* and *cltv* (`r round(cor(cs$dti,cs$cltv),3)`) have low correlations.
+
+The variable *orate,* however, is clearly discrete, so we re-run without it and increase the size of the sample to 9,000.
+
+```{r, results="asis", echo = FALSE, warning=FALSE}
+res <- dbGetQuery(con, "SELECT fico, cltv, obal, dti FROM loans")
+cs <- as.tibble(res) # cs contains only the continuous variables
+css <- sample_n(cs,9000, replace = FALSE)
+pr.out <- prcomp(css, scale = TRUE)
+pr.var <- pr.out$sdev*2
+pve <- pr.var/sum(pr.var)
+par(mfrow=c(1,2))
+
+screeplot(pr.out, type = "lines")
+
+biplot(pr.out, scale = 0)
+
+``` 
+
+The variances are
+```{r, results="asis", echo = FALSE, warning=FALSE}
+pve
+```
+
+
+## K-means clustering
+
+The following represents the unsupervised classification of the *fico, cltv, obal*, and *dti* of an approximately 10% sample from the **loans** dataset.
+
+```{r, results="asis", echo = FALSE, warning=FALSE}
+css.k <- kmeans(css, 3, iter.max = 20, nstart = 50)
+plot(css, col=(css.k$cluster+1), main="K-Means Clustering Result with K=3, n = 9,000, nstart = 50, max.iter = 20", pch=20, cex=2)
+```
+
+Using the entire population, rather than a sample creates somewhat better defined clusters
+
+```{r, results="asis", echo = FALSE, warning=FALSE}
+## Not run
+## cs.k <- kmeans(cs, 3, iter.max = 20, nstart = 50)
+## use load("kmeans_loans.Rda") # brings in cs.k
+## Not run
+## plot(cs, col=(cs.k$cluster+1), main="K-Means Clustering Result with K=3, n = all_loans, nstart = 50, max.iter = 20", pch=20, cex=2)
+## Use provided link (long running process)
+```
+![K-means clustering of all loans in loans database](http://media.richard-careaga.com/img/Kmeans_loans.png)
+ 
+Consideration might be given to separately clustering high-balance loans. Other outliers, such as the zero FICO scores, can be safely ignored, as can be the anomalous loan with a 97% *dti* ratio.
+
+### Housekeeping
+
+Since PCA is a relatively expensive calculation for 100K records, I saved the result to and Rda file for reuse. Now, I'll add it to the loans database as another categorical variable.
+
+Because I don't run the MySQL server with rollback and to avoid a proliferation of names
+
+    MariaDB [dlf]> CREATE TABLE loans_bak AS SELECT * from loans;
+    Query OK, 96147 rows affected (1.06 sec)
+    Records: 96147  Duplicates: 0  Warnings: 0
+
+The strategy is to create df loans w/all fields and cbind cs.k$clusters, renam "value" to kcluster and write back to loans, after dropping it
+
+    dbWriteTable(con, "loans", cs)
+
+Here's the code (not run, to avoid churn)
+
+    library(tidyverse)
+    library(DBI)
+    library(RMySQL)
+    library(FactoMineR)
+
+    drv <- dbDriver("MySQL")
+    con <- dbConnect(drv, username="root", password="", dbname ="dlf", host="localhost")
+    res <- dbGetQuery(con, "SELECT * from loans_bak")
+    cs <- as.tibble(res)
+    load("data/kmeans_loans.Rda") # brings in cs.k
+    #check for missing values
+    nrow(cs) == length(cs.k$cluster)
+    # convert to data frame
+    csk <- as.tibble(cs.k$cluster)
+    # rename the column
+    csk <- csk %>% transmute(kcluster = value)
+    # combine
+    loans <- bind_cols(cs,csk)
+    # remove duplicate rownames column
+    loans <- loans[-1]
+    # write back to SQL
+    #dbWriteTable(con, "loans", loans) 
+    # test
+    #dbGetQuery(con, "SELECT * from loans limit 25")
+
+## Do the clusters predict loan performance?
+
+We previously classified loans in the pool based on payment history into three categories:
+
+* A: no more than 1 missed payment during the life of the loan
+* B: more than 1 missed payment during the life of the loan but current in the most recent report
+* C: delinquent at least three times as of the most recent three payment reports
+
+Do the clusters derived from the principal components of the numeric variables, *obal*, *orate*, *dti* and *cltv* have an association with the payment categories?
+
+If they do, we have the makings of a model; otherwise, we need to look at the other data available. 
+
+### Correspondence analysis
+
+Principal component analysis and many other data tools work only on continuous data; for discrete (or categorical) values, we turn to contingency tables, where one variable is in the rows and the other in the columns, so this is sometimes called an *r x c* table.
+
+I'll use three 10% samples to check if the results are consistent. The idea is to see if the porportion of results are *independent.* In formal terms, that will be the null hypothosis. The test statistic is the chi-square test of independence. I'll use the conventional *p-value* of 0.05 as the cutoff; anything less than that means that I cannot reject the null hypothesis that the performance categories and the factors are independent. Here are the contingency tables:
+
+```{r contab, results="asis", echo = FALSE, warning=FALSE}
+library(tidyverse)
+library(DBI)
+library(RMySQL)
+library(FactoMineR)
+library(knitr)
+library(kableExtra)
+drv <- dbDriver("MySQL")
+con <- dbConnect(drv, username="root", password="", dbname ="dlf", host="localhost")
+cs <- as.tibble(dbGetQuery(con, "SELECT perf, kcluster from loans"))
+s1 <- cs %>% sample_n(9000,replace=TRUE)
+s2 <- cs %>% sample_n(9000,replace=TRUE)
+s3 <- cs %>% sample_n(9000,replace=TRUE)
+kable(table(s1), format.args = list(big.mark = ","), caption = "Sample 1 contingency table of performance (row) by cluster (column)") %>% kable_styling(bootstrap_options = "striped", full_width = F) 
+kable(table(s2), format.args = list(big.mark = ","), caption = "Sample 2 contingency table of performance (row) by cluster (column)")  %>% kable_styling(bootstrap_options = "striped", full_width = F) 
+kable(table(s3), format.args = list(big.mark = ","), caption = "Sample 3 contingency table of performance (row) by cluster (column)")  %>% kable_styling(bootstrap_options = "striped", full_width = F) 
+``` 
+
+and the chi-square tests are variable, depending on the particular sample.
+
+```{r chisq, results="asis", echo = FALSE, warning=FALSE}
+
+print(chisq.test(table(s1)))
+
+print(chisq.test(table(s2)))
+
+print("Sample 3 chi square test for independence")
+print(chisq.test(table(s3)))
+``` 
+
+The chi square tests don't allow us to conclude that the loan performance and PCA-dervived clusters are not independent. Put more plainly, the one seems to have nothing to do with the other.
+
+### What do other categorical contingency tables tell us?
+
+One of the available categorical variables is credit *grade* from the [credit disclosure].
+
+```{r gradevperf, results="asis", echo = FALSE, warning=TRUE}
+library(tidyverse)
+library(DBI)
+library(RMySQL)
+drv <- dbDriver("MySQL")
+con <- dbConnect(drv, username="root", password="", dbname ="dlf", host="localhost")
+cs <- as.tibble(dbGetQuery(con, "SELECT grade,perf FROM loans"))# WHERE grade = 'A+' OR grade = 'AP'"))
+kable(table(cs), format.args = list(big.mark = ","), caption = "Contingency table of credit grade (row) by performance (column)") %>% kable_styling(bootstrap_options = "striped", full_width = F) 
+chisq.test(table(cs))
+
+``` 
+
+The warning message
+
+    Warning message:
+    In chisq.test(table(s1)) : Chi-squared approximation may be incorrect
+
+can be easy to overlook, but it has an important message: Some of the grades are too few to occupy the *expected value* slots of the chi-squared distribution.
+
+
+We can restrict the selection to only the A- and AP categories easily enough.
+
+```{r gradperf, results="asis", echo = FALSE, warning=FALSE}
+cs <- as.tibble(dbGetQuery(con, "SELECT grade,perf FROM loans WHERE grade = 'A+' OR grade = 'AP'"))
+kable(table(cs), format.args = list(big.mark = ","), caption = "Contingency table of credit grades A+ and AP (row) by performance (column)") %>% kable_styling(bootstrap_options = "striped", full_width = F) 
+chisq.test(table(cs))
+``` 
+
+These results would be encouraging, with a *p-value* greater than 0.05, allowing us to accept the alternative to independence (that those two credit grades, at least, have something to do with performance) but it  fails to account for the other credit grades.
+
+Let's try another categorical variabe, which transaction contained each loan, compared to that loan's performance.
+
+```{r loanbydeal, results="asis", echo = FALSE, warning=FALSE}
+cs <- as.tibble(dbGetQuery(con, "SELECT deal,perf FROM loans"))
+kable(table(cs), format.args = list(big.mark = ","), caption = "Contingency table of deal (row) by performance (column)") %>% kable_styling(bootstrap_options = "striped", full_width = F) 
+chisq.test(table(cs))
+
+``` 
+
+On the other hand, the initial interest rates we have to consider as independent of performance.
+
+```{r loanbymargin, results="asis", echo = FALSE, warning=FALSE}
+cs <- as.tibble(dbGetQuery(con, "SELECT orate,perf FROM loans"))
+kable(table(cs), format.args = list(big.mark = ","), caption = "Contingency table of interest rate (row) by performance (column)") %>% kable_styling(bootstrap_options = "striped", full_width = F) 
+chisq.test(table(cs))
+``` 
+
+The first payment date, indicating the time of origination, has an association with performance.
+
+```{r fpd, results="oasis", echo = FALSE, warning=FALSE}
+cs <- as.tibble(dbGetQuery(con, "SELECT fpd,perf FROM loans"))
+kable(table(cs), format.args = list(big.mark = ","), caption = "Contingency table of first payment date (row) by performance (column)") %>% kable_styling(bootstrap_options = "striped", full_width = F) 
+chisq.test(table(cs))
+``` 
+
+The loan type is independent of performance.
+
+```{r loanbyltype, results="asis", echo = FALSE, warning=FALSE}
+cs <- as.tibble(dbGetQuery(con, "SELECT ltype, perf FROM loans"))
+kable(table(cs), format.args = list(big.mark = ","), caption = "Contingency table of loan type (row) by performance (column)") %>% kable_styling(bootstrap_options = "striped", full_width = F) 
+chisq.test(table(cs))
+``` 
+
+Occupancy type is independent of performance.
+
+```{r loanbyotype, results="asis", echo = FALSE, warning=FALSE}
+cs <- as.tibble(dbGetQuery(con, "SELECT otype,perf FROM loans"))
+kable(table(cs), format.args = list(big.mark = ","), caption = "Contingency table of occupancy type (row) by performance (column)") %>% kable_styling(bootstrap_options = "striped", full_width = F) 
+chisq.test(table(cs))
+``` 
+
+Loan documentation type is independent of performance..
+
+```{r loanbydtype, results="asis", echo = FALSE, warning=FALSE}
+cs <- as.tibble(dbGetQuery(con, "SELECT dtype,perf FROM loans"))
+kable(table(cs), format.args = list(big.mark = ","), caption = "Contingency table of documentation type (row) by performance (column)") %>% kable_styling(bootstrap_options = "striped", full_width = F) 
+chisq.test(table(cs))
+``` 
+
+Loan purpose (purchase, rate/term refinance/ cash-out refinance) is independent of performance.
+
+```{r loanbypurp, results="asis", echo = FALSE, warning=FALSE}
+cs <- as.tibble(dbGetQuery(con, "SELECT purpose,perf FROM loans"))
+kable(table(cs), format.args = list(big.mark = ","), caption = "Contingency table of loan purpose (row) by performance (column)") %>% kable_styling(bootstrap_options = "striped", full_width = F) 
+chisq.test(table(cs))
+``` 
+Property type is independent of perforannce.
+
+```{r loanbyptype, results="asis", echo = FALSE, warning=FALSE}
+cs <- as.tibble(dbGetQuery(con, "SELECT ptype,perf FROM loans"))
+kable(table(cs), format.args = list(big.mark = ","), caption = "Contingency table of property type (row) by performance (column)") %>% kable_styling(bootstrap_options = "striped", full_width = F) 
+chisq.test(table(cs))
+``` 
+
+The metropolitan region of the property is independent of performance.
+
+```{r loanbymetro, results="asis", echo = FALSE, warning=FALSE}
+cs <- as.tibble(dbGetQuery(con, "SELECT metro,perf FROM loans"))
+kable(table(cs), format.args = list(big.mark = ","), caption = "Contingency table of metropolitan area (row) by performance (column)") %>% kable_styling(bootstrap_options = "striped", full_width = F) 
+chisq.test(table(cs))
+``` 
+
+
+
+[credit disclosure]: https://goo.gl/uhX1Pc
+[LBMLT 2006-1]: https://www.sec.gov/Archives/edgar/data/1119605/000114420406002461/v033798_fwp.htm
+
+[Pinto testimony]: https://democrats-oversight.house.gov/sites/democrats.oversight.house.gov/files/documents/Fannie%20Freddie%20Testimony%20of%20Edward%20Pinto%2012.9.08%20written%20submission%20Full.pdf

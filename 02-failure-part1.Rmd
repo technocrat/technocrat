@@ -1,0 +1,526 @@
+# The subprime mortgage crisis unfolds in early 2007, part 1
+
+Keywords: large database, MySQL, Python, data wrangling, exploratory data analysis, data mining, qqnorm, qqplot, Shapiro-Wilk
+
+## Case Description
+
+Washington Mutual Bank originated subprime loans as one of its home loan mortgage types. The term *subprime* has always been hard to pin down precisely. Generally, though, they represented higher-interest rate loans to less creditworthy borrowers. In competition with other lenders, the risks types, such as the borrower's debt-to-income ratio, the combined loan-to-value ratio (considering both the first and any second lien loan), the level of income and asset verification, and the purpose of the loan began to become *layered.* That is, the cumulative risk increased. And too much reliance, perhaps, was being placed on ever-increasing home values.
+
+In early 2007, a marketing specialist from Washington Mutual Bank's Wall Street subsidiary, called me to say that investors were complaining about the peformance of our subprime securities issued in 2006. I was the principal lawyer in-house dealing with mortgage backed securities, and he wanted to know what kinds of written materials he could provide.
+
+I had some questions that had no ready answers:
+
+* How did our pools of mortgage loans differ?
+* What do we mean by performance?
+
+We could begin, I suggested, by looking at the tape for the January 2006 deal, [LBMLT 2006-1], to see how the origination characteristics differed from competing deals. We could also pull the monthly report that showed last payment date, delinquency status and other data. He said that he'd try to get that together, but it wasn't really his job.
+
+This is the case that Donald Rumsfelt (*known knowns, known unknowns and unknown unknowns*) missed: **unknown knowns,** information we had that was scattered throughout the organization.
+
+It became apparent that I wasn't going to get any help dealing with my rising sense of unease that the company faced potential liabilities as a result of these transactions. I was senior enough to set my own priorities so I decided to assemble the data to see what I could make of it.
+
+## Data Wrangling
+
+There were 14 transactions issued in 2006, all of which were accompanied by tapes similar to the [LBMLT 2006-1] deal with origination data. I also looked at default data, from over 100 spreadsheets, many with manual changes, that had to be beaten into submission.
+
+Fortunately the origination tapes, while wrapped in HTML, were tagged with
+
+    <pre>payload</pre> 
+    
+pairs, making their extraction easy. One of the typical tasks was converting dates into ISO form -- from 3/6/2006, say, to 2006-03-06, for which I turned to Python.
+
+    """
+    function to convert dates into date objects
+
+    """
+    from datetime import datetime
+    import re
+
+    def canonize_date(slashdate):
+        """convert date strings from 3/1/2009 to 2009-03-01"""
+        dateString = re.compile(r'(\d{1,2})/(\d{1,2})/(\d{4})') # match 3/1/2009
+        dash = '-'
+        parts = dateString.search(slashdate).groups()
+        composed = parts[-1] + dash + parts[-3] + dash + parts[-2]
+        return composed
+
+    def make_date(entry):
+        """
+        Convert string in form 2011-10-25 to a date object
+        """
+        return datetime.date(datetime.strptime(entry, "%Y-%m-%d"))
+        
+## Database conversion
+
+There were too many records (nearly 125K) to work in memory, which lead me to create my first MySQL database.
+
+    +---------+---------------+------+-----+---------+-------+
+    | Field   | Type          | Null | Key | Default | Extra |
+    +---------+---------------+------+-----+---------+-------+
+    | ctapeno | decimal(10,0) | YES  | MUL | NULL    |       |
+    | fpd     | date          | YES  |     | NULL    |       |
+    | obal    | decimal(10,0) | YES  |     | NULL    |       |
+    | ltype   | varchar(15)   | YES  |     | NULL    |       |
+    | cservno | decimal(10,0) | YES  |     | NULL    |       |
+    | st      | varchar(4)    | YES  |     | NULL    |       |
+    | odate   | date          | YES  |     | NULL    |       |
+    | margin  | decimal(10,0) | YES  |     | NULL    |       |
+    | oltv    | decimal(10,0) | YES  |     | NULL    |       |
+    | lien    | tinyint(4)    | YES  |     | NULL    |       |
+    | second  | decimal(10,0) | YES  |     | NULL    |       |
+    | pflag   | varchar(1)    | YES  |     | NULL    |       |
+    | pterm   | tinyint(4)    | YES  |     | NULL    |       |
+    | pmon    | tinyint(4)    | YES  |     | NULL    |       |
+    | grade   | varchar(5)    | YES  |     | NULL    |       |
+    | fico    | decimal(10,0) | YES  |     | NULL    |       |
+    | cbal    | varchar(1)    | YES  |     | NULL    |       |
+    | sbal    | decimal(10,0) | YES  |     | NULL    |       |
+    | deal    | varchar(15)   | YES  |     | NULL    |       |
+    | orate   | decimal(10,0) | YES  |     | NULL    |       |
+    | ptype   | varchar(10)   | YES  |     | NULL    |       |
+    | otype   | varchar(20)   | YES  |     | NULL    |       |
+    | dtype   | varchar(15)   | YES  |     | NULL    |       |
+    | purpose | varchar(25)   | YES  |     | NULL    |       |
+    | lg      | tinyint(4)    | YES  |     | NULL    |       |
+    | rterm   | smallint(6)   | YES  |     | NULL    |       |
+    | pmi     | varchar(1)    | YES  |     | NULL    |       |
+    | cdate   | date          | YES  |     | NULL    |       |
+    | mdate   | date          | YES  |     | NULL    |       |
+    | pexp    | date          | YES  |     | NULL    |       |
+    | pptype  | varchar(4)    | YES  |     | NULL    |       |
+    | icode   | varchar(4)    | YES  |     | NULL    |       |
+    | duedate | date          | YES  |     | NULL    |       |
+    | scap    | tinyint(4)    | YES  |     | NULL    |       |
+    | dti     | decimal(10,0) | YES  |     | NULL    |       |
+    | oterm   | smallint(6)   | YES  |     | NULL    |       |
+    | oservno | decimal(10,0) | YES  |     | NULL    |       |
+    | cltv    | decimal(10,0) | YES  |     | NULL    |       |
+    | rdate   | date          | YES  |     | NULL    |       |
+    | aterm   | smallint(6)   | YES  |     | NULL    |       |
+    | zip     | int(11)       | YES  |     | NULL    |       |
+    | city    | varchar(25)   | YES  |     | NULL    |       |
+    | status  | varchar(10)   | YES  |     | NULL    |       |
+    +---------+---------------+------+-----+---------+-------+
+    43 rows in set (0.00 sec)
+
+The data dictionary:
+
+    +---------------------------+------------+-------------------------------------+
+    | tapefield                 | tablefield | desciption                          |
+    +---------------------------+------------+-------------------------------------+
+    | LOAN_NUMBER               | ctapeno    | serial number of loan on closing ta |
+    | FPDATE                    | fpd        | first schedule payment date after o |
+    | ORIGBAL                   | obal       | original note balance               |
+    | LOANTYPE                  | ltype      | loan type                           |
+    | SERVICING_LOAN_NUMBER     | servno     | customer account number             |
+    | STATE                     | st         | state where mortgaged property is l |
+    | FUNDDATE                  | odate      | date on which the mortage loan was  |
+    | MARGIN                    | margin     | "for ARMs, the percentage added to  |
+    | OLTV                      | oltv       | original loan to value ratio        |
+    | LIEN                      | lien       | priority                            |
+    | SUBLIEN                   | second     | "balance of sublien, if record is a |
+    | PREPAY_IND                | pflag      | whether loan has prepayment penalty |
+    | PREPAY_TERM               | pterm      | term of any prepayment penalty      |
+    | PREPAY_MNTH               | pmon       | number of months of prepayment pena |
+    | GRADE                     | grade      | credit grade of loan                |
+    | CALCFICO                  | cfico      | whether fico was calculated         |
+    | CALCBLN                   | cbal       | whether cut off date balance was ca |
+    | SCHDBAL                   | sbal       | schedule balance sold to deal       |
+    | SECURITY                  | deal       | securitization identifier           |
+    | ORIGRATE                  | orate      | note rate for initial payment       |
+    | PROPTYPEDESC              | ptype      | property type                       |
+    | OCCUPANCYDESC             | otype      | occupancy type                      |
+    | DOCTYPEDESC               | dtype      | documentation type                  |
+    | PURPOSEDESC               | purpose    | loan purpose                        |
+    | POOLGROUP                 | lg         | loan group                          |
+    | ORIG_CALCRTERM            | rterm      | calculated remaining months to matu |
+    | PMI                       | pmi        | whether MI is in effect             |
+    | DEAL_CLOSE_DATE           | cdate      | closing date for deal               |
+    | MTDATE                    | mdate      | matuity date for note               |
+    | PREPAY_EXP_DATE           | pexp       | expiration date of prepayment penal |
+    | PREPAY_RATE_CODE          | pptype     | prepayment penalty type             |
+    | INVESTOR_CODE             | icode      | investor code                       |
+    | DUEDATE                   | duedate    | date on which first payment due to  |
+    | SUBRATE_CAP               | scap       | subrate cap                         |
+    | DEBTRATIO                 | dti        | front-end debt-to-income ratio      |
+    | OTERM                     | oterm      | original term                       |
+    | ORIG_SERVICING_LOAN_NUMBE | oservno    | original servicing number           |
+    | PROSUPP_CLTV              | cltv       | combined LTV                        |
+    | ORIG_NRADATE              | rdate      | roll date                           |
+    | ATERM                     | aterm      | amortization term                   |
+    | ZIP                       | zip        | postal code                         |
+    | CITY                      | city       | address city                        |
+    | STATUS                    | status     | reserved                            |
+    +---------------------------+------------+-------------------------------------+
+    43 rows in set (0.00 sec)
+
+After creating these for each of the transactions, I combined them into a single file, used a supplemental zipcode lookup table to identify the metropolitan area (for possible use with the Case Shiller Index of Home Prices) and added fields for loan payment history.
+
+The resulting table with the $25 billion in mortgage loans:
+
+    +----------+-------------+
+    | count(*) | sum(obal)   |
+    +----------+-------------+
+    |   124645 | 25542466576 |
+    +----------+-------------+
+
+
+## Preliminary analysis, based on FICO scores
+
+### FICO's importance
+
+In 1995, Freddie Mac advised lenders that it had found that consumer credit scores developed by Fair, Issac and Company, Inc. (**FICO** scores) strongly predicted the likelihood of default on mortgage loans. Freddie Mac's communication is reproduced as Attachment 2 in testimony before the U.S. House Committee on Oversight and Government Reform, the [Pinto testimony], beginning at page 28 of the pdf.
+
+A traditional description of the limitations of credit score is similar to the following:
+
+> Third-party credit reporting organizations provide credit scores as an aid to lenders in evaluating the creditworthiness of borrowers. Although different credit reporting organizations use different methodologies, higher credit scores indicate greater creditworthiness. Credit scores do not necessarily correspond to the probability of default over the life of the related mortgage loan because they reflect past credit history, rather than an assessment of future payment performance. In addition, the credit scores shown were collected from a variety of sources over a period of weeks, months or longer, and the credit scores do not necessarily reflect the credit scores that would be reported as of the date of this prospectus supplement. Credit scores also only indicate general consumer creditworthiness, and credit scores are not intended to specifically apply to mortgage debt. Therefore, credit scores should not be considered as an accurate predictor of the likelihood of repayment of the related mortgage loans.
+
+*See* the [credit disclosure] beginning on page S-18 by a Washington Mutual affiliate in 2002.
+
+The rating agencies and buyers involved in residential mortgage backed securities, however, attached considerable importance to credit scores, generically referred to as FICOs. Therefore, the FICO composition was an obvious starting point.
+
+```{r setup4, echo = FALSE, warning=FALSE, message=FALSE}
+library(tidyverse)
+library(DBI)
+library(knitr)
+library(kableExtra)
+library(RMySQL)
+drv <- dbDriver("MySQL")
+con <- dbConnect(drv, username="root", password="", dbname ="dlf", host="localhost")
+res <- dbGetQuery(con, "SELECT deal, fico FROM y6")
+#cs is shorthand for credit score
+cs <- as.tibble(res)
+p <- ggplot(cs, aes(x=fico)) + geom_histogram(binwidth = 5) + coord_cartesian(xlim = c(300,850))
+p + ggtitle("FICO scores for 2006 transactions in increments of 5") + labs(x = "FICO", y = "Number of Loans")
+``` 
+
+### FICO scores in the 2006 loan pool
+
+FICO scores have a minimum value of 300, and a maximum value of 850. The summary statistics are:
+
+```{r, echo = FALSE, warning=FALSE, message=FALSE}
+summary(cs$fico)
+getmode <- function(v) {
+   uniqv <- unique(v)
+   uniqv[which.max(tabulate(match(v, uniqv)))]
+}
+nofico <-  filter(cs, fico < 300)
+lowfico <- filter(cs, fico < 500 & fico > 0)
+```
+
+and the mode is `r getmode(cs$fico)`. The minimum score represents loans without FICO scores:
+
+```{r, results="asis", echo = FALSE}
+kable(nofico, format.args = list(big.mark = ","), caption = "Number of no-FICO loans by deal")  %>% kable_styling(bootstrap_options = "striped", full_width = F) 
+```
+
+Sixteen other loans had scores below 500:
+
+```{r, results="asis", echo = FALSE}
+kable(lowfico, format.args = list(big.mark = ","), caption = "Number of low-FICO loans by deal")  %>% kable_styling(bootstrap_options = "striped", full_width = F) 
+```
+
+The *cliffs* around 500 (below which only the small number of loans in the tables above are included), 600, 630 and 635 represent the cumulative segmentation of the pools to obtain favorable ratings. Not all deals followed this approach, however.
+
+```{r, results="asis", echo = FALSE}
+p + ggtitle("FICO scores for 2006 transactions in increments") + labs(x = "FICO", y = "Number of Loans") + facet_wrap(~deal)
+```
+
+The variability among transactions suggest that *if* FICO scores have an influence on default rates, it may be necessary to stratify of otherwise transform the data to obtain useful results.
+
+### The FICO scores are not normally distributed
+
+```{r, results="asis", echo = FALSE, warning=FALSE}
+
+# Find the slope and intercept of the line that passes through the 1st and 3rd
+# quartile of the normal q-q plot
+# y: Find the 1st and 3rd quartiles
+# x: Find the matching normal values on the x-axis
+# slope: Compute the line slope
+# intc Compute the line intercept
+#----------------------------------------------------------------------------
+# No longer needed due to new ggplot 3 features
+#find_intercepts <- function(obj){
+#  y = quantile(obj, c(0.25, 0.75), type=5)  
+#  x = qnorm(c(0.25, 0.75))
+#  slope = diff(y)/diff(x)
+#  intc = y[1] - slope * x[1]
+#  return(c(slope,intc))
+#} Code informed by https://goo.gl/nz9ikh
+
+#generate q-q plot of the 2006 pool
+
+#si <- find_intercepts(cs$fico)
+#slope <- si[[1]]
+#intercept <- si[[2]]
+ggplot(cs) + aes(sample=fico) + stat_qq(distribution=qnorm) + stat_qq_line() + ylab("FICO") + labs(title = "QQ Plot of FICO Scores")
+``` 
+
+As a group, FICO scores have *fat tails,* a trait that is present in each of the deals to some degree. There are more loans with very low FICO scores than you would expect if score were randomly distributed plus more loans with high score. We also see a dip in the 500-600 range (loans that may only have been originated due to compensating factors), which are fewer than the sub-500 FICO loans.
+
+With variations, all the deals have similiar distributions. The variability of FICO scores makes their use as an independent variable in, say, regression analysis potentially problematic.
+
+### Possible strategies to deal with the issues
+
+Sampling the pool with a reasonably large number of observations will provide a well-behaved normal distribution, courtesy of the Central Limit Theorem. Alternatively, we can cluster based on the distance of each point from the trendline.
+
+#### Possible complication
+
+Between the time each deal was issued and the time that delinquency history was collated, almost a quarter of the loans dropped out:
+
+    MariaDB [dlf]> select count(*) from y6 where ctapeno not in (select ytemp.ctapeno from ytemp )
+
+    +----------+
+    | count(*) |
+    +----------+
+    |    28908 |
+    +----------+
+
+whether due to prepayment in full, repurchase by the seller for breach or default, foreclosure and sale.
+
+The dropped loans appear similar to the original pool.
+
+```{r, results="asis", echo = FALSE, warning=FALSE}
+res2 <- dbGetQuery(con, "SELECT deal, icode, fico FROM drops")
+cds <- as.tibble(res2)
+p <- ggplot(cds, aes(x=fico)) + geom_histogram(binwidth = 5) + coord_cartesian(xlim = c(300,850))
+p + ggtitle("FICO scores for 2006 dropped transactions in increments of 5") + labs(x = "FICO", y = "Number of Loans")
+``` 
+
+Summary statistics are similar.
+
+```{r, echo = FALSE, warning=FALSE, message=FALSE}
+summary(cds$fico)
+```
+
+and the mode, `r getmode(cds$fico)`, is identical. 
+
+Like the total pool, the dropouts were not normally distributed. Since none of the drops were no-FICO loans, the slopes differ, but the shape of the distribution appears to be remarkably similar to the total pool.
+
+```{r, results="asis", echo = FALSE, warning=FALSE}
+
+d <- ggplot(cds, aes(sample=fico)) + stat_qq() + stat_qq_line() + ylab("FICO") + ggtitle("QQ Plot of FICO Scores for Dropped Loans")
+d
+```
+
+The distribution reports on each deal provides the cumulative number of defaulted loans that were liquidated. These were collected manually because there were only 15 files and I anticipated no future need to examine the reports.
+
+```{r, results="asis", echo = FALSE, warning=FALSE}
+
+liq <- read.csv("data/totliq.csv", header = TRUE, stringsAsFactors = FALSE, sep = ",")
+kable(liq, format.args = list(big.mark = ","), caption = "Number of Liquidated Defaulted Loans Reported by the end of 2006")  %>% kable_styling(bootstrap_options = "striped", full_width = F) 
+```
+
+(The field "CIK" represents the EDGAR lookup key on the SEC data base; the field "reported" is whether a report was required to filed by the end of 2006.)
+
+#### Decision to focus on loan population still outstanding in early 2007
+
+Only `r sum(liq$liquidated)` loans of the `r nrow(cds)`, or `r round(sum(liq$liquidated)/nrow(cds)*100,2)`% of the dropped loans had defaulted and been liquidated by the end of 2006 reporting. On this basis, I decided to limit analysis to the remaining loans because FICO information about the dropped loans did not appear promising as a predictive factor in loan delinquency for the remaining loans.
+
+### Reduced data set
+
+#### Description
+
+When the problem landed on my desk in early 2007, I had access to the delinquency history of the pool of loans remaining, 
+
+As a result, I turn to the survivors in a similar data base:
+
+    MariaDB [dlf]> describe y7;
+    +----------+---------------+------+-----+---------+-------+
+    | Field    | Type          | Null | Key | Default | Extra |
+    +----------+---------------+------+-----+---------+-------+
+    | city     | varchar(25)   | YES  |     | NULL    |       |
+    | cltv     | decimal(10,0) | YES  |     | NULL    |       |
+    | ctapeno  | decimal(10,0) | YES  |     | NULL    |       |
+    | deal     | varchar(25)   | YES  |     | NULL    |       |
+    | down     | int(11)       | YES  |     | NULL    |       |
+    | dti      | decimal(10,0) | YES  |     | NULL    |       |
+    | dtype    | varchar(25)   | YES  |     | NULL    |       |
+    | ebal     | decimal(10,0) | YES  |     | NULL    |       |
+    | fico     | decimal(10,0) | YES  |     | NULL    |       |
+    | fpd      | date          | YES  |     | NULL    |       |
+    | gainloss | decimal(10,0) | YES  |     | NULL    |       |
+    | grade    | varchar(5)    | YES  |     | NULL    |       |
+    | irate    | decimal(10,0) | YES  |     | NULL    |       |
+    | issuer   | varchar(10)   | YES  |     | NULL    |       |
+    | lat      | decimal(10,0) | YES  |     | NULL    |       |
+    | lien     | int(11)       | YES  |     | NULL    |       |
+    | liq      | decimal(10,0) | YES  |     | NULL    |       |
+    | lng      | decimal(10,0) | YES  |     | NULL    |       |
+    | lstatus  | int(11)       | YES  |     | NULL    |       |
+    | ltype    | varchar(25)   | YES  |     | NULL    |       |
+    | margin   | decimal(10,0) | YES  |     | NULL    |       |
+    | metro    | varchar(25)   | YES  |     | NULL    |       |
+    | nrate    | decimal(10,0) | YES  |     | NULL    |       |
+    | obal     | decimal(10,0) | YES  |     | NULL    |       |
+    | odate    | date          | YES  |     | NULL    |       |
+    | oltv     | decimal(10,0) | YES  |     | NULL    |       |
+    | orate    | decimal(10,0) | YES  |     | NULL    |       |
+    | oterm    | int(11)       | YES  |     | NULL    |       |
+    | payments | int(11)       | YES  |     | NULL    |       |
+    | pmiflag  | int(11)       | YES  |     | NULL    |       |
+    | pocode   | int(11)       | YES  |     | NULL    |       |
+    | pod      | date          | YES  |     | NULL    |       |
+    | ppp      | int(11)       | YES  |     | NULL    |       |
+    | ptd      | date          | YES  |     | NULL    |       |
+    | purpose  | varchar(25)   | YES  |     | NULL    |       |
+    | remit    | decimal(10,0) | YES  |     | NULL    |       |
+    | sbal     | decimal(10,0) | YES  |     | NULL    |       |
+    | servno   | decimal(10,0) | YES  |     | NULL    |       |
+    | sint     | decimal(10,0) | YES  |     | NULL    |       |
+    | sprin    | decimal(10,0) | YES  |     | NULL    |       |
+    | spymt    | decimal(10,0) | YES  |     | NULL    |       |
+    | st       | varchar(4)    | YES  |     | NULL    |       |
+    | zip      | int(11)       | YES  |     | NULL    |       |
+    | otype    | varchar(25)   | YES  |     | NULL    |       |
+    | rdate    | date          | YES  |     | NULL    |       |
+    | ptype    | varchar(15)   | YES  |     | NULL    |       |
+    | dptd     | int(7)        | YES  |     | NULL    |       |
+    | dfpd     | int(7)        | YES  |     | NULL    |       |
+    +----------+---------------+------+-----+---------+-------+
+    48 rows in set (0.00 sec)
+    
+Some new fields will be important. As of the end of the first quarter 2007 *down* is the number of months that a loan has been delinquent. A value of down greater than 3 generally indicates a loan in foreclosure or a loan that has been foreclosed and is in the process of being sold.
+
+The field *remit* is the past-month payment history encoded as a base10 number. The remittance reports contain a character field in the form "D110011011110" that shows whether a payment has been made ('0') or missed ('1') during the life of the loan. A little utility program converts the field to the equivalent binary number that captures that information.
+
+     # convert a decimal (decimal, base 10) integer to a binary string (base 2)
+
+    def dec2bin(n):
+        '''convert decimal integer n to binary string bStr'''
+        bStr = ''
+        if n < 0:  raise ValueError("must be a positive integer")
+        if n == 0: return '0'
+        while n > 0:
+            bStr = str(n % 2) + bStr
+            n = n >> 1
+        return bStr
+
+    def int2bin(n, count=24):
+        """returns the binary of integer n, using count number of digits"""
+        return "".join([str((n >> y) & 1) for y in range(count-1, -1, -1)])
+
+So, for example, if the remit field contains a value of 4198, the binary string representation, '1000001100110', can be interpreted as follows: missed the payment 12 months before, made five payments, missed two, made two, missed two, made one."
+
+#### Creating a performance outcome measure
+
+This provides a large menu of choices as to how to define *performance.* For example, if *remit = 0*, a loan has missed no payments in the preceding 12 months.
+
+```{r, results="asis", echo = FALSE, warning=FALSE}
+#overwriting names from earlier code chunks in the Rmd file frees memory
+d <- NULL
+p <- NULL
+q <- NULL
+nofico <- NULL
+lowfico <- NULL
+si <- NULL
+slope <- NULL
+intercept <- NULL
+liq <- NULL
+cds <- NULL
+res2 <- NULL
+
+con <- dbConnect(drv, username="root", password="", dbname ="dlf", host="localhost")
+res <- dbGetQuery(con, "SELECT deal, remit, fico FROM y7")
+#cs is shorthand for credit score
+cs <- as.tibble(res)
+```
+
+Unfortunately, there were few of those in the 2007 pool (the loans in securitizations issued in 2006 that remained in the pool at the end of the first quarter 2007, we will now call **the pool** and any subsets will be drawn from it), only `r cs %>% filter(remit == 0) %>% nrow` loans with perfect payment records.
+
+```{r, results="asis", echo = FALSE, warning=FALSE}
+permw <- function(n,r) n^r
+``` 
+A bigger problem is the large number of possible payment patterns over a 12-month period. It's the permutation of two objects (pay/no pay) taken 12 times with replacement. This means that there are potentially `r as.character(prettyNum(permw(2,12)),big.mark = ",")` different possibilities.
+
+We *could* treat delinquencies as a continuous variable, but that creates useless distinctions. Some domain specific knowledge will help sort things out.
+
+1. *First payment delinquencies* in which the borrower fails to make the first payment due on a loan generally require the seller to repurchase the loan.
+2. *Single payment delinquencies* in which the borrower has missed a payment (after making the first payment due) but made it in the following month (called the *one time thirty test*) are not considered serious, if not repeated.
+3. *Two payment delinquencies* in which the as missed two payments (after making the first payment due) but made whether or not the payments were made in the third month (called the *two times thirty test*) are considered serious that it is customary for the seller to warrant that at the time of sale no such event has occurred.
+4. *Three payment delinquencies* are referred to as *defaults,* whether or not the borrower subsequently cures. As a rule, loans with a history of default that has been cured can be sold only at a discount.
+5. *Uncured defaults* are considered the most serious. Even if the payments missed are the three most recent and the borrower *may* repay in the following month, such a loan is classified as *nonperforming.*
+6. *Loans in foreclosure* or *REO* (real estate owned, loans that have been foreclosed and awaiting sale) are also *nonperforming.*
+
+This suggests a 3-factor performance metric:
+
+* A: Performing: No more than two delinquencies in any reporting stratum
+* B: Troubled: Three or more delinquencies a reporting stratum but current on most recent reporting date
+* C: Non-performing: Uncured default on most recent reporting date
+
+The problem is thus a *classification* problem. Do FICO scores allow us to classify loans? The first task is to assign each loan its appropriate metric.
+
+#### Implementing the metric
+
+From the 2007 pool database, we can pull the loan number, deal encoded remittance history and fico. With that we can decode the remittance history. Here's a sample with only loans having FICO scores below 500.
+
+```{r refactor, results="asis", echo = FALSE, warning=FALSE}
+library(tidyverse)
+library(DBI)
+library(knitr)
+library(kableExtra)
+library(RMySQL)
+drv <- dbDriver("MySQL")
+con <- dbConnect(drv, username="root", password="", dbname ="dlf", host="localhost")
+res <- dbGetQuery(con, "SELECT ctapeno, deal, remit, fico FROM y7")
+#cs is shorthand for credit score
+cs <- as.tibble(res)
+require(binaryLogic)
+require(stringi)
+reports <- cs %>% rowwise %>% mutate(repbin = toString(as.binary(remit))) %>% rowwise %>% mutate(repstr = str_replace_all(repbin,"[, ]",'')) %>% mutate(reports = str_count(repstr)) %>% select(ctapeno, deal, fico, repstr, reports)
+ex_low <- reports %>% filter(fico < 500)
+kable(head(ex_low), format.args = list(big.mark = ","), caption = "2007 Q1 loans by loan number, remittance code and fico < 500 (example")  %>% kable_styling(bootstrap_options = "striped", full_width = F) 
+```
+
+In preparing a routine to parse the reports fields to classify the performance categories, I found a potential problem. The number of months reported is variable due to several factors: Some loans in the pool were recently originated, some were seasoned, and others intermediate. The distribution looks like the following histogram.
+
+```{r, results="asis", echo = FALSE, warning=FALSE}
+p <- ggplot(reports) + geom_histogram(aes(x=reports), binwidth = 1)
+p
+```
+Observational data never organizes itself conveniently. Parsing the differing numbers of monthly reports is feasible, but I decided to limit the analysis of FICO and performance to the cohort of loans with 11-month reporting histories.
+
+We can now add a column for performance category, and take a quick look at how those categories relate to FICO with the approximately `r as.character(prettyNum(nrow(filter(reports, reports == '11'))),big.mark = ",")` loans with an 11-month payment history, about a third of the pool.
+
+```{r, results="asis", echo = FALSE, warning=FALSE}
+elevens <- reports %>% filter(reports == 11)
+
+perf11 <- elevens %>%
+    mutate(
+    category = case_when(
+      str_detect(repstr, '111$') ~ "C",
+      str_count(repstr, '0') > 9 ~ "A",
+      str_count(repstr, '0') < 9 ~ "B"
+    )
+  ) %>% select(ctapeno, deal, fico, category)
+
+p <- ggplot(perf11,aes(x=category, y = fico)) + geom_boxplot() + ggtitle("FICO scores for loans remaining in 2007\nwith 11-month payment history by performance") + labs(y = "FICO", x = "A = Performing, B = Non-performing, C = Defaulted")
+```
+
+The boxplots show that the three categories of loans are broadly similar. The blow to orthodoxy is that the performing loans are composed of somewhat lower FICO scores than the non-performing and defaulted loans.
+
+The distributions of the three categories show the same non-normal character as the original pools, but this time we'll calculate them using the Shapiro-Wilk normality test based on a sample of 5,000, due to limitations of the test.
+
+```{r sw1, echo = FALSE, warning=FALSE, message=FALSE}
+perf11A <- perf11 %>% filter(category == 'A')
+shapiro.test(perf11A$fico) # No sampling needed,  n < 5000, function's limit
+
+```
+
+
+```{r sp2,echo = FALSE, warning=FALSE, message=FALSE}
+perf11B <- perf11 %>% filter(category == 'B')
+smpB <- sample_n(perf11B, 5000)
+shapiro.test(smpB$fico) # more than 5000 in dataset 
+```
+
+```{r sw3,echo = FALSE, warning=FALSE, message=FALSE}
+perf11C <- perf11 %>% filter(category == 'C')
+shapiro.test(perf11C$fico)
+``` 
+
+Category A *might* be normally distributed. With only 46 loans, it hardly matters. Categories B and C are definitely not, according to the results of the test.
+
+## Results at this point
+
+The report of "poor performance" of the 2006 mortgage loans as a group was well founded, based on the `r nrow(perf11)` loans that survived into 2007 and had an 11-month payment history. Only `r nrow(perf11A)` loans had a satisfactory record, less than `r round(nrow(perf11A)/nrow(perf11) * 100, 2)`% of the pool.

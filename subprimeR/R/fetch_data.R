@@ -1,5 +1,16 @@
 #' fetch_data: Query MySQL database for a specific transaction (deal).
 #'
+#' This is a convenience function for subsetting from the database by
+#' deal (transaction) with the option to load only selected fields.
+#'
+#' It's an ad hoc productivity tool built specifically for a single
+#' project. Together with the package of which it is a part, it automates
+#' much of the setup work.
+#'
+#' Todo: testhat
+#'
+#' 2018-07-11 version 0.1.0
+#'
 #' @ param deal A single quoted string
 #' @ param var_names A single quoted comma delimited string of fields
 #' returns a tibble of all (or the selected) rows in the default table
