@@ -1,0 +1,42 @@
+Package: subprimeR
+Type: Package
+Title: Utility Functions for Repetitive Stratification
+Version: 0.1.0
+Author: Richard Careaga 
+Maintainer: Richard Careaga <public@careaga.net>
+Description: In cases in which population data analysis fails to yield 
+    sub-populations that differ in non-obvious ways. A helpful initial step
+    may be to repeat an original population analysis on several subsets. To 
+    avoid cut-and-paste errors or methodologial drift, a package can help
+    assure consistency.
+License: file LICENSE
+Encoding: UTF-8
+LazyData: true
+Imports: tidyverse,
+    Cairo,
+    FactoMineR,
+    MASS,
+    RColorBrewer,
+    RCurl,
+    RMySQL,
+    acs,
+    bitops,
+    broom,
+    classInt,
+    ggmap,
+    kableExtra,
+    knitr,
+    lunar,
+    mapproj,
+    maps,
+    maptools,
+    pander,
+    printr,
+    rgdal,
+    rgeos,
+    scales,
+    sp,
+    stringi,
+    Unicode,
+    xtable,
+RoxygenNote: 6.0.1
