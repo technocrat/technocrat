@@ -24,7 +24,7 @@ Its intent is to provide prospective employers with concrete evidence of my abil
 * 2018-07-06 Correspondence analysis performance x clusters
 * 2018-07-08 Correspondence analysis of categorical variables
 * 2018-07-11 Revised qq plots to take advantage of new ggplot2 v 3.0.0 
-  feature and added R package to tools chapter
+  feature, added R package to tools chapter, new credential on this page
 
 ## Literate programming: the tight integration of code and text
 
@@ -70,7 +70,9 @@ I've completed the following online courses, to consolidate and expand my previo
 ### Undergraduate level
 
 ![BerkeleyX Data8.1x Certificate](https://s3-us-west-2.amazonaws.com/tuva/BerkeleyX+Data8.1x+Certificate+%7C+edX.png)
-
+![Data8.2x: Foundations of Data Science: Inferential Thinking by Resampling](https://s3-us-west-2.amazonaws.com/tuva/BerkeleyX+Data8.2x+Certificate+%7C+edX.png)
+ 
+ 
 ### Prior analytic and programming experience
 
 My prior analytic education and experience was in geology/geophysics (M.S.) and law (J.D.) I have been on *nix as my own sysadm since 1984, including Venix (a v7 derivative), Irix (SGI), Ubuntu and other Linux versions, and Mac OSx. My orientation is strongly CLI, rather than GUI, but I have used Excel and Word since their early release. I have non-PC experience with the IBM S/34 and implementation of payroll, general ledger and budgeting. During the mid-90s, I installed, configured and operated http, mail, news, proxy, certificate and LDAP servers. I am familiar with many of the important bash tools (which I use on a daily basis) and with C and Perl (which I can still read, but seldom use).
