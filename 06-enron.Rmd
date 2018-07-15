@@ -1,0 +1,390 @@
+# The Enron Email Corpus
+
+## Case Description
+
+[Enron Corporation] was a $100 billion annual revenue company:
+
+1. They were in the gas and electricity business, mainly as traders, rather than as a utility
+2. California had an auction process for electricity that Enron was manipulating
+3. Enron used special purpose entities in a way that hid its financial condition
+4. There was a special purpose entity used for a deal involving barges in Nigeria
+5. Several individuals, including the CEO and his deputy were prosecuted
+6. Many employees lost their retirement savings when Enron stock became worthless
+
+The Federal Energy Regulatory Commission (**FERC**) investigated Enron's activities in the western U.S. wholesale electricity market for evidence of price manipulation and other violations. It obtained approximately 500,000 copies of emails from 149 email users. Copies of these were acquired by Leslie Kaelbling of MIT and published by William W. Cohen of Carnegie Mellon University. It is one of the largest publicly available datasets of corporate email and is referred to as the [Enron Corpus]. The term *corpus* is used in natural language processing to denote a collection of related text.
+
+Civil and criminal litigation of other cases is conducted either by commercial or proprietary software. Much of the focus is directed to keyword searches and depends on visual scanning of emails by attorneys. Email examination can be a substantial expense.
+
+Although "smoking gun" emails may be found, brute force examination misses opportunities to understand the social networks that reflect how the organization operates, what their concerns are and which part of the corpus should receive priority. To do that the corpus must be distilled.
+
+## Data preparation
+
+The data was provided in the form of a directory tree of text copies of emails in the file folders of the **custodians** (users), rather than in "native" format. The version of the [Enron Corpus] that I used is dated August 21, 2009.
+
+The directory tree of one of the users is representative:
+
+ ![An email folder](https://s3-us-west-2.amazonaws.com/tuva/DirTree.jpg)
+
+Each of these files is plain text and contains the following types of data:
+
+![Parts of an email](https://s3-us-west-2.amazonaws.com/tuva/parse_email.png)
+### Preparation
+ 
+Because the same message body resides in multiple folders of multiple custodians, some way was needed to de-duplicate.
+
+The method differed dependant on whether the email was originated on the IBM Notes system or Microsoft Outlook. In either case, however, it consisted traversing the directoryl tree and extracting the same fields 
+
+* Sender
+* Date
+* Receiver(s)
+* cc(s)
+* Message body
+* file-name
+
+and, in addition, adding a digital signature (MD5 digest) to the message body to nearly guarantee its uniqueness. (The body is the content of the originating email strip of meta-data, legends and disclaimers, and replies and replies to replies. It is the payload.)
+
+This was done by traditional Unix command line tools, perl and Python scripts and other tools to create a database with the following structure:
+
+    +----------+--------------+------+-----+---------+-------+
+    | Field    | Type         | Null | Key | Default | Extra |
+    +----------+--------------+------+-----+---------+-------+
+    | body     | mediumtext   | YES  |     | NULL    |       |
+    | lastword | mediumtext   | YES  |     | NULL    |       |
+    | hash     | varchar(250) | YES  | UNI | NULL    |       |
+    | sender   | varchar(250) | YES  |     | NULL    |       |
+    | tos      | text         | YES  |     | NULL    |       |
+    | mid      | varchar(250) | YES  |     | NULL    |       |
+    | ccs      | text         | YES  |     | NULL    |       |
+    | date     | datetime     | YES  |     | NULL    |       |
+    | subj     | varchar(500) | YES  |     | NULL    |       |
+    | tosctn   | mediumint(9) | YES  |     | NULL    |       |
+    | ccsctn   | mediumint(9) | YES  |     | NULL    |       |
+    | source   | varchar(250) | YES  |     | NULL    |       |
+    +----------+--------------+------+-----+---------+-------+
+
+Of the approxiately 500,000 emails in the [Enron corpus], approximately half are duplicates. A large part of the remainder consists of newsletters, bulletins, fantasy football matters and other emails addressed to a large audience with only one or a few Enron recipients. Say, 125,000. The remaining 125,000 have roughly 75,000 addressed to large groups ("be advised that the Houston gym hours will be changing") or to individuals on routine matters ("your approval for expense report #1234 is overdue"). Another 25,000 deal with scheduling of meetings, transmission of periodic reports, and circulation of form documents covering derivative trading with counterparties. A cull list of senders and topics was developed to extract these.
+
+Of the remaining emails, approximately 15,000 involve correspondence from a sender to a custodian who never sends a reply or an original email to the sender. This leaves about 35,000 emails among senders and receivers who engage in some degree of reciprocal correspondence. This is where to begin. Insights from this group can be used to recycle over the discards.
+
+## Strategy for exploration
+
+### Don't look for much from the big shots
+
+CEO Ken Lays's administrative assistant handled much of his email, CFO Andy Fastow's email is not included. COO Jeff Skilling is included, but his volume is small. On the other hand, some of the largest senders are relatively low ranking, a legal assistant distributing documents and a lobbyist in California.
+
+### Volume is not evenly distributed among users
+
+![Number of emails by sender](http://media.richard-careaga.com/img/BigSenders.png)
+ 
+
+### Keywords may not help much
+
+Natural language processing (**NLP**) approaches based on written composition are of little help in the misspelled, ungrammatical, freeflowing, implicit meaning-rich world of email. Reviewing email is much more like eavesdropping than reading.
+
+First, it is essential to have a well-thought out file of stop words to eliminate the most common words, which tend to be "glue" words. Second, the business of Enron was trading, and the tool of trading is and was the Bloomberg terminal with its instant messaging feature. The conduct of a trading floor, more than most other large corporate enterprises, is effectuated face-to-face and by telephone. Don't look for meeting agendas and minutes.
+
+Every organization has a vocabulary profile that is unique to its business. To develop candidate lists for Enron, I used the following NLP program:
+
+	#!/usr/bin/env python
+	# encoding: utf-8
+	"""
+	oddfreq.py: word frequency list, disregarding capitalization, excluding stopwords
+	and words _not_ in standard dictionary, sorted by frequency
+
+	Created on 2010-04-15
+	Richard Careaga
+	"""
+	from itertools import izip, chain, repeat
+	from Prep import *
+	from util import *
+	import nltk
+	from nltk import FreqDist
+	from nltk.corpus import stopwords
+
+	# Natural Language Toolkit: unusual_words
+	# from nltk and used by permission
+	def unusual_words(text):
+		text_vocab = set(w.lower() for w in text if w.lower().isalpha())
+		english_vocab = set(w.lower() for w in nltk.corpus.words.words())
+		unusual = text_vocab.difference(english_vocab)
+		return sorted(unusual)
+
+	# Natural Language Toolkit: code_plural
+	# from nltk and used by permission
+	def plural(word):
+		if word.endswith('y'):
+			return word[:-1] + 'ies'
+		elif word[-1] in 'sx' or word[-2:] in ['sh', 'ch']:
+			return word + 'es'
+		elif word.endswith('an'):
+			return word[:-2] + 'en'
+		else:
+			return word + 's'
+
+	def main():
+		# query to select new topic email subject lines sent to single recipients
+		sql =   sql = """SELECT date, subject FROM scrub where subject not \
+				regexp 'RE:|Re:|re:|FW:|Fw:|fw:|FWD:|Fwd:|fwd:' and twoway is true \
+				and tosctn = 1 and ccsctn = 0 and chaff is false"""
+		# create an object
+		C = Prepare()
+		# do the necessary processing to return an nltk Text object
+		X = C.prep(sql)
+		# collect list of common words, such as prepositions, articles, etc.
+		stops = stopwords.words('english')
+		# extract word list after converting to all lowercase
+		words = [w.lower() for w in X if w.isalpha() and w.lower() not in stops]
+		# extract unique words
+		vocab = set(words)
+		# fetch a standard English vocabular
+		english_vocab = set(w.lower() for w in nltk.corpus.words.words())
+		# convert to a list for pluralization
+		english = list(english_vocab)
+		# make a list of "plural-like" words
+		plurals = [plural(w) for w in english]
+		# cobmine lists
+		englishes = english + plurals
+		# make a set of the list
+		englishes_vocab = set(englishes)
+		# compare to the vocabulary extracted from the emails
+		oddball = vocab.difference(englishes_vocab)
+		# convert to a list
+		enronic = list(oddball)
+		# sort the list
+		enronic.sort()
+		# create a new list of the text _without__  those words
+		words[:] = [w for w in words if w not in enronic]
+		# recycle the original vocabulary definition
+		# this allows the remainder of the code to be reused as is
+		vocab = set(words)
+		# prepare dictionary of word frequencies
+		fdist = FreqDist(words)
+		# collect the unique words for sorting
+		alphalist = list(vocab)
+		# sort the unique words
+		alphalist.sort()
+		# create a list to hold results
+		LA = []
+		# collect key:item pairs for word:frequency in alphabetical order
+		for item in alphalist:
+		   bag = []
+		   bag.append(item)
+		   bag.append(fdist[item])
+		   LA.append(bag)
+		# calculate width of word field and add one
+		width = find_max_width(LA,0)+1
+		# calculate width of frequency field and add one
+		numwidth = find_max_width(LA,1)+1
+		# assign a desired pagewidth
+		pagewidth = 85
+		# assign desired margins
+		lmargin = 5
+		rmargin = 5
+		margins = lmargin + rmargin
+		# calculate column width
+		columnwidth = width + numwidth
+		# calculate whole number of columns that will fit (floor division)
+		columns = (pagewidth-margins)//columnwidth
+		# assign a gutter width
+		gutter = 4*' ' # 4 spaces
+		# calculate available gutter
+		copywidth = columnwidth*columns + len(gutter)
+		# assign desired pagelength
+		pagelength = 54
+		# open a file for output
+		f = open("enronic.txt", 'w')
+		# convenience definition to append a newline
+		nl = '\n'
+		# generate an iterator object to fetch 54 lines of the word frequency
+		# list at a time
+		g = grouper(pagelength,LA)
+		# iterate through the object until exhausted
+		while g:
+			# write a ruler and newline
+			f.write("="*copywidth)
+			f.write(nl)
+			# chunk first two batches of pagelength lines side by side
+			z = zip(g.next(),g.next())
+			# print each pair
+			for row in z:
+				stringline = ("%s%s%s%s%s") % (repr(row[0][0]).ljust(width),\
+				repr(row[0][1]).rjust(numwidth), gutter, \
+				repr(row[1][0]).ljust(width),\
+				repr(row[1][1]).rjust(numwidth))
+				f.write(stringline)
+				f.write(nl)
+
+		f.close()
+
+	if __name__ == '__main__':
+		main()
+
+which produced pages like the following (here limited to words with 10-99 occurrences):
+
+    aec                        17    aloha                       1
+    aep                        19    alport                      1
+    ag                         18    amerada                     6
+    agl                         3    amerex                     22
+    anahiem                     1    aron                       11
+    anglo                       1    asap                       14
+    apb                        90    atoka                       1
+    api                        10    attaching                   1
+    approved                   29    attending                   1
+    australia                  15    bayer                       3
+    autoreply                 220    bball                       1
+    bandwidth                  14    bennett                     4
+    barnett                    20    berney                      1
+    bge                         3    bp                         16
+    bgml                        1    bpa                        16
+    bingaman                    1    brazos                     15
+    bio                        10    breakeven                   1
+    blackline                   6    bridgeline                 17
+    bloomberg                  14    brl                         1
+    bmo                         1    broadband                  11
+    bnp                        18    bros                        1
+    boise                       1    bruce                      10
+    byler                       1    cargill                    40
+    caiso                      18    carolyn                     1
+    calgary                    14    cartersville                1
+    calif                      11    cashion                     1
+    calley                      1    catalytica                 12
+    calpine                    47    ccf                         1
+    caminus                     4    cdwr                       13
+    canceled                   15    cementos                    1
+    cancun                      2    centana                    14
+    ceo                        11    cibc                        3
+    cera                       24    cif                         1
+    cfd                         1    cinergy                    21
+    cftc                       17    cipico                      1
+    cgas                       16    cirino                      1
+    changed                    16    clair                       6
+    checking                    3    clickathome                23
+    checklist                  13    clicking                    7
+    checkosut                   1    clickpaper                 40
+    checkout                  160    clifford                    3
+    chemconnect                 1    closing                    23
+    chicago                    24    cmr                         1
+    chilkina                    1    cms                        10
+    cng                        14    confer                      1
+    cogen                      10    confirmlogic                4
+    coi                         1    congrats                   18
+    coleman                    10    congratulotions             1
+    colstrip                    1    conoco                     10
+    completed                  10    corhshucker                 1
+    conf                       14    countdown                   1
+    confederated                3    counterparties             45
+    counterparty               64    curtis                      2
+    cp                         12    cuves                       1
+    cps                        14    cysive                      1
+    cpuc                       25    dabacle                     2
+    cpy                         2    dabhol                     18
+
+
+
+### Don't neglect time series
+
+In looking at a subset, pay attention to how volume varies with time. As others have noted, a sudden drop in email volume within the senior group, such as occurred in May 2001, can indicate a situation in which decisionmakers are meeting personally. When trouble looms, people clam up.
+
+The traffic in 2001 suggests lines of inquiry focused on specific periods.
+
+![May gap](http://media.richard-careaga.com/img/emails2001.png)
+
+### Avoid the echo chamber
+
+Email streams in which an initial email goes out to a group with responses coming back quoting the original email, forwards and reforwards and responses, amplify whatever NLP content can be gleaned. Parse each email to determine its original content load and delete that from replies and forwards, as well as standard disclaimers.
+
+### The REAL value proposition
+
+The purpose of examining a huge body of email is not to find a smoking gun. It is to understand the business, its language and its people. While you may sometimes run across braggadocio crowing over putting one over, those are rare and seldom determinative.
+
+## Some preliminary results
+
+### Unique senders
+
+     mysql> select count(*) from usenders;
+     +----------+
+     | count(*) |
+     +----------+
+     |    17568 |
+     +----------+
+
+### Unique receivers
+ 
+     mysql> select count(*) from ureceivers;
+     +----------+
+     | count(*) |
+     +----------+
+     |    68199 |
+     +----------+
+
+### Senders who are also receivers
+
+    mysql> select count(*) from twoway;
+    +----------+
+    | count(*) |
+    +----------+
+    |    10235 |
+    +----------+
+
+### Sender/receivers with Enron addresses
+
+    mysql> select count(*) from insiders;
+    +----------+
+    | count(*) |
+    +----------+
+    |     6099 |
+    +----------+
+
+### Subject line words
+
+    mysql> select count(*) from wordlist;
+    +----------+
+    | count(*) |
+    +----------+
+    |   141180 |
+    +----------+
+
+Two of the most common words are *power* and *energy*. There seems to be a difference, however, in how different senders tend toward one or another
+
+![Power vs. Energy](http://media.richard-careaga.com/img/joule.png)
+
+and the time distribution differs
+
+
+![Power vs. Energy over time](http://media.richard-careaga.com/img/energypower.png)
+ 
+### Places mentioned
+
+> 	Abu Accra Addis Agra Ak Akron Al Almaty Amman Andorra Angola Ankara Ar Aruba Ashmore Astana Atoll Az Baghdad Bahamas Bahrain Baker Bakersfield Baku Balkans Baltimore Bandar Bangalore Bangkok Bangladesh Barbados Barbuda Barcelona Barranquilla Barthelemy Beaumont Beijing Belarus Belgium Belgrade Belize Bellevue Belo Benin Berkeley Berlin Bermuda Bernardino Bhopal Birmingham Bogota Boise Bolivia Bonn Bosnia Boston Botswana Brasilia Brazil Bremen Bridgeport Brisbane Bristol Britain British Brownsville Brunei Brussels Bucharest Budapest Buenos Buffalo Bulgaria Burbank Burma Bursa Burundi Ca Caicos Cairo Caledonia Calgary Cali California Cambodia Cambridge Cameroon Campinas Campo Canada Cancun Cape Caracas Carolina Carrollton Cartagena Cartier Casablanca Cayman Cebu Cedar Chad Chandler Charlotte Chattanooga Chengdu Chennai Chesapeake Chiba Chicago Chihuahua Chile China Chon Christi Cincinnati Ciudad Clarita Clarksville Clearwater Cleveland Cochabamba Collins Colombia Colombo Colorado Columbia Columbus Comoros Concord Congo Connecticut Cook Coral Cordoba Corona Costa Cote Cotonou Covina Croatia Ct Cuba Cucamonga Cuiaba Culiacan Curitiba Cyprus Czech Dakota Dali Dallas Daly Damascus Dar Davao Davidson Daye Dayton Dc De Delaware Delhi Denmark Denver Detroit Dhaka Diego District Dominica Dominican Dongguan Dortmund Downey Dubai Dublin Duesseldorf Duque Durban Durham Dushanbe Ecuador Edmonton Egypt Emirates England Erie Escondido Essen Estonia Ethiopia Eugene Europa Europe Evansville Faridabad Faroe Fayette Fayetteville Fiji Finland Fl Flint Florida Fm Fontana Fort Fortaleza Foshan France Francisco Frankfurt Fremont Fresno Fukuoka Fullerton Ga Gabon Garland Gary Gaza Genova Georgia Germany Ghana Ghaziabad Gibraltar Gilbert Giza Glasgow Glendale Gold Greece Green Greenland Greensboro Grenada Gu Guadalajara Guadeloupe Guam Guatemala Guernsey Guinea Guyana Ha Haiti Hama Hamburg Hamilton Hampton Hangzhou Harare Harbin Hartford Havana Haven Hawaii Hayward Helsinki Henderson Hialeah Hiroshima Ho Hollywood Homs Honduras Hong Honolulu Houston Howland Hungary Huntsville Hyderabad Ia Iceland Id Idaho Il Illinois Independence India Indiana Indianapolis Indonesia Inglewood Iowa Iran Iraq Ireland Irkutsk Irvine Irving Islamabad Israel Istanbul Italy Jackson Jacksonville Jakarta Jamaica Jammu Jamnagar Japan Jarvis Jeddah Jersey Jerusalem Jilin Jinjiang Jintan Joao Johannesburg Joliet Jordan Juan Juarez Jurong Kabul Kalyan Kano Kanpur Kansas Karachi Kathmandu Kawasaki Kazakhstan Kazan Keeling Kentucky Kenya Kerman Khartoum Kingdom Kingman Kingston Kiribati Knoxville Kobe Kolkata Kong Korea Kosovo Kota Kozhikode Krakow Krasnoyarsk Ks Kuala Kuwait Ky Kyiv Kyoto Kyrgyzstan La Lafayette Lagos Lahore Lakewood Lancaster Lanka Lansing Lanzhou Laos Laredo Las Latvia Lauderdale Lebanon Leon Leone Lesotho Lexington Liberia Libya Liechtenstein Lima Lincoln Lisbon Lithuania Liverpool Lomas London Los Louisiana Louisville Lowell Lubbock Lucia Lusaka Luxembourg Ma Macau Macedonia Madagascar Madison Madrid Maine Malaga Malawi Malaysia Maldives Mali Malta Manaus Manchester Mangalore Manila Maputo Mariana Marshall Martin Maryland Massachusetts Mauritania Mauritius Mayen Mcallen Md Medellin Melbourne Memphis Mendoza Merida Mesa Mesquite Mexicali Mexico Mh Mi Miami Michigan Midway Milan Milwaukee Minneapolis Minnesota Mississippi Missouri Mn Mo Mobile Modesto Mogadishu Moines Moldova Monaco Mongolia Montana Monte Monterrey Montgomery Montreal Moreno Morocco Moron Moscow Mosul Mozambique Mp Ms Mt Muenchen Mumbai Myanmar Nagoya Nagpur Nairobi Namibia Nanchong Nanhai Nanjing Nanning Nanyang Naperville Naples Nashik Nashville Natal Nauru Navi Nc Ne Nebraska Nepal Netherlands Nevada Newark Newport Nh Nicaragua Niger Nigeria Niigata Ningbo Nj Nm Norfolk Norwalk Norway Nottingham Nova Novokuznetsk Novosibirsk Nv Ny Oakland Oaks Oceanside Odessa Ohio Oklahoma Omaha Oman Ontario Oran Orange Oregon Orlando Orleans Osaka Oslo Ottawa Overland Oxnard Pa Pacific Pakistan Palermo Palestine Palmdale Panama Papua Paris Pasadena Paso Paterson Patna Pembroke Pennsylvania Peoria Perm Peru Peshawar Petersburg Philadelphia Philippines Phoenix Pittsburgh Plano Poland Polynesia Pomona Ponce Port Portland Porto Portsmouth Portugal Pr Prague Prairie Preston Principe Providence Provo Puebla Pueblo Puente Puerto Pune Pw Pyongyang Qatar Qingdao Quebec Quezon Quito Rabat Raleigh Recife Reno Ri Richmond Riga Rio Riverside Riyadh Rizhao Rochester Rockford Romania Rome Rosario Rotterdam Russia Rwanda Sacramento Safi Sahara Saint Sale Salem Salinas Salt Saltillo Salvador Samoa San Santa Santiago Santo Sao Sapporo Sarajevo Saudi Savannah Sc Scotland Scottsdale Sd Seattle Senegal Seoul Serbia Seychelles Shanghai Sheffield Shenzhen Shiraz Shreveport Simi Singapore Sioux Slovakia Slovenia Sofia Solomon Somalia Soviet Spain Spokane Springfield Stamford Sterling Stockholm Stockton Stuttgart Sudan Sunnyvale Surabaya Surat Suriname Suzhou Swaziland Sweden Switzerland Sydney Syracuse Syria Tacoma Taipei Taiwan Tajikistan Tallahassee Tampa Tanzania Tashkent Tehran Tel Tempe Tennessee Texas Thailand Thane Tianjin Tijuana Timor Tn Tobago Togo Tokyo Toledo Tome  Tonga Topeka Torino Toronto Torrance Torreon Trinidad Tripoli Trujillo Tucson Tulsa Tunisia Turkey Turkmenistan Turks Tx Tyumen Ufa Uganda Ukraine Uruguay Ussr Ut Utah Uzbekistan Va Valencia Vallejo Vancouver Vatican Vegas Venezuela Ventura Veracruz Verde Vermont Vi Vienna Vietnam Vijayawada Virgin Virginia Vt Wa Waco Wake Wales Wallis Warren Warsaw Washington Waterbury Wenzhou West Westminster Wi Wichita Winnipeg Winston Wisconsin Worcester Wuhan Wuwei Wv Wy Wyoming Xinyi Yemen Yicheng Yokohama Yonkers York Yueyang Yugoslavia Zagreb Zambia Zamboanga Zealand Zimbabwe Zurich
+
+### Periodicity
+
+![periodicity](http://media.richard-careaga.com/img/1999-2002.png)
+
+**Things to note:**
+
+A. The difference between 1999 and 2000 may reflect differences in levels of activity or availability of data or both. Each day in the three-year period is represented. The data points near the zero level generally represent weekends and holidays.
+
+B. Emails in 2000 build to a peak in December.
+
+C. Emails in 2001 build to a peak in June and another pair in October and November, but there is no December peak.
+
+D. Instead there is a January 2002 peak.
+
+E. The blue line is the smoothed trend of the data. Point above or below the dark gray band show higher or lower activity than the trend.
+ 
+### Social Networks
+
+Starting with *penpals*, people who regularly exchange one-on-one emails, it is possible to infer the functional organization of an organization like Enron. Think of it like whispering. Going beyond that, avoid the spoke and wheel representations that you so often see. Most of those connections end up being broadcast email. What helps is to look at email patterns over relatively small intervals.
+
+![Week 39, 2001](https://s3-us-west-2.amazonaws.com/tuva/wk39net.png)
+The user pairs were anonomized to reduce analyst bias
+
+## Future work
+
+* Sampling of penpals to measure centrality and connectiveness
+* Clustering
+* NLP processing of email cliques
+
+[Enron Corporation]: (https://en.wikipedia.org/wiki/Enron)
+[Enron Corpus]: (https://www.cs.cmu.edu/~enron/)

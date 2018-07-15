@@ -1,0 +1,267 @@
+# Assorted Examples of Toolmaking
+
+## DIY R Packages
+
+keywords: workflow, documentation, repository, github
+
+During exploratory analysis, I often find that after hitting on a promising analysis and beginning to apply it to, say, stratifications, that I'm doing cutting and pasting. That's when I know that it's time to move beyond scraps or even scripts and create a package. I started one for the subprime mortgage analysis, which you can see at [subprimeR](https://github.com/technocrat/technocrat.github.io/tree/master/subprimeR) on github.
+
+## The Short Genome File: Day-to-Day Python
+
+Keywords: Python, one-off, utility
+
+### Case Description
+
+One of the recent courses that I took at MIT had a simple short datafile [genome], representing a portion of the DNA sequences of *Caulobacter crescentus*, a species of bacteria very popular in biological studies. The class problem was in K-means clustering based on principal component analysis of the [genome] data. 
+
+### Conversion Problem
+
+That data consisted 1,528 lines of 200-character fragments. The building blocks of DNA genomes are very simple, consisting of sequences of only four possible character values, 'A','C','G','T'.
+
+The immediate problem was that the assignment called for 300-character fragments. This is a recurring fact of life for data science; transforming data from one structure to another.
+
+### Everyday Solution
+
+The obvious tool was Python, and it took no more than 20 minutes to do, even for someone who used Python as a handtool rather than industrial machinery.
+
+In short, we start with
+
+> \>fragment of c.crescentus genome
+>gccgatagcctatgatccc... [to 200 characters]
+
+and then apply a short Python program
+
+    # required modules
+    import csv
+    import itertools
+    import textwrap
+
+    data  = "/Users/rc/Desktop/MITx8/ccrescentus.fa" # your path here
+    # Desired length of genome fragments
+    fraglen = 300
+    OBJECT = [] # empty bucket
+    f = csv.reader(open(data, 'r'))
+
+    # read the source file into a list
+    for row in f:
+        OBJECT.append(row) 
+    # remove header '>fragment of c.crescentus genome'
+    del(OBJECT[0])
+    # combine all of the 200-character lines from the source
+    laundry = list(itertools.chain(*OBJECT))
+    # join them back into a single string
+    washed = ''.join(laundry)
+    # check to make sure each line of data can be 300 characters long
+    overage = len(washed)%fraglen 
+    # should return True to the console
+    overage == 0
+    # split the string into 300-character list elements
+    dried = textwrap.wrap(washed,300)
+    # write the processed file back to a processed file, adding
+    # opening and closing double quotes and new lines
+    with open('fragments.csv', 'w') as f:
+        f.write('\"')
+        f.write('\"\n'.join(dried))
+    # "fragments.csv" is now ready for analysis with Python or R
+
+and end up with
+
+> "gccgatagcctatgatcccc ... [to 300 characters]
+    
+Athough I checked that I had enough data to make each line 300-characters long, I did lose a few bytes in the conversions, which isn't material for purposes of the exercise.
+
+This is not intended as an example of best-practices Python programming, nor I am not a programmer. I use programming to solve problems. If I have a solution like this, I go to a programmer to scale it, when necessary.
+
+[genome]: https://goo.gl/qYvDHA
+## Hard but simple -- parsing YAML files in Haskell
+
+It is a truth universally acknowledged that the best way to learn a language is from the lips of a lover. Mine, alas, has no Haskell, so I have made the choice I usually do. Rather than attempting first to master the rules of syntax and the rationale underlying a new computer language, I launch into trying to solve a real problem, by which I mean automating some repetitive task that I would otherwise have to do by hand.
+
+In this case, it was tweaking a LaTeX table. I chose Haskell because I was already using the estimable **pandoc** to convert the rest of my document and it has a facility to pipe its AST (abstract syntax tree) through to a filter for intermediate processing before rendering the final document.
+
+Alas, the functionality I sought was not available without doing some heavy lifting of internals that is beyond my pay grade as a rank Haskell beginner. I did manage to get a version working, but it had two major defects: First, it relied on parsing regular expressions. I imagine a term like unPythonic applies to this approach – unHaskellian? Second, it lacked a clean separation between logic and data, meaning it would have to be rewritten for each new table that differed from this first use.
+
+The functionality could also be achieved through *sed* and *awk* in combination with the other standard tools of *bash*. But, as I had come this far with Haskell, I determined to continue.
+
+I learned a lot along the way, but I’m only going to report the results. There are any number of great resources on theory and concepts, but recipes seem hard to come by.
+
+To begin a yaml file, table.yaml
+
+    stripComments: true
+    stripLable: true
+    zeroEntry: "."
+    justifyLeft: true
+    stubHeader: "Cause of Death"
+    subHeader: "& (\\%) & (\\%) & (\\%) & (\\%)"
+
+In the same directory, mwe.hs
+
+    {-# LANGUAGE OverloadedStrings #-}  -- yaml
+
+    module Mwe where
+
+    import Data.Yaml 
+    import Data.Maybe (fromJust)
+
+    data ReadData = ReadData { stripComments     :: Bool
+                             , stripLable      :: Bool
+                             , zeroEntry       :: Bool
+                             , justifyLeft     :: Bool
+                             , stubHeader      :: String
+                             , subHeader       :: String
+                             } deriving (Eq, Ord, Show)
+
+    instance FromJSON ReadData where
+      parseJSON (Object v) = ReadData <$>
+                             v .: "stripComments" <*>
+                             v .: "stripLable"    <*>
+                             v .: "zeroEntry"     <*>
+                             v .: "justifyLeft"   <*>
+                             v .: "stubHeader"    <*>
+                             v .: "subHeader" 
+      parseJSON _ = error "Can't parse ReadData from YAML/JSON"
+
+I won’t embarrass myself by revealing how long it took to get this working. I did pick up a fairly solid understanding of types, some insight into typeclasses and instances and got on the right track for IO and Maybe, with some notion of what it means to be pure in Haskell. What took the longest was how to do anything with a successful read of a yaml file other than to print it, which is where the examples I found stopped. I acknowledge my debt to the many sources I consulted to figure this out.
+
+## Contextual Awareness
+
+Whenever I see a time series that purports to show dramatic results, I like to look back to trace the prior history.
+
+![Misleading unemployment data](http://media.richard-careaga.com/img/unemp.png)
+ 
+## Minimalism Throws You into the Pool
+
+I have been dabbling in the hipster lanaguage Lua, which you have to be cool even to have heard about. Its claim to fame is minimalism. It has one data type, called a table and I found myself wanting to combine two or more of them à la cat (concatenate). WTF, there is no built-in way to do this? Incredulity began to lift when I discovered that neither was there a built-in way to even print tables. As a public service for the benefit of other pilgrims, here is
+
+    --cat.lua concatenate tables
+     function cat( ... ) -- append 1D tables
+         local List = require 'pl.List' -- penlight library
+         local args = {...}
+         local l = List()
+         for i=1, #args do
+             l:extend(args[i])
+         end
+         return l
+     end
+     --[[Example
+     a = {
+        "gala",
+        "cameo",
+        "jazz"
+     }
+     o = {
+        "seville",
+        "valencia",
+        "navel"
+     }
+     g = {
+        "concord",
+        "thompson",
+        "muscat"
+     }
+     f = cat(a,o,g)
+     {gala,cameo,jazz,seville,valencia,navel,concord,thompson,muscat}
+     --]]
+
+## Parsing system date strings into Python datetime objects
+
+     from datetime import datetime
+     from dateutil.parser import parse
+     from dateutil import tz
+
+     s = "Mon Aug 15 21:17:14 GMT 2011"     
+     d = parse(s)                           
+
+     GMT = tz.gettz('UTC')                  
+     Beijing = tz.gettz('Asia/Shanghai')    
+
+     there = d.astimezone(GMT)              
+                                            
+     here = d.astimezone(Beijing)           
+
+     print(here)
+     print(there)
+
+
+## Combination of k items, taken n at a time
+
+Very functional
+
+    -- combo.hs
+    -- problem: C(k,n), where k = the integers from 1 to 9, inclusive
+    -- and n = 3, without regard to order, then sum the subsets
+    import Data.List
+    combinations 0 lst = [[]]
+    combinations n lst = do
+        (x:xs) <- tails lst
+        rest <- combinations (n-1) xs
+        return $ x : rest
+    result = ( map sum (combinations 3 [1..9]))
+
+Python alternative
+
+    import itertools
+    result = map(sum, itertools.combinations([1,2,3,4,5,6,7,8,9], 3))
+    for i in result: print(i)
+
+## Flex/Bison to compile data parser for June 20, 2018 form
+
+    datify.l Bison script
+
+    /* NB: OSX, cannot link to -lfl, use -ll */
+    /* can't have internal comments */
+
+    %{
+    %}
+
+    %%
+
+    ^[0-9]+         {printf("")             ; }
+    "January "      {printf("2015-01-")     ; }
+    "February "     {printf("2015-02-")     ; }
+    "March "        {printf("2015-03-")     ; }
+    "April "        {printf("2015-04-")     ; }
+    "May "          {printf("2015-05-")     ; }
+    "June "         {printf("2015-06-")     ; }
+    "July "         {printf("2015-07-")     ; }
+    "August "       {printf("2015-08-")     ; }
+    "September "    {printf("2015-09-")     ; }
+    "October "      {printf("2015-10-")     ; }
+    "November "     {printf("2015-11-")     ; }
+    "December "     {printf("2015-12-")     ; }
+
+    %%
+
+    int main()
+
+    {
+     yylex();
+    }
+
+    datify2.l Bison script
+
+    /* NB: OSX, cannot link to -lfl, use -ll */
+    /* can':t have internal comments */
+
+    %{
+    %}
+
+    %%
+
+    "-1"{1}[ \t\n]  {printf("-01\n")        ; }
+    "-2"{1}[ \t\n]  {printf("-02\n")        ; }
+    "-3"{1}[ \t\n]  {printf("-03\n")        ; }
+    "-4"{1}[ \t\n]  {printf("-04\n")        ; }
+    "-5"{1}[ \t\n]  {printf("-05\n")        ; }
+    "-6"{1}[ \t\n]  {printf("-06\n")        ; }
+    "-7"{1}[ \t\n]  {printf("-07\n")        ; }
+    "-8"{1}[ \t\n]  {printf("-08\n")        ; }
+    "-9"{1}[ \t\n]  {printf("-09\n")        ; }
+
+    %%
+
+    int main()
+    {
+     yylex();
+    }
+
