@@ -50,7 +50,7 @@ The good news about the model run is that its results have a p-value < 0.05. How
 
 The *bad* news is that *fico* has miniscule predictive usefulness; for every point increase in *fico*, the odds ratio of a loan being in performing status changes by `r mod$coefficients[2]` **in a negative direction.** We can even put confidence intervals around this.
 
-```{r, results="asis", echo = FALSE, warning=FALSE}
+```{r, results="asis", eval = TRUE, echo = FALSE, warning=FALSE}
 confint(mod)
 ``` 
 
@@ -68,7 +68,7 @@ to
     # A & B = 1 (non-defaulted) and C = 0 (defaulted)
     cat2int_d <- function (x) {ifelse (x == "C", 0, 1)}
     
-```{r, results="asis", echo = FALSE, warning=FALSE}
+```{r, results="asis", eval = TRUE, echo = FALSE, warning=FALSE}
 # function to collapse "A", "B", "C" performance categories into
 # A & B = 1 (non-defaulted) and C = 0 (defaulted)
 cat2int_d <- function (x) {ifelse (x == "C", 0, 1)}
