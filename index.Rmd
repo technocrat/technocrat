@@ -28,6 +28,7 @@ Its intent is to provide prospective employers with concrete evidence of my abil
 * 2018-07-14 Logistic regression of FICO on performance
 * 2018-07-21 added PH125.6x: Data Science: Wrangling certificate
 * 2018-08-04 added PH125.5x: Data Science: Productivity certificate
+* 2018-08-04 new blog at https://technocrat.rbind.io
 
 ## Literate programming: the tight integration of code and text
 
