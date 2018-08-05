@@ -63,13 +63,14 @@ I've completed the following online courses, to consolidate and expand my previo
 ![MITxPro Data Science and Big Data Analytics: Making Data-Driven Decisions](https://s3-us-west-2.amazonaws.com/tuva/MITxPRO+DSx+Certificate+%7C+MIT+xPro.png)
 
 !["HarvardX PH125.1x Certificate"](https://s3-us-west-2.amazonaws.com/tuva/HarvardX+PH125.1x+Certificate+%7C+edX.png)
-![""HarvardX PH125.2x Certificat"](https://s3-us-west-2.amazonaws.com/tuva/HarvardX+PH125.2x+Certificate+%7C+edX.png)
+!["HarvardX PH125.2x Certificat"](https://s3-us-west-2.amazonaws.com/tuva/HarvardX+PH125.2x+Certificate+%7C+edX.png)
 !["HarvardX PH125.3x Certificate"](https://s3-us-west-2.amazonaws.com/tuva/HarvardX+PH125.3x+Certificate+%7C+edX.png)
 !["HarvardX PH125.4x Certificate"](https://s3-us-west-2.amazonaws.com/tuva/HarvardX+PH125.4x+Certificate+%7C+edX.png)
-![Harvard PH125.5x, Productivity](https://s3-us-west-2.amazonaws.com/tuva/HarvardX+PH125.5x+Certificate+%7C+edX.png )
- ![HarvardX PH125.6x: Data Science: Data Wrangling](https://s3-us-west-2.amazonaws.com/tuva/HarvardX+PH125.6x+Certificate+%7C+edX.png)
+!["Harvard PH125.5x: Data Science, Productivity Tools"](https://s3-us-west-2.amazonaws.com/tuva/HarvardX+PH125.5x+Certificate+%7C+edX.png )
+
+![HarvardX PH125.6x: Data Science: Data Wrangling](https://s3-us-west-2.amazonaws.com/tuva/HarvardX+PH125.6x+Certificate+%7C+edX.png)
  
-![HarvardX PH559x Certificate](https://s3-us-west-2.amazonaws.com/tuva/HarvardX+PH559x+Certificate+%7C+edX.png)
+![HarvardX PH559x: Casual Diagrams  Certificate](https://s3-us-west-2.amazonaws.com/tuva/HarvardX+PH559x+Certificate+%7C+edX.png)
 
 ### Undergraduate level
 
