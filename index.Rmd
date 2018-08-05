@@ -27,6 +27,7 @@ Its intent is to provide prospective employers with concrete evidence of my abil
   feature, added R package to tools chapter, new credential on this page
 * 2018-07-14 Logistic regression of FICO on performance
 * 2018-07-21 added PH125.6x: Data Science: Wrangling certificate
+* 2018-08-04 added PH125.5x: Data Science: Productivity certificate
 
 ## Literate programming: the tight integration of code and text
 
@@ -65,8 +66,8 @@ I've completed the following online courses, to consolidate and expand my previo
 ![""HarvardX PH125.2x Certificat"](https://s3-us-west-2.amazonaws.com/tuva/HarvardX+PH125.2x+Certificate+%7C+edX.png)
 !["HarvardX PH125.3x Certificate"](https://s3-us-west-2.amazonaws.com/tuva/HarvardX+PH125.3x+Certificate+%7C+edX.png)
 !["HarvardX PH125.4x Certificate"](https://s3-us-west-2.amazonaws.com/tuva/HarvardX+PH125.4x+Certificate+%7C+edX.png)
-![Harvard PH125.5x, Productivity, certificate issuance pending](https://s3-us-west-2.amazonaws.com/tuva/HarvardX%3B+PH125.5x.png)
- ![HarvardX PH125.6x: Data Science: Wrangling](https://s3-us-west-2.amazonaws.com/tuva/HarvardX+PH125.6x+Certificate+%7C+edX.png)
+![Harvard PH125.5x, Productivity](https://s3-us-west-2.amazonaws.com/tuva/HarvardX+PH125.5x+Certificate+%7C+edX.png )
+ ![HarvardX PH125.6x: Data Science: Data Wrangling](https://s3-us-west-2.amazonaws.com/tuva/HarvardX+PH125.6x+Certificate+%7C+edX.png)
  
 ![HarvardX PH559x Certificate](https://s3-us-west-2.amazonaws.com/tuva/HarvardX+PH559x+Certificate+%7C+edX.png)
 
