@@ -49,7 +49,7 @@ The cases range from spreadsheet sized (a few hundred records) to small (a thous
 Each of the cases is designed to illustrate one or more specific skill by presenting an example and explaining what motivated it, what it does, the tools used, and what its output accomplished.
 
 * 2015 police involved homicides: Descriptive statistics, observational data hypothesis testing
-* The cinancial cash flow model: OOP Python, model derivation from narrative
+* The financial cash flow model: OOP Python, model derivation from narrative
 * Failure analysis of subprime Loans: MySQL,R, exploratory data analysis, high-dimensional data, covariance, clustering, regression, principa component analyis, machine learning
 * The Enron email corpus: Python, NLTK, social network analysis, de-duplication, stopwords, boilerplate stripping
 * Daycare costs and unexamined Assumptions: Data skepticism
