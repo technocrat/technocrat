@@ -1,10 +1,17 @@
 # Assorted Examples of Toolmaking
 
+## DIY R Packages
+
+keywords: workflow, documentation, repository, github
+
+During exploratory analysis, I often find that after hitting on a promising analysis and beginning to apply it to, say, stratifications, that I'm doing cutting and pasting. That's when I know that it's time to move beyond scraps or even scripts and create a package. I started one for the subprime mortgage analysis, which you can see at [subprimeR](https://github.com/technocrat/technocrat.github.io/tree/master/subprimeR) on github.
+
 ## The Short Genome File: Day-to-Day Python
 
 Keywords: Python, one-off, utility
 
 ### Case Description
+
 One of the recent courses that I took at MIT had a simple short datafile [genome], representing a portion of the DNA sequences of *Caulobacter crescentus*, a species of bacteria very popular in biological studies. The class problem was in K-means clustering based on principal component analysis of the [genome] data. 
 
 ### Conversion Problem

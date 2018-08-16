@@ -1,0 +1,109 @@
+# The subprime mortgage crisis unfolds in early 2007, part 3
+
+Keywords: population, sub-population, implicit assumptions, stratification, logistic regression, odds ratio
+
+## Selection bias
+
+The most telling finding of this exploratory data analysis (aside from confirming that the 2006 vintage of subprime loans issued in the LBMLT series of transaction was, indeed poorly performing) is a lurking hidden assumption: *Because the loans were all originated by the same organization and securitized in the same year, they collectively represent a population.*
+
+Technically speaking, the loans are a population, a set of observations of individual loans of interest about which we are looking for associations between characteristics at origination and subsequent loan performance. For the most part we haven't found any.
+
+### FICO, the light that failed
+
+In part 1, we looked at the distribution of FICO scores and saw that they were not normally distributed, and so were unlikely to have predictive value for loan performance, which itself was far from normally distributed. We should check that with regression.
+
+#### Ordinary linear regression
+
+Because I coded loan performance into a 3-level scale (one or fewer non-payments, more than one, but not the three most recent, and the three most recent), *perf* is not a qualitative variable. Even if we substituted integers for the letter coding, we would have to deal with vexing questions: is the difference between one or fewer and more than one, but not last three missed payments, the same as more than one, including the three most recent?
+
+We can dodge this question, by making *perf* pseudo-quantitative, by setting one or fewer defaults to the integer 1 and the other two categories to the integer 0. And we must use *logistic regression* rather than ordinary linear regression, which can yield probabilities outside the range {0,1}. First, we need to collapse "A", "B", "C" performance categories into "A" = 1 (performing) and "B" & "C" = 0 (non-performing).
+
+
+```{r logprep, results="asis", eval=TRUE, echo = FALSE, warning=FALSE}
+library(tidyverse)
+library(DBI)
+library(RMySQL)
+library(FactoMineR)
+library(knitr)
+library(kableExtra)
+drv <- dbDriver("MySQL")
+con <- dbConnect(drv, username="root", password="", dbname ="dlf", host="localhost")
+cs <- as.tibble(dbGetQuery(con, "SELECT fico, perf from loans"))
+#-----------------------------------------------------------------------------
+# function to collapse "A", "B", "C" performance categories into
+# A = 1 (performing) and B & C = 0 (non-performing)
+cat2int <- function (x) {ifelse (x == "A", 1, 0)}
+#-----------------------------------------------------------------------------
+fp <- cs %>% mutate(perf = cat2int(perf)) %>% filter(fico > 1)
+ 
+```
+
+Now, we are ready to model the quantitative variable *fico* against the integer encoded qualitative variable *perf* using the generalized linear lineals function **glm** to perform logistic regression.'
+
+```{r glmfp, results="asis", eval = TRUE, echo = FALSE, warning=FALSE}
+mod <- glm(perf ~ fico, family = binomial, data =  fp)
+summary(mod)
+``` 
+
+(I also ran the model with standardized *fico* and binning into increments of 5 points with substantially the same output.)
+
+The good news about the model run is that its results have a p-value < 0.05. However, unlike linear regression, which gives us adjusted R squared to show the proportion of variance that the independent variable accounts for, we need to go further in logistic regression to get an idea of how useful the output is.
+
+The *bad* news is that *fico* has miniscule predictive usefulness; for every point increase in *fico*, the odds ratio of a loan being in performing status changes by `r mod$coefficients[2]` **in a negative direction.** We can even put confidence intervals around this.
+
+```{r, results="asis", eval = TRUE, echo = FALSE, warning=FALSE}
+confint(mod)
+``` 
+
+What if we turn the question around to ask whether *fico* has an association with the portion of non-performing loans that were in default status at the latest report. Recall that the loans has been bucketed into "A" (one or fewer missed payments), "B" (more than one but current as of the latest report) an "C" (in default, three payments down as of the latest report).
+
+To repose the question, all that is required is to redefine a function from
+
+    # function to collapse "A", "B", "C" performance categories into
+    # A = 1 (performing) and B & C = 0 (non-performing)
+    cat2int <- function (x) {ifelse (x == "A", 1, 0)}
+
+to
+
+    # function to collapse "A", "B", "C" performance categories into
+    # A & B = 1 (non-defaulted) and C = 0 (defaulted)
+    cat2int_d <- function (x) {ifelse (x == "C", 0, 1)}
+    
+```{r, results="asis", eval = TRUE, echo = FALSE, warning=FALSE}
+# function to collapse "A", "B", "C" performance categories into
+# A & B = 1 (non-defaulted) and C = 0 (defaulted)
+cat2int_d <- function (x) {ifelse (x == "C", 0, 1)}
+fp <- cs %>% mutate(perf = cat2int_d(perf)) %>% filter(fico > 1)
+fico.mod <- glm(perf ~ fico, data = fp, family = "binomial")
+summary(fico.mod)
+``` 
+
+Here, the utility of *fico* has completely vanished. The p-value shows that.
+
+## Next steps: Overfit or Stratify?
+
+We could continue to add variables to the logistic regression or we can stratify the population.
+
+It's a gut-call. (Neuroscientists tell me that people with brain injuries that cut off their emotions from their rational thinking can never come to a conclusion. They keep spinning their wheels like [Vizzini](https://www.imdb.com/title/tt0093779/characters/nm0001728?ref_=ttfc_fc_cl_t5)). I don't know if I would have made the same decision at the time, but now I know that 2006 was a very dynamic year. The real estate markets changed. I also didn't focus on the fact that three of the deals were put together by a different team.
+
+So, rather than considering the 2006 loans as a single population, I decided to look at the first and last pools and the second of three pools that were put together by the different team: LBMLT 2006-1 and LBMLT 2006-11, the first and last deals, and LBMLT 2006-WL2, the third party deal.
+
+### Overview
+
+Before spending a lot of effort, the first thing to do is to check whether there are any considerable bottom line differences among the three deals in terms of their payment performance. Recall that "A" loans has one or fewer missed payments, "B" loans had multiple missed payments, but were current as of the most recent reporting date, an "C" loans were in uncured default, having missed the three most recent payments at the reporting date.
+
+When we look at the summary table, the three deals may have taken different paths to get there, but they all arrived at much the same place.
+
+##### Percentage Performance Category by Deal
+```{r, by_deal, eval=TRUE, results="asis", echo = FALSE, warning=FALSE}
+library(tidyverse)
+con <- dbConnect(drv, username="root", password="", dbname ="dlf", host="localhost")
+cs <- as.tibble(dbGetQuery(con, "SELECT * FROM loans"))
+deals <- cs %>% filter(deal == 'LBMLT 2006-1' | deal == 'LBMLT 2006-11' | deal == 'LBMLT 2006-WL2')
+rm(cs)
+tabperf <- with(deals, table(deal, perf))
+kable(round(prop.table(tabperf, margin = 1),3) * 100)
+``` 
+
+
+

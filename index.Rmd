@@ -29,6 +29,8 @@ Its intent is to provide prospective employers with concrete evidence of my abil
 * 2018-07-21 added PH125.6x: Data Science: Wrangling certificate
 * 2018-08-04 added PH125.5x: Data Science: Productivity certificate
 * 2018-08-04 new blog at https://technocrat.rbind.io
+* 2018-08-14 added PH125.7x: Data Science: Linear Regression certificate
+* 2018-08-15 Stratified suprime data set
 
 ## Literate programming: the tight integration of code and text
 
@@ -70,6 +72,7 @@ I've completed the following online courses, to consolidate and expand my previo
 !["Harvard PH125.5x: Data Science, Productivity Tools"](https://s3-us-west-2.amazonaws.com/tuva/HarvardX+PH125.5x+Certificate+%7C+edX.png )
 
 ![HarvardX PH125.6x: Data Science: Data Wrangling](https://s3-us-west-2.amazonaws.com/tuva/HarvardX+PH125.6x+Certificate+%7C+edX.png)
+![HarvardX PH125.7x: Data Science: Linear Regression Wrangling](https://s3-us-west-2.amazonaws.com/tuva/HarvardX+PH125.7x+Certificate+%7C+edX.png)
  
 ![HarvardX PH559x: Casual Diagrams  Certificate](https://s3-us-west-2.amazonaws.com/tuva/HarvardX+PH559x+Certificate+%7C+edX.png)
 

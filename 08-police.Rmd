@@ -1,0 +1,822 @@
+# 2015 Police Involved Homicides {#counted}
+
+Keywords: Descriptive statistics, R, Census API, geocoding, thematic mapping
+
+## Introduction
+
+Police involved civilian homicides in the United States is the subject of a series published by *The Guardian,* [The Counted], which compiles media reports of homicides resulting from police encounters in the United States. You can explore the data interactively at their [interactive] page. The data version used in this chapter is dated 2016-06-30.
+
+
+```{r setup1, include=TRUE, echo=FALSE, results= 'asis', message = FALSE, warning=FALSE}
+##########################################################
+# required libraries
+library(bitops)
+library(broom)
+library(Cairo)
+library(classInt)
+library(dplyr) # select conflict, use dplyr::select()
+library(ggmap)
+library(ggplot2)
+library(kableExtra)
+library(knitr)
+library(lunar)
+library(mapproj)
+library(maps)
+library(maptools)
+library(MASS)
+library(pander)
+library(printr)
+library(RColorBrewer)
+library(RCurl)
+library(rgdal)
+library(rgeos)
+library(scales)
+library(sp)
+library(tidyverse)
+library(Unicode)
+library(xtable)
+##########################################################
+# global options
+options(stringsAsFactors = FALSE)
+options(xtable.booktabs = TRUE)
+##########################################################
+# convenience functions
+bindh <- function(x,y) trunc(x/y)*y
+cdefactor <- function(x) {as.character(levels(x))[x]}
+ndefactor <- function(x) {as.numeric(levels(x))[x]}
+pct <- function(x,y) round((x/y*100), digits = 2)
+##########################################################
+# functions to make multicolumn xtables
+# format a 51-state table into 4 columns
+squarestate <- function (.df) {
+    blankrow <- as.data.frame("")        
+    pt1 = slice(.df,1:13)
+    pt2 = slice(.df,14:26)
+    pt3 = slice(.df,27:39)
+    pt4 = slice(.df,40:52)
+    pt4 = bind_rows(pt4,blankrow)
+    result <- bind_cols(pt1,pt2,pt3,pt4)
+    return(result)
+}
+# format a 17-cohort table into 3 columns
+squareage <- function (.df) {
+    blankrow <- as.data.frame("")        
+    pt1 = slice(.df,1:6)
+    pt2 = slice(.df,7:12)
+    pt3 = slice(.df,13:17)
+    pt3 = bind_rows(pt3,blankrow)
+    result <- bind_cols(pt1,pt2,pt3)
+    result$age <- as.character(result$age)
+    result[5,5] <- "Unknown"
+    result[6,5] <- ""
+    result[6,6] <- ""
+    result[7] <- NULL
+    return(result)
+}
+# format days of month into 4 columns
+squaredays <- function (.df) {
+    blankrow <- as.data.frame("")        
+    pt1 <- slice(.df,1:8)
+    pt2 <- slice(.df,9:16)
+    pt3 <- slice(.df,17:24)
+    pt4 <- slice(.df,25:31)
+    pt4 = bind_rows(pt4, blankrow)
+    result <- bind_cols(pt1,pt2,pt3,pt4)
+    result[9] <- NULL
+    return(result)
+}
+
+# divide data into intervals
+intervals = function(.df, ...)
+  {
+  argList = match.call(expand.dots = FALSE)$... 
+    for (i in 1:length(argList)) 
+      {
+        colName <- argList[[i]]
+        series_colName = eval(substitute(colName), envir = .df, enclos = parent.frame())
+        min <- min(series_colName)
+        max <- max(series_colName)
+        diff <- max - min
+        std <- sd(series_colName)
+        equal.interval <- seq(min, max, by = diff/6)
+        quantile.interval <- quantile(series_colName, probs = seq(0, 1, by = 1/6))
+        std.interval <- c(seq(min, max, by = std), max)
+        natural.interval <- classIntervals(series_colName, n = 6, style = 'jenks')$brks
+        .df$equal <- cut(series_colName, breaks = equal.interval, include.lowest = TRUE)
+        names(.df)[names(.df) == "equal"] <- paste(colName,".","equal", sep = '')
+        .df$quantile <- cut(series_colName, breaks = quantile.interval, include.lowest = TRUE)
+        names(.df)[names(.df) == "quantile"] <- paste(colName,".","quantile", sep = '')
+        .df$std <- cut(series_colName, breaks = std.interval, include.lowest =  TRUE)
+        names(.df)[names(.df) == "std"] <- paste(colName,".","std", sep = '')
+        .df$natural <- cut(series_colName, breaks = natural.interval, include.lowest = TRUE)
+        names(.df)[names(.df) == "natural"] <-     paste(colName,".","natural", sep = '')
+  }
+  return(.df)
+}
+
+##########################################################
+# Data access for relatively static sources
+thecounted <- read.csv("data/2015.csv", header = TRUE, stringsAsFactors = FALSE)
+counted <- tbl_df(thecounted)
+fields <- tbl_df(colnames(counted))
+fields1 <- slice(fields,1:7)
+fields2 <- slice(fields,8:14)
+fields <- bind_cols(fields1, fields2)
+# convenience constants
+n <- nrow(counted) # numeral, e.g., 1145
+N <- as.character(prettyNum(n, big.mark = ',')) # e.g., 1,145
+# add long/lat to address points
+addr <- as.data.frame(paste(counted$streetaddress,",",counted$city,",",counted$state))
+colnames(addr) <- "location"
+addr <- tbl_df(addr)
+##########################################################
+# acquire geo/popuation data
+# following only need to be done when dataset changes
+#api_key <- "[USER SPECIFIC]" # google
+#coord <- geocode(addr$location, output = "latlon")
+#save(coord, file = "data/coord.Rda")
+# following only needs to be done when new cartographic boundary file published
+#dsn <- "data"
+#layer <- "data/cb_2015_us_state_5m"
+#cb5 <- readOGR(dsn = dsn, layer = layer)
+#save(cb5, file = "data/cb5.Rda")
+# following only needs to be done when new census estiates published
+#pop_source <- "https://www.census.gov/popest/data/national/totals/2015/files/NST-EST2015-alldata.csv"
+#population <- read.csv(textConnection(getURL(pop_source)))[-(1:5),]
+#save(population, file = "data/population.Rda")
+# add lat/long to dataframe
+load("data/coord.Rda")
+counted <- bind_cols(counted, coord)
+colnames(counted)[11] <- "id"
+##########################################################
+load("data/cb5.Rda")
+us <- cb5
+# relocate AK & HI and outset RI, DE and DC
+us_aea <- spTransform(us, CRS("+proj=laea +lat_0=45 +lon_0=-100 +x_0=0 +y_0=0 +a=6370997 +b=6370997 +units=m +no_defs"))
+alaska <- us_aea[us_aea$STATEFP == "02",]
+alaska <- elide(alaska, rotate = -50)
+alaska <- elide(alaska, scale = max(apply(bbox(alaska), 1, diff)) / 2.3)
+alaska <- elide(alaska, shift = c(-2100000, -2500000))
+proj4string(alaska) <- proj4string(us_aea)
+hawaii <- us_aea[us_aea$STATEFP == "15",]
+hawaii <- elide(hawaii, rotate = -35)
+hawaii <- elide(hawaii, shift = c(5400000, -1400000))
+proj4string(hawaii) <- proj4string(us_aea)
+us_aea <- us_aea[!us_aea$STATEFP %in% c("02", "15"),]
+us_aea <- rbind(us_aea, alaska, hawaii)
+rhode_island <- us_aea[us_aea$STATEFP == "44",]
+rhode_island <- elide(rhode_island, shift = c(125000,-125000))
+proj4string(rhode_island) <- proj4string(us_aea)
+delaware <- us_aea[us_aea$STATEFP == "10",]
+delaware <- elide(delaware, shift = c(200000,0))
+proj4string(delaware) <- proj4string(us_aea)
+dc <- us_aea[us_aea$STATEFP == "11",]
+dc <- elide(dc, shift = c(250000,-125000))
+proj4string(dc) <- proj4string(us_aea)
+us_aea <- us_aea[!us_aea$STATEFP %in% c("44", "10", "11", "60", "66", "69", "72", "78"),] #exclude overseas territories
+us_aea <- rbind(us_aea, delaware, rhode_island, dc)
+##########################################################
+# obtain locations to put state names
+centroids <- data.frame(us_aea$STUSPS, coordinates(us_aea))
+names(centroids) <- c("id", "clong", "clat")
+us50 <- fortify(us_aea, region = "STUSPS")
+poly = coord_map("polyconic")
+rownames(centroids) = centroids$id
+# adjust centroids for better positioning of state names
+centroids['LA',]$clong = 729000
+centroids['FL',]$clong = 1800000
+centroids['DE',]$clong = 2400000
+centroids['RI',]$clong = 2500000
+centroids['MD',]$clong = 1950000
+centroids['MD',]$clat = -360000
+centroids['MA',]$clat = 100000
+centroids['NJ',]$clong = 2130000
+centroids['NJ',]$clat = -255000
+# load population data
+load("data/population.Rda")
+# load convenience data frame cross indexing state, id, fips
+load("data/converter.Rda")
+converter$state <- cdefactor(converter$state)
+converter$id <- cdefactor(converter$id)
+converter <- tbl_df(converter)
+# create dataframe of states with zero-values in second column
+vec <- vector(,51)
+vec[1:51] <- 0
+state <- as.data.frame(converter$id)
+colnames(state) <- "id"
+state <- tbl_df(state)
+blank <- bind_cols(state,tbl_df(vec))
+##########################################################
+# variables from counted
+# national data
+age <- counted$age
+age <- as.integer(age)
+age <- bindh(age,5) # 5-year cohorts)
+age <- as.data.frame(age)
+age <- tbl_df(age)
+age <- count(age,age)
+age$n <- pct(age$n,n)
+armed <- count(counted, armed)        # civilian weapon
+cod <- count(counted, classification) # cause of death
+cod$n <- pct(cod$n,n)
+gender <- count(counted,gender)
+gender$n <- pct(gender$n,n)
+race <- count(counted,raceethnicity)
+race$n <- pct(race$n,n)
+state <- count(counted,id)
+state$n <- pct(state$n,n)
+weapon <- count(counted,armed)
+weapon$n <- pct(weapon$n,n)
+codvsarmed <- pct(table(counted$classification,counted$armed),n)
+codvsarmed1 <- codvsarmed[,c(1:4)] # first half wide table
+codvsarmed2 <- codvsarmed[,c(5:8)] # second half
+deaths <- count(counted,id)
+deaths <- tbl_df(deaths)
+colnames(deaths) <- c("id", "deaths")
+##########################################################
+# Date manipulations
+month <- as.data.frame(counted$month)
+colnames(month) <- c("mon")
+day <- counted$day
+day <- as.data.frame(as.integer(day))
+colnames(day) <- c("day")
+monthday <- bind_cols(month,day)
+dateinput <- paste(monthday$mon,monthday$day)
+monthday <- transmute(monthday, date = paste(mon,day))
+datefile <- (cat(system("bin/datify | bin/datify2 | bin/stripblanks > data/dates.csv", input = dateinput, intern = TRUE)))
+dated <- read.csv("data/dates.csv", header = FALSE, stringsAsFactors = FALSE)
+colnames(dated) = c("date")
+dated <- tbl_df(dated)
+dated$date <- as.Date(dated$date)
+dated$dow <- weekdays(dated$date, abbreviate = FALSE)
+dated$dow <- factor(dated$dow, levels = c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"))
+dated$month <- counted$month
+dowcount <- count(dated, dow) # day of week
+dowcount$n <- pct(dowcount$n,n)
+mindow = min(dowcount$n)
+maxdow = max(dowcount$n)
+dom <- as.data.frame(count(counted, day)) # day of month
+dom$n <- pct(dom$n,n)
+domspread <- squaredays(dom)
+dated$moon <- lunar.phase(dated$date, name = TRUE)
+lunar <- count(dated, moon)
+lunar$n <- pct(lunar$n,n)
+datecount <- count(dated,date)
+datecountdays <- nrow(datecount)
+datecount$date <- as.character(datecount$date)
+datecounthigh <- filter(datecount, n == max(n))
+monthcount <- count(month,mon)
+monthcount$mon <- factor(monthcount$mon, levels = c("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"))
+monthcount$n <- pct(monthcount$n,n)
+monthcount <- monthcount[order(monthcount$mon),]
+monthorder <- monthcount
+monthorder$n <- as.character(monthorder$n)
+monthorder$mon <- factor(monthorder$mon, levels = c("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"))
+monthorder$mon <- as.character(monthorder$mon)
+monthorder$n   <- as.character(monthorder$n)
+##########################################################
+uspop <- sum(population$POPESTIMATE2015)
+uspopper5k <- uspop/100000
+homi <- uspopper5k*5.1 # approimate homicidesh
+comphomi <- pct(n,homi)
+##########################################################
+# Breakout for women
+femme <- filter(counted, gender == "Female")
+bfemme <- filter(femme, raceethnicity == "Black")
+wfemme <- filter(femme, raceethnicity == "White")
+nf <- nrow(femme)
+nfb <- nrow(bfemme)
+nfw <- nrow(wfemme)
+fcount <- count(femme, id)
+fcombo <- full_join(fcount,blank, by = "id")
+fcombo[is.na(fcombo)] <- 0
+fveh <- filter(counted, gender == "Female", armed == "No", classification == "Struck by vehicle")
+fcodvsarmed <- pct(table(femme$classification,femme$armed),nf)
+fcodvsarmed1 <- fcodvsarmed[,c(1:3)] # split wide table
+fcodvsarmed2 <- fcodvsarmed[,c(4:6)]
+fbcodvsarmed <- pct(table(bfemme$classification,bfemme$armed),nfb)
+fbcodvsarmed1 <- fbcodvsarmed[,c(1:4)]
+#fbcodvsarmed2 <- fbcodvsarmed[,c(3:4)]
+fwcodvsarmed <- pct(table(wfemme$classification,wfemme$armed),nfw)
+fwcodvstaser <- 0
+fwcodvsarmed1 <- fwcodvsarmed[,c(1:4)]
+#fwcodvsarmed2 <- fwcodvsarmed[,c(4:4)]
+btrial <- count(femme, raceethnicity == "Black")[2,2]
+wtrial <- count(femme, raceethnicity == "White")[2,2]
+trial <- unlist(c(btrial,wtrial))
+wgundeath <- filter(femme, classification == "Gunshot")
+bw <- count(wgundeath, raceethnicity == "Black")[2,2]
+ww <- count(wgundeath, raceethnicity == "White")[2,2]
+outcome <- unlist(c(bw,ww))
+##########################################################
+# breakout for men
+homme <- filter(counted, gender == "Male")
+bhomme <- filter(homme, raceethnicity == "Black")
+hhomme <- filter(homme, raceethnicity == "Hispanic/Latino")
+whomme <- filter(homme, raceethnicity == "White")
+nh <- nrow(homme)
+nhb <- nrow(bhomme)
+nhh <- nrow(hhomme)
+nhw <- nrow(whomme)
+hcodvsarmed <- pct(table(homme$classification,homme$armed),nh)
+hcodvsarmed1 <- hcodvsarmed[,c(1:4)]
+hcodvsarmed2 <- hcodvsarmed[,c(5:8)]
+hwcodvsarmed <- pct(table(whomme$classification,whomme$armed),nhw)
+hwcodvsarmed1 <- hwcodvsarmed[,c(1:4)]
+hwcodvsarmed2 <- hwcodvsarmed[,c(5:7)]
+hbcodvsarmed <- pct(table(bhomme$classification,bhomme$armed),nhb)
+hbcodvsarmed1 <- hbcodvsarmed[,c(1:4)]
+hbcodvsarmed2 <- hbcodvsarmed[,c(5:8)]
+hhcodvsarmed <- pct(table(hhomme$classification,hhomme$armed),nhh)
+hhcodvsarmed1 <- hhcodvsarmed[,c(1:4)]
+hhcodvsarmed2 <- hhcodvsarmed[,c(5:8)]
+##########################################################
+# xtables are for LaTeX output; kable has been used throughout the text
+#ageprint <- print.xtable(xtable(squareage(age), caption = "Deaths by age group"))
+#codprint <- print.xtable(xtable(cod, "Deaths by cause"))
+#datehighprint <- print.xtable(xtable(datecounthigh, caption = "Dates with highest number of deaths"))
+#domprint <- print.xtable(xtable(domspread, caption = "Deaths by days of month"))
+#dowprint <- print.xtable(xtable(dowcount, caption = "Deaths by day of week"))
+#fbcodvsarmedprint1 <- print.xtable(xtable(fbcodvsarmed1, "Deaths of black women by whether and how officers and civilians were armed, part A"))
+#fbcodvsarmedprint2 <- print.xtable(xtable(fbcodvsarmed2, "Deaths of black women by whether and how officers and civilians were armed, part B"))
+#fcodvsarmedprint1 <- print.xtable(xtable(fcodvsarmed1, "Deaths of women by whether and how officers and civilians were armed, part A"))
+#fcodvsarmedprint2 <- print.xtable(xtable(fcodvsarmed2, "Deaths of women by whether and how officers and civilians were armed, part B"))
+#fieldsprint <- print.xtable(xtable(fields, "Fields in the data provided by The Guardian The Counted Project"))
+#fwcodvsarmedprint1 <- print.xtable(xtable(fwcodvsarmed1, "Deaths of white women by whether and how officers and civilians were armed, part A"))
+#fwcodvsarmedprint2 <- print.xtable(xtable(fwcodvsarmed, "Deaths of white women by whether and how officers and civilians were armed, part B"))
+#genderprint <- print.xtable(xtable(gender, caption = "Deaths by gender"))
+#genracprint <- print.xtable(xtable(count(femme,raceethnicity), caption = "Deaths of women by race/ethnicity"))
+#hbcodvsarmedprint1 <- print.xtable(xtable(hbcodvsarmed1, "Deaths of black men by whether and how officers and civilians were armed, part A"))
+#hbcodvsarmedprint2 <- print.xtable(xtable(hbcodvsarmed2, "Deaths of black men by whether and how officers and civilians were armed, part B"))
+#hcodvsarmedprint1 <- print.xtable(xtable(hcodvsarmed1, "Deaths of men by whether and how officers and civilians were armed, part A"))
+#hcodvsarmedprint2 <- print.xtable(xtable(hcodvsarmed2, "Deaths of men by whether and how officers and civilians were armed, part B"))
+#hhcodvsarmedprint1 <- print.xtable(xtable(hhcodvsarmed1, "Deaths of hispanic men by whether and how officers and civilians were armed, part A"))
+#hhcodvsarmedprint2 <- print.xtable(xtable(hhcodvsarmed2, "Deaths of hispanic men by whether and how officers and civilians were armed, part B"))
+#hwcodvsarmedprint1 <- print.xtable(xtable(hwcodvsarmed1, "Deaths of white men by whether and how officers and civilians were armed, part A"))
+#hwcodvsarmedprint2 <- print.xtable(xtable(hwcodvsarmed2, "Deaths of white men by whether and how officers and civilians were armed, part B"))
+#howarmed <- print.xtable(xtable(codvsarmed1, caption = "Deaths by whether and how officers and civilians were armed, part A."))
+#howarmed2 <- print.xtable(xtable(codvsarmed2, caption = "Deaths by whether and how officers and civilians were armed, part B."))
+#lunprint <- print.xtable(xtable(lunar, caption = "Deaths by phase of moon"))
+#monthdeathprint <- print.xtable(xtable(monthcount, caption = "Deaths by month"))
+#raceprint <- print.xtable(xtable(race, caption = "Deaths by race/ethnicity"))
+#stateprint <- print.xtable(xtable(squarestate(state), caption = "Deaths by state", label = {"tabhold"}), auto = TRUE)
+#weaponprint <- print.xtable(xtable(weapon, caption = "Deaths by whether and how civilian was armed"))
+##########################################################
+# thematic maps
+# ggplot setup2
+plain_theme = theme(axis.text = element_blank()) + 
+    theme(panel.background = element_blank(), 
+        panel.grid = element_blank(), 
+        axis.ticks = element_blank())
+no_ylab <- ylab("") 
+no_xlab <- xlab("")
+# death count
+# raw numbers for deaths
+natural.interval <- classIntervals(deaths$deaths, n = 6, style = 'jenks', lowest = TRUE)$brks
+natint <- natural.interval
+deaths$natural <- cut(deaths$deaths, breaks = natint, include.lowest = TRUE)
+map <- merge(us50, deaths, by = "id")
+b <- ggplot(data = map) + geom_map(map = map, aes(x = long, y = lat, map_id = id, group = group), fill = "white", color = "black", size = 0.3) + plain_theme + no_ylab + no_xlab
+fire = "YlOrRd"
+drought = "YlOrBr"
+l = geom_text(data = centroids, aes(clong, clat, label = id), color = "black", size = 2)
+makewhite = centroids[c('CA','TX'),] # has to be set by inspection
+w = geom_text(data = makewhite, aes(clong, clat, label = id), color = "white", size = 2)
+# raw numbers for deaths
+c <- b + geom_polygon(data = map, aes(x = long, y = lat, group = group, fill = natural), color = "dark grey", size = 0.3)
+d <- c + l + w + ggtitle("Number of Police Involved Civilian Homicides in the U.S. in 2015") + scale_fill_brewer(palette = drought, name = "Number\nof deaths")
+# population comparison
+pop52 <- dplyr::select(population, POPESTIMATE2015, NAME)
+pop52 <- tbl_df(pop52)
+#remove PR
+pop51 <- filter(pop52, NAME != "Puerto Rico")
+pop51$id <- converter$id
+pop51 <- tbl_df(pop51)
+colnames(pop51) <- c("EST2015", "NAME", "id")
+natural.interval <- classIntervals(pop51$EST2015, n = 6, style = 'jenks', lowest = TRUE)$brks
+natint <- natural.interval
+pop51$natural <- cut(pop51$EST2015, breaks = natint, include.lowest = TRUE)
+map1 <- merge(us50, pop51, by = "id")
+e <- b + geom_polygon(data = map1, aes(x = long, y = lat, group = group, fill = natural), color = "dark grey", size = 0.3)
+q <- e + scale_fill_brewer(palette = drought) + l + w
+natural.interval <- classIntervals(deaths$deaths, n = 6, style = 'jenks', lowest = TRUE)$brks
+natint <- natural.interval
+deaths$natural <- cut(deaths$deaths, breaks = natint, include.lowest = TRUE)
+e <- b + geom_polygon(data = map, aes(x = long, y = lat, group = group, fill = natural), color = "dark grey", size = 0.3)
+q <- e + scale_fill_brewer(palette = drought) + l + w
+pop51a <- merge(pop51, deaths, by = "id")
+pop51a <- mutate(pop51a, ratio = round(pop51a$deaths/(pop51a$EST2015/100000),2))
+natural.interval <- classIntervals(pop51a$ratio, n = 6, style = 'jenks', lowest = TRUE)$brks
+natint <- natural.interval
+pop51a$natural <- cut(pop51a$ratio, breaks = natint, include.lowest = TRUE)
+makewhite = centroids[c('CA'),]
+w = geom_text(data = makewhite, aes(clong, clat, label = id), color = "white", size = 2)
+makewhite = centroids[c('WY','NM', 'OK'),]
+w = geom_text(data = makewhite, aes(clong, clat, label = id), color = "white", size = 2)
+map3 <- merge(us50, pop51a, by = "id")
+f <- b + geom_polygon(data = map3, aes(x = long, y = lat, group = group, fill = natural), color = "dark grey", size = 0.3)
+r <- f + scale_fill_brewer(palette = drought) + l + w
+d <- b + geom_polygon(data = map, aes(x = long, y = lat, group = group, fill = natural), color = "dark grey", size = 0.3)
+p <- d + scale_fill_brewer(palette = drought) + l + w
+##########################################################
+# End set-up routines
+```
+
+## The Data
+
+[The Counted] information on 2015 police involved civilian homicides report that the deaths in 2015 represent `r N` of the current population of the United States, approximately 320,000,000, a vanishingly small percentage. As a percentage of all homicides in 2014, the deaths represent approximately `r comphomi`%. *See* [Health, United States, 2015 - Individual Charts and Tables: Spreadsheet, PDF, and PowerPoint files, Table 17].
+
+[The Counted] data layout in in CSV (comma separated value form) is:
+
+```{r, results="asis", echo = FALSE}
+fields_ <- fields
+colnames(fields_) <- c(NULL,NULL)
+kable(fields_, format.args = list(big.mark = ","), caption = "Fields in the data provided by The Guardian The Counted Project")  %>% kable_styling(bootstrap_options = "striped", full_width = F)
+```
+
+Classification" is the cause of death and "armed" is whether or how the civilian was armed.
+
+## Tabular summary of the data
+
+### Gender
+
+Approximately 95 percent of deaths were men. Gender of one death was reported as "non-conforming," possibly representing the delays involved in revising reporting systems to account for transgendered citizens.
+
+
+```{r, results="asis", echo = FALSE}
+gender_ <- gender
+colnames(gender_) <- c(NULL,NULL)
+kable(gender_, format.args = list(big.mark = ","), caption = "Percentages deaths by gender")  %>% kable_styling(bootstrap_options = "striped", full_width = F)
+```
+
+### Race/Ethnicity
+
+White deaths are under-represented compared to the national population. White, non-Hispanic population in 2014 was 62.2%. [Census Projections]
+
+
+```{r, results="asis", echo = FALSE}
+race_ = race
+colnames(race_) <- c(NULL,NULL)
+kable(race_, format.args = list(big.mark = ","), caption = "Percentage deaths by race/ethnicity")  %>% kable_styling(bootstrap_options = "striped", full_width = F)
+```
+
+
+### Age
+
+Deaths were of all ages. The youngest death was `r min(age$age, na.rm=TRUE)` and the oldest, `r max(age$age, na.rm=TRUE)`. The median age of death (half older and half younger) was `r median(age$age, na.rm=TRUE)`, and the mean (average) age of death was approximately `r trunc(mean(age$age, na.rm=TRUE))`.
+
+
+```{r, results="asis", echo = FALSE}
+age_ <- age
+colnames(age_) <- c(NULL,NULL)
+kable(age_, format.args = list(big.mark = ","), caption = "Percentage deaths by age group")  %>% kable_styling(bootstrap_options = "striped", full_width = F)
+```
+
+### Cause of Death
+
+Gunshots are the leading cause of deaths in police involved civilian homicides, representing `r max(cod$n, na.rm=TRUE)`% of all deaths in [The Counted] dataset.
+
+### Whether and how civilians were armed
+
+Civilian firearms were the most common category involved, but unarmed civilians were the next most common, representing `r max(weapon$n, na.rm=TRUE)`%  and `r weapon$n[4]`% of all deaths, respectively.
+
+```{r, results="asis", echo = FALSE}
+weapon_ <- weapon
+colnames(weapon_) <- c(NULL,NULL)
+kable(weapon_, format.args = list(big.mark = ","), caption = "Percentage deaths by whether and how civilian was armed")  %>% kable_styling(bootstrap_options = "striped", full_width = F)
+```
+
+### Location
+
+More deaths occurred in California than in any other state, representing `r max(state$n, na.rm=TRUE)`% of all deaths, which is disproportionately higher than its national share of population, `r round(37254503/308758105*100,2)`%. [American Fact Finder]
+
+```{r, results="asis", echo = FALSE}
+state_ <- state
+colnames(state_) <- c(NULL,NULL)
+kable(state_, format.args = list(big.mark = ","), caption = "Percentage deaths by state")  %>% kable_styling(bootstrap_options = "striped", full_width = F)
+```
+
+### Months and Days of Death
+
+Nationally, deaths were spread approximately evenly among months, days of the week, days of the month and phases of the moon.  *There was at least one death on `r n_distinct(dated)` days of the year,* `r round(n_distinct(dated)/365*100,2)`% of all days. The median number of deaths per day was `r median(count(dated, date)$n)`, and the mean number of deaths was slightly larger, `r round(mean(count(dated,date)$n),2)`. On `r nrow(datecounthigh)` days, there were `r mean(datecounthigh$n)` deaths. 
+
+```{r, results="asis", echo = FALSE}
+datecounthigh_ <- datecounthigh
+colnames(datecounthigh_) <- c(NULL,NULL)
+kable(datecounthigh_, format.args = list(big.mark = ","), caption = "Dates with highest number of deaths")  %>% kable_styling(bootstrap_options = "striped", full_width = F) 
+```
+
+`r filter(monthcount, n == min(n))$mon` had the fewest deaths, `r min(count(month,mon)$n)`, `r round(min(count(month,mon)$n)/n*100,2)`%,  and `r filter(monthcount, n == max(n))$mon` had the most deaths, `r max(count(month,mon)$n)`, `r round(max(count(month,mon)$n)/n*100,2)`%.
+
+```{r, results="asis", echo = FALSE}
+monthcount_ <- monthcount
+colnames(monthcount_) <- c(NULL,NULL)
+kable(monthcount_, format.args = list(big.mark = ","), caption = "Percentage deaths by month")  %>% kable_styling(bootstrap_options = "striped", full_width = F) 
+```
+
+The day of the month with the fewest deaths was day `r filter(dom, n == min(dom$n))$day`, and the day of the month with the most deaths was day  `r filter(dom, n == max(dom$n))$day`.
+
+```{r, results="asis", echo = FALSE}
+domspread_ <- domspread
+colnames(domspread_) <- c(NULL,NULL)
+kable(domspread_, format.args = list(big.mark = ","), caption = "Percentage deaths by day of month")  %>% kable_styling(bootstrap_options = "striped", full_width = F) 
+```
+
+The day of the week with the fewest deaths was `r filter(dowcount, n == min(dowcount$n))$dow`, `r mindow`%, and the day of the month with the most deaths was `r filter(dowcount, n == max(dowcount$n))$dow`, `r maxdow`%.
+
+```{r, results="asis", echo = FALSE}
+dowcount_ <- dowcount
+colnames(dowcount_) <- c(NULL,NULL)
+kable(dowcount_, format.args = list(big.mark = ","), caption = "Percentage deaths by day of week")  %>% kable_styling(bootstrap_options = "striped", full_width = F)
+```
+
+Folk wisdom attributes increased crime and other aberations to the full moon; *see [Lunacy and the Full Moon]*. However, deaths are approximately evenly distributed over the phases of the moon.
+
+```{r, results="asis", echo = FALSE}
+lunar_ <- lunar
+colnames(lunar_) <- c(NULL,NULL)
+kable(lunar_, format.args = list(big.mark = ","), caption = "Percentage deaths by lunar phase")  %>% kable_styling(bootstrap_options = "striped", full_width = F)
+```
+
+### Cause of Death and Civilian Armed Status
+
+```{r, results="asis", echo = FALSE}
+kable(codvsarmed1, format.args = list(big.mark = ","), caption = "Cause of death and civilian armed status, part A")  %>% kable_styling(bootstrap_options = "striped", full_width = F) 
+```
+
+```{r, results="asis", echo = FALSE}
+kable(codvsarmed2, format.args = list(big.mark = ","), caption = "Cause of death and civilian armed status, part B")  %>% kable_styling(bootstrap_options = "striped", full_width = F)
+```
+Of the `r N` deaths, `r nf` were women, approximately `r  pct(nf,n)`%. All but `r nf - nfw - nfb` of those deaths were white or black.
+
+```{r, results="asis", echo = FALSE}
+kable(fcodvsarmed1, format.args = list(big.mark = ","), caption = "Cause of death of women and civilian armed status, part A")  %>% kable_styling(bootstrap_options = "striped", full_width = F) 
+```
+
+```{r, results="asis", echo = FALSE}
+kable(fcodvsarmed2, format.args = list(big.mark = ","), caption = "Cause of death of women and civilian armed status, part B")  %>% kable_styling(bootstrap_options = "striped", full_width = F)
+```
+
+Of the `r nf` deaths of women, `r nfw`, approximately `r  pct(nfw,nf)`% were white. Tables show percentages of deaths among white women.
+
+```{r, results="asis", echo = FALSE}
+kable(fwcodvsarmed1, format.args = list(big.mark = ","), caption = "Cause of death of white women and civilian armed status")  %>% kable_styling(bootstrap_options = "striped", full_width = F) 
+```
+
+
+Of the `r nf` deaths of women, `r nfb`, approximately `r  pct(nfb,nf)`% were black. Tables show percentages of deaths among black women.
+
+```{r, results="asis", echo = FALSE}
+kable(fbcodvsarmed1, format.args = list(big.mark = ","), caption = "Cause of death of black women and civilian armed status")  %>% kable_styling(bootstrap_options = "striped", full_width = F) 
+```
+
+Of the `r N` deaths, `r as.character(prettyNum(nh, big.mark = ','))` were men, approximately `r  pct(nh,n)`%. 
+
+```{r, results="asis", echo = FALSE}
+kable(hcodvsarmed1, format.args = list(big.mark = ","), caption = "Cause of death of men and civilian armed status, part A")  %>% kable_styling(bootstrap_options = "striped", full_width = F) 
+```
+
+```{r, results="asis", echo = FALSE}
+kable(hcodvsarmed2, format.args = list(big.mark = ","), caption = "Cause of death of men and civilian armed status, part B")  %>% kable_styling(bootstrap_options = "striped", full_width = F)
+```
+
+Of the `r as.character(prettyNum(nh, big.mark = ','))` deaths of men, `r nhw`, approximately `r pct(nhw,nh)`%, were white. Tables show percentages of deaths among white men.
+
+```{r, results="asis", echo = FALSE}
+kable(hwcodvsarmed1, format.args = list(big.mark = ","), caption = "Cause of death of white men and civilian armed status, part A")  %>% kable_styling(bootstrap_options = "striped", full_width = F) 
+```
+
+```{r, results="asis", echo = FALSE}
+kable(hwcodvsarmed2, format.args = list(big.mark = ","), caption = "Cause of death of white men and civilian armed status, part B")  %>% kable_styling(bootstrap_options = "striped", full_width = F)
+```
+
+Of the `r as.character(prettyNum(nh, big.mark = ','))` deaths of men, `r nhb`, approximately `r  pct(nhb,nh)`%, were black. Tables show percentages of deaths among black men.
+
+```{r, results="asis", echo = FALSE}
+kable(hbcodvsarmed1, format.args = list(big.mark = ","), caption = "Cause of death of black men and civilian armed status, part A")  %>% kable_styling(bootstrap_options = "striped", full_width = F) 
+```
+
+```{r, results="asis", echo = FALSE}
+kable(hbcodvsarmed2, format.args = list(big.mark = ","), caption = "Cause of death of black men and civilian armed status, part B")  %>% kable_styling(bootstrap_options = "striped", full_width = F)
+```
+
+Of the `r as.character(prettyNum(nh, big.mark = ','))` deaths of men, `r nhh`, approximately `r  pct(nhh,nh)`%, were hispanic. Tables show percentages of deaths among hispanic men.
+
+```{r, results="asis", echo = FALSE}
+kable(hhcodvsarmed1, format.args = list(big.mark = ","), caption = "Cause of death of hispanic men and civilian armed status, part A")  %>% kable_styling(bootstrap_options = "striped", full_width = F) 
+```
+
+```{r, results="asis", echo = FALSE}
+kable(hhcodvsarmed2, format.args = list(big.mark = ","), caption = "Cause of death of black men and civilian armed status, part B")  %>% kable_styling(bootstrap_options = "striped", full_width = F)
+```
+
+## Geographic Analysis of the Data
+
+One way to look at the data geograhically is to map the number of deaths by state. We tabulated percentages of deaths occurring by state. We can also show the *numbers*.
+
+```{r, results="asis", echo = FALSE}
+kable(count(counted,id), format.args = list(big.mark = ","), caption = "Number deaths by state")  %>% kable_styling(bootstrap_options = "striped", full_width = F) 
+
+```
+
+### Many Datasets are Distributed Similarly to Population
+
+Counts of some features often parallel counts of population. As a result, a map that shows the raw counts may be difficult to distinguish from a map of population. For example
+
+```{r results="asis", echo = FALSE}
+p + theme(legend.position = "bottom") + ggtitle("Police Involved Civilian Homicides, 2015")
+```
+
+
+```{r results="asis", echo = FALSE}
+q + theme(legend.position = "bottom") + ggtitle("Estimated Population, 2015")
+```
+
+Comparing the two maps above, police involved civilian homicides are approximately proportional to state population. Some states, such as New York, have fewer police involved civilian homicides than would be expected based only on population, while other states, such as Oklahoma, have more. However, the ratios of police involved civilian homicides per hundred thousand population is a much different picture, showing strong regional differences.
+
+```{r results="asis", echo = FALSE}
+r + theme(legend.position = "bottom") + ggtitle("Police Involved Civilian Homicides, 2015\n, Number per 100,000 Population")
+```
+
+In general, states west of the Mississippi River have higher rates of police involved civilian homicides. North Dakota's low rate is an exception in the West, while Louisiana and West Virigia have higher rates than the other states in the East.
+
+## What conclusions can we draw from the short, national summary?
+
+Before attempting an answer, it would be well to remember that the United States is composed of 50 states and the District of Columbia, many of which has hundreds or thousands of separate law enforement agencies that operate in communities that range in diversity from little at all to very diverse in terms of national origin, ethnicity, duration of residence and that may have relatively high or relatively low unemployment and relatively different perspectives on law enforcement. 
+
+### Detail underlying deaths of women
+
+In short, these data are best to pose questions, rather than to provide answers. For example `r pct(nrow(fveh),nf)`% of deaths of women involved situations in which the woman was unarmed and struck by a vehicle.
+
+* [Hue Dang]
+* [Nuwnah Laroche]
+* [Barbara Ramey]
+* [Kimberly Bedford]
+* [Kylie Lindsey]
+* [Isabella Chinchilla]
+* [Bendetta 'Lynn' Miller]
+
+In reviewing the related news reports, these deaths were accidental in nature (striking pedestrian in intersection, striking pedestrians walking on highway, for example). In the case of [Kimberly Bedford], the officer was convicted of a serious traffic offense for hitting a pedestrian while speeding without lights or siren. Thus, although the relative proportion, `r pct(nrow(fveh),nf)`%, of unarmed women struck by vehicles is notable, these deaths are quite unlike deaths inflicted by gunshot on unarmed civilians. Without the addition of facts in addition to those from from news accounts, the `r pct(nrow(fveh),nf)`% figure, by itself, is misleading.
+
+For another example, `r sum(codvsarmed["Taser",])`% of all deaths were caused by Tasers. Among women, however, only `r sum(fcodvsarmed["Taser",])`% were due to Tasers. Yet, among white women `r sum(fwcodvstaser)`% of deaths were due to Tasers while `r sum(fbcodvsarmed["Taser",])`% of deaths of black women were Taser inflicted. That was the death of [Natasha McKenna], who was a mentally ill, 5'4" tall, 180-pound woman in handcuffs and leg shackles. Six deputies were attempting to transfer her from a jail cell and administered 4 Taser shocks that proved fatal. [The coroner]) ruled the death accidental. [A comprehensive report] details the circumstances involved in the administration of the Taser shocks and the difficulties in physically controlling the prisoner that led to the decisions to administer each of them.
+
+Among all women, a single case of death in custody was reported, an hispanic woman who died from lack of timely medical attention after complaining of feeling unwell. The outside contractor providing medical services decided to delay services until the regularly scheduled evening rounds. Lobato died shortly after the start of rounds before being seen.
+
+The deaths of two women, one, [Natasha McKenna,] and the other, [Jennifer Lobato], are similar in that they were both related to medical treatment in custody (one was being attempted to be transferred to a medical facility; the other died waiting medical attention).
+
+Percentages of deaths of white and black women killed by police gunshot while in vehicles are comparable.
+
+* [Alice Brown]
+* [Mya Hall]
+* [Karen Janks]
+* [Christie Cathers]
+
+All of the cases of deaths of women in vehicles by police gunshot involved situations in which the drivers were endangering the lives of civilians or officers.
+
+In the one case of a woman, [Candace Blakley], classified as "unknown" as to whether she was armed, the cause of death was the unintentional discharge of a rifle by her husband, an officer, off duty at home. The officer was charged with involuntary manslaughter.
+
+There was one case of a woman, [Shelly Lynn Haendiges], who died by police gunshot when she pointed a pellet gun at him in the course of an armed robbery. The [prosecutor] did not charge the officer; one of the factors appeared to be that the pellet gun closely resembled an actual semi-automatic pistol. The [family] supported the officer's action, and attributed the death to their family member's mental illness.
+
+All other causes of deaths of women involve gunshots in situations in which the women were either armed with firearms or knives or were unarmed. Percentages of white women armed with firearms were approximately twice those of black women; percentages of black women armed with knives were approximately three times those of white women. The percentages of unarmed white and black women killed by gunshot are comparable.
+
+In deaths involving civilians armed with knives:
+
+* [Kristiana Coignard]
+* [Tiffany Terry]
+* [Janisha Fonville]
+* [Jessica Uribe]
+* [Monique Deckard]
+* [Meagan Hockaday]
+* [Nikki Burtsfield]
+* [Redel Jones]
+* [Norma Guzman]
+* [Phyllis Jepsen]
+* [Siolosega Velega-Nuufolau]
+
+each involved situations in which the civilian threatened the officer with a knife; many of these civilians were afflicted with mental illnesses or under the influence of various substances.
+
+The largest category of deaths of women involved death by police gunshot was in situations in which the woman was armed with a firearm.
+
+* [Yuvette Henderson]
+* [Betty Sexton]
+* [Crystal Miley]
+* [Stephanie Hill]
+* [Kaylene Stone]
+* [Deanne Choate]
+* [Alexia Christian]
+* [Cassandra Bolin]
+* [Wendy Chappell]
+* [Tamala Satre]
+* [Tina Money]
+* [Margaret Wagner]
+* [Michelle Burg]
+* [Linda Lush]
+* [Marquesha McMillan]
+* [Laura Lemieux]
+* [Somer Speer]
+* [Tashfeen Malik]
+* [Sheilah Huck]
+* [Shirley Weis]
+* [Brenda Kimberling]
+* [Erica Lauro]
+
+The circumstances surrounding these deaths range from exchange of gunfire with a mass shooter, to armed robberies to civilians suffering mental disorders, under the influence of alcohol or other drugs and other situations involving civilians armed with firearms whose actions threatened police or bystanders.
+
+Among women, this leaves police involved homicides by gunshot in which the civilian was unarmed. Three of the women were white and two were black.
+
+* [Autumn Steele]
+* [Christina Prestianni]
+* [Tamara Seidle]
+* [India Kager]
+* [Bettie Jones]
+
+Of these five deaths, two involved off-duty officers killing their girlfriend and wife, respectively; one death occurred when the driver was accidentially shot during a gun fight between her passenger and police; and one death occurred when a woman was accidentally shot as police shot at a young man holding a baseball bat in circumstances when opening the door to the victim's residence. The remaining death was also accidental. It involved a domestic dispute in the couple's front yard. The officer was talking to the husband. The wife,[Autumn Steele], and a large dog ran out of the house. The dog knocked over the officer. Neither owner restrained the dog. The officer shot to protect himself from the dog and hit the wife by accident. 
+
+In the only case involving a "non-conforming" civilian [Jesse or Jessie Herandez], police killed the transgender driver of a car moving toward an officer in an attempt to avoid an investigation. The department, as a result, changed its policy to declassify vehicles as deadly weapons justifying the response of deadly force in most cases.
+
+Most of the police involved civilian homicides involving deaths of women were of white or black women. Based on her Samoan given and surname, one woman, [Siolosega Velega-Nuufolau], should be classified as "Asian/Pacific Islander" and another, [Tashfeen Malik], should be classified as "Arab-American," as a Pakistani-born person.)
+
+The review of the relatively few deaths of women illustrate the hazards inherent in observational data consisting only of a single outcome under a variety of circumstances at different times and places involving different types of law enforcement agencies and situations. 
+
+Because this is an **observational** study, it will not be possible to state the *causes* of police involved homicides, only look for associated statistical factors.
+
+### Cautionary Example
+
+For a relatively small dataset, the `r as.character(prettyNum(nf, big.mark = ','))` deaths of women represent a large variety of circumstances. It's a classic problem in analysis, which is trying to put too many pigeons into too few pigeon holes.
+
+## Next steps
+
+As I update this work, I will be looking at two broad areas.
+
+### Finer geographic detail
+
+The state level is not the right geographic unit for comparative analysis. Fortunately, [The Counted] provided sufficient location information to geocode the data. This will enable me to analyze data by the demographic characteristics at the Congressional District level. The advantage is that those units are roughly equal in population (ranging between around 800,000 and 1,000,000).
+
+### Testing hypotheses
+
+At the Congressional District level, are police involved homicides randomly distributed among the population? Which demographic variables or combination of variables are associated with the deaths. Are statistics on arrest data (police/civilian encounters with non-lethal outcomes) available and do they provide a basis to construct a predictive model?
+
+[A comprehensive report]: http://www.fairfaxcounty.gov/news/2015/report_of_investigation_of_in-custody_death.pdf
+[Alexia Christian]: http://www.clatl.com/news/article/13082907/what-happened-in-the-death-of-alexia-christian
+[Alice Brown]: http://www.sfgate.com/news/article/Driver-killed-by-S-F-police-identified-as-6142564.php
+[American Fact Finder]: http://factfinder.census.gov/faces/tableservices/jsf/pages/productview.xhtml?src=bkmk
+[Autumn Steele]: http://www.desmoinesregister.com/story/news/crime-and-courts/2015/03/24/burlington-police-fatal-shooting-body-cameras/70373048/
+[Barbara Ramey]: http://www.whsv.com/home/headlines/State-Trooper-Involved-in-Luray-Crash-304924801.html
+[Bendetta 'Lynn' Miller]: http://www.pennlive.com/midstate/index.ssf/2015/10/outrage_over_innocent_woman_ki.html
+[Bettie Jones]: http://abcnews.go.com/US/teen-shot-chicago-cops-called-911-times/story?id=36524006
+[Betty Sexton]: http://www.wbtv.com/story/28129851/officer-involved-shooting-in-gastonia-sends-woman-to-hospital
+[Brenda Kimberling]: http://www.reviewjournal.com/news/las-vegas/police-describe-details-recent-officer-involved-shootings
+[Candace Blakley]: http://www.northaugustastar.com/article/20150615/STAR01/150619665/
+[Cassandra Bolin]: http://kxan.com/2015/05/25/woman-shot-dead-after-five-hour-standoff-with-apd-swat-officers/
+[Census Projections]: https://www.census.gov/content/dam/Census/library/publications/2015/demo/p25-1143.pdf
+[Christie Cathers]: http://www.wvalways.com/story/29256189/update-grand-jury-decides-fatal-monongalia-county-shooting-by-deputy-was-justifiable
+[Christina Prestianni]: http://www.nj.com/essex/index.ssf/2015/01/corrections_officer_shot_girlfriend_in_apparent_mu.html
+[Crystal Miley]: http://www.al.com/news/birmingham/index.ssf/2015/03/gun-wielding_alabama_woman_sho.html
+[Deanne Choate]: http://www.kansascity.com/news/local/crime/article17157194.html
+[Erica Lauro]: http://www.reviewjournal.com/news/las-vegas/police-describe-details-recent-officer-involved-shootings
+[family]: http://kokomoherald.com/Content/News/All-News/Article/Haendiges-family-releases-statement-/1/98/24260
+[Health, United States, 2015 - Individual Charts and Tables: Spreadsheet, PDF, and PowerPoint files, Table 17]: (http://www.cdc.gov/nchs/data/hus/2015/017.pdf
+[Hue Dang]: http://www.northjersey.com/news/pedestrian-fatally-struck-by-car-driven-by-employee-of-bergen-county-prosecutor-s-office-1.1286154
+[India Kager]: http://wtkr.com/2015/09/06/two-killed-after-shots-fired-at-police-from-vehicle-infant-inside-unhurt/
+[interactive]: http://www.theguardian.com/us-news/ng-interactive/2015/jun/01/the-counted-police-killings-us-database
+[Isabella Chinchilla]: http://www.myajc.com/news/news/local/ex-trooper-avoids-charges-in-crash-families-of-tee/nqSY2/?icmp=AJC_internallink_021816_AJCtoMyAJC_trooper
+[Janisha Fonville]: http://wfae.org/post/cmpd-officer-fatally-shot-woman-who-lunged-police-knife
+[Jennifer Lobato]: http://www.columbinecourier.com/content/autopsy-jail-inmate-died-excessive-vomiting
+[Jesse or Jessie Herandez]: http://denver.cbslocal.com/2015/06/09/moving-cars-no-longer-considered-deadly-weapons-for-dpd/
+[Jessica Uribe]: http://www.kvoa.com/story/28230565/woman-killed-after-officer-involved-shooting-on-westside
+[Karen Janks]: http://www.pressdemocrat.com/news/3841197-181/wild-chase-of-wrong-way-highway?gallery=3870520&artslide=0
+[Kaylene Stone]: http://www.abc15.com/news/region-west-valley/peoria/glendale-peoria-pd-investigating-shooting
+[Kimberly Bedford]: http://fox17online.com/2016/02/19/former-benton-twp-officer-sentenced-for-killing-woman-in-crash/
+[Kristiana Coignard]: https://www.news-journal.com/news/2015/jun/27/longview-police-officers-cleared-in-teens-deadly-s/
+[Kylie Lindsey]: http://www.myajc.com/news/news/local/ex-trooper-avoids-charges-in-crash-families-of-tee/nqSY2/?icmp=AJC_internallink_021816_AJCtoMyAJC_trooper
+[Laura Lemieux]: http://www.postandcourier.com/article/20160109/PC16/160119982/in-berkeley-county-mom-x2019-s-death-poses-questions-about-how-mentally-ill-are-handled-before-police-shootings
+[Linda Lush]: http://www.reviewjournal.com/news/las-vegas/armed-woman-killed-metro-left-suicidal-notes-had-been-drinking-bourbon
+[Lunacy and the Full Moon]: http://www.scientificamerican.com/article/lunacy-and-the-full-moon/
+[Margaret Wagner]: http://www.pe.com/articles/wagner-783208-home-vasquez.html
+[Marquesha McMillan]: https://www.washingtonpost.com/local/public-safety/man-charged-in-burglary-that-ended-in-shootout-with-dc-police/2015/10/27/4d3608b2-7cd6-11e5-b575-d8dcfedb4ea1_story.html
+[Meagan Hockaday]: http://www.keyt.com/news/woman-killed-in-oxnard-officer-involved-shooting/32066036
+[Michelle Burg]: http://archive.naplesnews.com/news/crime/woman-dies-after-chase-gunfire-exchange-with-collier-deputies-ep-1320771152-340322001.html
+[Monique Deckard]: http://orangecountyda.org/civicax/filebank/blobdload.aspx?BlobID=23399
+[Mya Hall]: http://www.chicagotribune.com/news/nationworld/chi-nsa-shooting-20150401-story.html
+[Natasha McKenna]: https://www.washingtonpost.com/news/local/wp/2015/04/13/the-death-of-natasha-mckenna-in-the-fairfax-jail-the-rest-of-the-story/
+[Nikki Burtsfield]: http://www.gillettenewsrecord.com/news/local/article_af6fef0a-af06-5923-b8bc-6f8cdb691337.html
+[Norma Guzman]: http://www.nbclosangeles.com/news/local/Video-Sheds-Light-on-Police-Shooting-of-Mentally-Ill-Woman-with-Knife-374850811.html
+[Nuwnah Laroche]: http://newyork.cbslocal.com/2015/05/06/nj-turnpike-pedestrians-killed-police-car/
+[Phyllis Jepsen]: (http://www.mentalhealthportland.org/what-happened-to-phyllis-jepsen/
+[prosecutor]: http://www.wthr.com/article/no-charges-for-kokomo-police-officer-who-fatally-shot-female-robbery-suspect-at-gas-station
+[Redel Jones]: http://www.latimes.com/local/lanow/la-me-ln-lapd-shooting-redel-jones-20160712-snap-story.html
+[Sheilah Huck]: http://www.stltoday.com/news/local/crime-and-courts/woman-fatally-shot-by-st-louis-county-police-was-bizarre/article_8d80dbf7-0abd-5605-8c29-14f7ee2a4195.html
+[Shelly Lynn Haendiges]: http://www.kokomotribune.com/news/updated-family-of-girl-killed-in-armed-robbery-retains-wrongful/article_b04bfa58-1429-11e5-9c05-3f07d22d3ea4.html
+[Shirley Weis]: http://www.star-telegram.com/news/local/community/arlington/article49578020.html
+[Siolosega Velega-Nuufolau]: (http://www.modbee.com/news/local/crime/article52053610.html
+[Somer Speer]: http://www.news-leader.com/story/news/local/christian-county/2016/05/09/woman-killed-police-ozark-firefight-suicidal-homicidal-records-show/83656806/
+[Stephanie Hill]: http://www.sfgate.com/bayarea/article/Penngrove-slaying-suspect-ID-d-after-cops-kill-6113061.php
+[Tamala Satre]: http://www.sacbee.com/news/local/crime/article28452859.html
+[Tamara Seidle]: http://www.nj.com/monmouth/index.ssf/2016/03/suspended_neptune_cop_has_status_hearing_in_ex-wif.html
+[Tashfeen Malik]: http://www.latimes.com/nation/la-na-malik-visa-application-20151222-story.html
+[The coroner]: https://www.washingtonpost.com/local/crime/death-of-woman-shocked-by-stun-gun-in-fairfax-jail-is-ruled-an-accident/2015/04/28/7bc85f36-edfc-11e4-a55f-38924fca94f9_story.html
+[The Counted]: https://interactive.guim.co.uk/2015/the-counted/thecounted-data.zip
+[Tiffany Terry]: http://www.wowt.com/home/headlines/Shooting-Victim-Taken-to-Hospital--289991681.html
+[Tina Money]: http://www.ksbw.com/article/two-people-shot-and-killed-in-sand-city-identified/1057674
+[Wendy Chappell]: http://abc3340.com/archive/coroner-maylene-woman-killed-in-officer-involved-shooting-in-clanton
+[Yuvette Henderson]: http://www.mercurynews.com/crime-courts/ci_27461977/oakland-woman-killed-by-emeryville-police-tried-carjack
