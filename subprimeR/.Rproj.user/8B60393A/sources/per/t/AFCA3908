@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1531276477345.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "732185001",
+    "id" : "AFCA3908",
+    "lastKnownWriteTime" : 1531330075,
+    "last_content_update" : 1531330075042,
+    "path" : "~/projects/technocrat/subprimeR/R/fetch_data.R",
+    "project_path" : "R/fetch_data.R",
+    "properties" : {
+        "cursorPosition" : "12,2",
+        "scrollLine" : "0",
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

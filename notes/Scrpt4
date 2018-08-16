@@ -1,0 +1,25 @@
+Scrpt4
+library(tidyverse)
+library(DBI)
+library(RMySQL)
+drv <- dbDriver("MySQL")
+con <- dbConnect(drv, username="root", password="", dbname ="dlf", host="localhost")
+res <- dbGetQuery(con, "SELECT * from loans_bak")
+cs <- as.tibble(res)
+load("data/kmeans_loans.Rda") # brings in cs.k
+#check for missing values
+nrow(cs) == length(cs.k$cluster)
+# convert to data frame
+csk <- as.tibble(cs.k$cluster)
+# rename the column
+csk <- csk %>% transmute(kcluster = value)
+# combine
+loans <- bind_cols(cs,csk)
+# remove duplicate rownames column
+loans <- loans[-1]
+# write back to SQL
+dbWriteTable(con, "loans", loans) 
+# test
+dbGetQuery(con, "SELECT * from loans limit 25") 
+xtbl <- table(loans$perf, loans$kcluster)
+round(prop.table(xtbl),3)

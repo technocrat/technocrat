@@ -1,0 +1,763 @@
+---
+title: "Lab Notebook"
+output:
+  html_document:
+    df_print: paged
+---
+2018-08-04 
+
+Got blog working
+
+
+2018-07-11 
+
+Continue package
+change qqplots to all ggplot
+---
+2018-07-10 
+
+Began sketching causal analysis
+
+Began creating package for deal-by-deal analysis
+
+2018-07-08 
+
+Logistic regression has to be binary and don't give you r2
+Time to try deal by deal?
+
+2018-07-07
+
+Let's do grade v rate
+    cs <- as.tibble(dbGetQuery(con, "SELECT grade,orate from loans")
+    > chisq.test(table(cs))
+
+	Pearson's Chi-squared test
+
+    data:  table(cs)
+    X-squared = 5488.7, df = 100, p-value < 2.2e-16
+
+Grade v perf
+
+Bc of concentration in A+ and AP, pop and samples give chi2 warning, because expected is too low, 
+
+   cs <- as.tibble(dbGetQuery(con, "SELECT grade,perf FROM loans"))
+   
+   table(cs)
+       perf
+  grade     A     B     C
+    A      62  5901   918
+    A-     30  1693   273
+    A+     64  8080  1149
+    AA      0     2     0
+    AP    585 60263  8548
+    AP+    30  2129   316
+    B      27  1754   257
+    B-      0     1     0
+    B+     18  1358   191
+    C      38  2139   320
+    D       0     1     0
+   chisq.test(table(cs))
+
+      Pearson's Chi-squared test
+
+  data:  table(cs)
+  X-squared = 45.353, df = 20, p-value = 0.0009879
+
+  Warning message:
+  In chisq.test(table(cs)) : Chi-squared approximation may be incorrect
+   
+but restricting to those two
+
+    > cs <- as.tibble(dbGetQuery(con, "SELECT grade,perf FROM loans WHERE grade = 'A+' OR grade = 'AP'"))
+    > 
+    > table(cs)
+         perf
+    grade     A     B     C
+       A+    64  8080  1149
+       AP   585 60263  8548
+    > chisq.test(table(cs))
+
+        Pearson's Chi-squared test
+
+    data:  table(cs)
+    X-squared = 2.391, df = 2, p-value = 0.3025
+
+Excluding them
+
+    cs <- as.tibble(dbGetQuery(con, "SELECT grade,perf FROM loans WHERE grade != 'A+' AND grade != 'AP'"))
+
+There are three more that are too small AA, B- & D
+
+    cs <- as.tibble(dbGetQuery(con, "SELECT grade,perf FROM loans WHERE grade != 'AA' AND grade != 'A+' AND grade != 'AP' AND grade != 'B-' AND grade != 'D'"))
+
+    chisq.test(table(cs))
+
+	    Pearson's Chi-squared test
+
+    data:  table(cs)
+    X-squared = 12.105, df = 10, p-value = 0.2781
+
+## THIS JUST IN
+
+    cs <- as.tibble(dbGetQuery(con, "SELECT deal,perf FROM loans"))
+                    perf
+    deal                A    B    C
+    LBMLT 2006-1     92 6988  984
+    LBMLT 2006-10    33 3728  517
+    LBMLT 2006-11    51 5166  747
+    LBMLT 2006-2     96 9434 1369
+    LBMLT 2006-3     57 5505  812
+    LBMLT 2006-4     58 6778  985
+    LBMLT 2006-5     63 6657  949
+    LBMLT 2006-6     66 5792  828
+    LBMLT 2006-7     61 5677  803
+    LBMLT 2006-8     45 4965  695
+    LBMLT 2006-9     56 5380  803
+    LBMLT 2006-WL1   59 5326  743
+    LBMLT 2006-WL2   62 5836  818
+    LBMLT 2006-WL3   55 6089  919
+    chisq.test(table(cs))
+
+	Pearson's Chi-squared test
+
+    data:  table(cs)
+    X-squared = 18.148, df = 26, p-value = 0.8703
+
+***gotta stratify by deal***
+
+linkedin badge
+<script type="text/javascript" src="https://platform.linkedin.com/badges/js/profile.js" async defer></script>
+<div class="LI-profile-badge"  data-version="v1" data-size="medium" data-locale="en_US" data-type="horizontal" data-theme="light" data-vanity="richardcareaga"><a class="LI-simple-link" href='https://www.linkedin.com/in/richardcareaga?trk=profile-badge'>Richard Careaga</a></div>
+
+
+2018-07-06 
+MCA
+
+Correspondence analysis detail (perf/kcluster independent)
+
+
+    library(tidyverse)
+    library(DBI)
+    library(RMySQL)
+    library(FactoMineR)
+    drv <- dbDriver("MySQL")
+    con <- dbConnect(drv, username="root", password="", dbname ="dlf", host="localhost")
+    res <- dbGetQuery(con, "SELECT * from loans_bak")
+    cs <- as.tibble(res)
+    load("data/kmeans_loans.Rda") # brings in cs.k
+    #check for missing values
+    nrow(cs) == length(cs.k$cluster)
+    # convert to data frame
+    csk <- as.tibble(cs.k$cluster)
+    # rename the column
+    csk <- csk %>% transmute(kcluster = value)
+    # combine
+    loans <- bind_cols(cs,csk)
+    # remove duplicate rownames column
+    loans <- loans[-1]
+    # write back to SQL
+    #dbWriteTable(con, "loans", loans) 
+    # test
+    #dbGetQuery(con, "SELECT * from loans limit 25")
+    cs <- as.tibble(dbGetQuery(con, "SELECT perf, kcluster from loans"))
+    #xtbl <- table(loans$perf, loans$kcluster) # interesting 3 clusters quite distinct
+    xtbl <- table(cs$perf,cs$kcluster)
+    round(prop.table(xtbl),3)
+    #§ 2.6 Hassan et Pags
+    res.test.chi2 <- chisq.test(xtbl)
+    round(res.test.chi2$expected,1)
+    round(res.test.chi2$residuals^2,2)
+    round(100*res.test.chi2$residuals^2/res.test.chi2$stat,2)
+    ddd <- rbind(xtbl,apply(xtbl[,1:3],2,sum))
+    rownames(ddd)[4] <- "Mean profile"
+    round(prop.table(as.matrix(ddd),margin=1),3)
+    ddd <- cbind(xtbl,apply(xtbl[,1:3],2,sum))
+    colnames(ddd)[4] <- "Mean profile"
+    round(prop.table(as.matrix(ddd),margin=2),3)
+    res.ca <- CA(xtbl[,1:3])
+
+    par(mfrow=c(2,2))
+    plot(res.ca, invisible = "col")
+    coord.col = sweep(res.ca$col$coord,2,sqrt(res.ca$eig[1]), FUN="*")
+    points(coord.col,pch=17,col="red")
+    text(coord.col,rownames(coord.col), col="red")
+    plot(res.ca, invisible = "row")
+    coord.row = sweep(res.ca$row$coord,2,sqrt(res.ca$eig[1]), FUN="*")
+    points(coord.row,pch=17,col="red")
+    text(coord.row,rownames(coord.row), col="red")
+
+    summary(res.ca)
+
+    barplot(res.ca$eig[,1],main="Eigenvalues", names.arg=1:nrow(res.ca$eig))
+
+    res.ca$row$inertia/res.ca$call$marge.row
+    res.ca$col$inertia/res.ca$call$marge.col
+
+
+2018-07-05
+
+Time to add cluster results to db
+
+Just in case:
+
+    MariaDB [dlf]> CREATE TABLE loans_bak AS SELECT * from loans;
+    Query OK, 96147 rows affected (1.06 sec)
+    Records: 96147  Duplicates: 0  Warnings: 0
+
+Strategy is to create df loans w/all fields and cbind cs.k$clusters, renam "value" to kcluster and write back to loans, after dropping it
+
+    dbWriteTable(con, "loans", cs)
+
+Here's the code (not run, to avoid churn)
+
+    library(tidyverse)
+    library(DBI)
+    library(RMySQL)
+    library(FactoMineR)
+
+    drv <- dbDriver("MySQL")
+    con <- dbConnect(drv, username="root", password="", dbname ="dlf", host="localhost")
+    res <- dbGetQuery(con, "SELECT * from loans_bak")
+    cs <- as.tibble(res)
+    load("data/kmeans_loans.Rda") # brings in cs.k
+    #check for missing values
+    nrow(cs) == length(cs.k$cluster)
+    # convert to data frame
+    csk <- as.tibble(cs.k$cluster)
+    # rename the column
+    csk <- csk %>% transmute(kcluster = value)
+    # combine
+    loans <- bind_cols(cs,csk)
+    # remove duplicate rownames column
+    loans <- loans[-1]
+    # write back to SQL
+    #dbWriteTable(con, "loans", loans) 
+    # test
+    #dbGetQuery(con, "SELECT * from loans limit 25")
+
+
+```{r achunk, results="asis", echo = FALSE, warning=FALSE}
+library(tidyverse)
+library(DBI)
+library(RMySQL)
+library(FactoMineR)
+
+drv <- dbDriver("MySQL")
+con <- dbConnect(drv, username="root", password="", dbname ="dlf", host="localhost")
+cs <- as.tibble(dbGetQuery(con, "SELECT perf, kcluster from loans"))
+#xtbl <- table(loans$perf, loans$kcluster) # interesting 3 clusters quite distinc
+xtbl <- table(cs$perf,cs$kcluster)
+round(prop.table(xtbl),3)
+#§ 2.6 Hussan et Pagès
+res.test.chi2 <- chisq.test(xtbl)
+round(res.test.chi2$expected,1)
+round(res.test.chi2$residuals^2,2)
+round(100*res.test.chi2$residuals^2/res.test.chi2$stat,2)
+ddd <- rbind(xtbl,apply(xtbl[,1:3],2,sum))
+rownames(ddd)[4] <- "Mean profile"
+round(prop.table(as.matrix(ddd),margin=1),3)
+ddd <- cbind(xtbl,apply(xtbl[,1:3],2,sum))
+colnames(ddd)[4] <- "Mean profile"
+round(prop.table(as.matrix(ddd),margin=2),3)
+res.ca <- CA(xtbl[,1:3])
+
+par(mfrow=c(2,2))
+plot(res.ca, invisible = "col")
+coord.col = sweep(res.ca$col$coord,2,sqrt(res.ca$eig[1]), FUN="*")
+points(coord.col,pch=17,col="red")
+text(coord.col,rownames(coord.col), col="red")
+plot(res.ca, invisible = "row")
+coord.row = sweep(res.ca$row$coord,2,sqrt(res.ca$eig[1]), FUN="*")
+points(coord.row,pch=17,col="red")
+text(coord.row,rownames(coord.row), col="red")
+
+summary(res.ca)
+
+barplot(res.ca$eig[,1],main="Eigenvalues", names.arg=1:nrow(res.ca$eig))
+
+res.ca$row$inertia/res.ca$call$marge.row
+res.ca$col$inertia/res.ca$call$marge.col
+```
+
+2018-07-03
+
+# Add kmeans clusters
+load("data/kmeans_loans.Rda") # after setwd()
+# object is cs.k
+check for missing values
+> nrow(cs) == length(cs.k$cluster)
+[1] TRUE
+
+*But* do we know that they are in the same order?
+
+Docs suggest so:
+
+    kmeans returns an object of class "kmeans" which has a print and a fitted method. It is a list with at least the following components:
+    cluster	- A vector of integers (from 1:k) indicating the cluster to which each point is allocated
+
+## Use of PCA
+
+Per https://goo.gl/4aLdxY (MITxPRO), you use the number of PCs to the slope as the k parameter is all
+
+From the screeplot in 5.3, 86.4% of the variance is accounted for by 4 PCs.
+
+So, let's try that. k is *centers*
+
+Uh, oh. *orate* isn't really continuous, is it?  Neither is *cltv* but taking it out degrades the clustering
+
+# set.seed
+```{r nother, results="asis", echo = FALSE, warning=FALSE}
+library(tidyverse)
+library(DBI)
+library(RMySQL)
+#library(FacoMineR)
+drv <- dbDriver("MySQL")
+con <- dbConnect(drv, username="root", password="", dbname ="dlf", host="localhost")
+res <- dbGetQuery(con, "SELECT fico, cltv, orate, obal, dti FROM loans")
+cs <- as.tibble(res) # cs contains only the continuous variables
+css <- sample_n(cs,300, replace = FALSE) # loadings similar with 
+set.seed(2)
+css.k <- kmeans(css, 4, iter.max = 10, nstart = 20)
+plot(css, col=(css.k$cluster+1), main="K-Means Clustering Result with K=4", pch=20, cex=2)
+
+```
+
+So, today, we did k-means clustering. Possible next step, use clusters for logistic regression against category (eliminate A?) or go to MCA.
+
+Keywords to cover and index
+
+R
+Python
+MySQL
+Unsupervised machine learning
+Supervised machine learding
+OLR
+GLM or flexible
+Lasso
+Ridge
+NLP NLTK Stochastic Variational Inference 
+LDA Latent Dirichlet Allocation
+Baysian
+Neutral networks
+Feature extraction
+Perceptrons
+Support Vector Machines
+Penalized LR 
+Random Forests
+Trees
+Boosted Trees
+Cross validation
+Deep learning
+ANOVA
+Time series
+GIS
+Spark
+Hadoop
+Gradient boosting
+
+---
+date: 2018-07-03 
+---
+
+# Missing skills
+
+* Consider Tableau: $70/month https://goo.gl/NbGBht
+* Practice BI: https://goo.gl/BeHaUs
+* Practice Azure: 
+
+# Eye Candy
+linkedin badge
+<script type="text/javascript" src="https://platform.linkedin.com/badges/js/profile.js" async defer></script>
+<div class="LI-profile-badge"  data-version="v1" data-size="medium" data-locale="en_US" data-type="horizontal" data-theme="light" data-vanity="richardcareaga"><a class="LI-simple-link" href='https://www.linkedin.com/in/richardcareaga?trk=profile-badge'>Richard Careaga</a></div>
+
+---
+
+date: '2018-07-01'
+---
+
+
+# runs.test: Is it even worthwhile pursuing with all the NaNs?
+
+## Principal component analysis
+
+
+```{r psa1,  echo = FALSE, message=FALSE, warning=FALSE}
+#library(tidyverse)
+#library(DBI)
+#library(RMySQL)
+#library(FacoMineR)
+#drv <- dbDriver("MySQL")
+#con <- dbConnect(drv, username="root", password="", dbname ="dlf", #host="localhost")
+#res <- dbGetQuery(con, "SELECT fico, cltv, orate, obal, dti FROM loans")
+#cs <- as.tibble(res) # cs contains only the continuous variables
+#css <- sample_n(cs,300, replace = FALSE) # loadings similar with n=nrow(cs), n=1000
+# naming conventions following James et al. *An Introduction to Statistical Learning*
+
+#pr.out <- prcomp(css, scale = TRUE)
+#pr.var <- pr.out$sdev*2
+#pve <- pr.var/sum(pr.var)
+# -------------------------------------------------------------------------
+# Plots
+#par(mfrow=c(1,2))
+
+#screeplot(pr.out, type = "lines")
+
+#biplot(pr.out, scale = 0)
+``` 
+
+```{r cov1, echo = FALSE, warning=FALSE, message=FALSE}
+#orate_s <- cs$orate
+#obal_s <- cs$obal
+
+```
+
+The cumulative variance is  r round(cumsum(pve),3)
+
+From the loadings chart on the right, we see that *obal* (the original amount of the loan) and *orate* (the original rate of interest) are negatively correlated, r round(cor(orate_s,obal_s),3). The remaining continuous variables, *fico*, *dti* (debt-to-income ratio), *cltv* (the ratio of first and second loans to the value of the mortgaged property), have small correlations:
+
+The variables *fico* and *cltv* have some correlation (r round(cor(cs$fico,cs$cltv),3)), while *fico* and *dti* (r round(cor(cs$fico,cs$dti),3)) and *dti* and *cltv* (r round(cor(cs$dti,cs$cltv),3)) have low correlations.
+
+Next, we can use the three highest principal components for k-means clustering.
+
+---
+
+date: 2018-06-30 
+---
+# Runs tests
+
+```{r, results="asis", echo = FALSE, warning=FALSE}
+#library(tidyverse)
+#library(randtests)
+#library(broom)
+#setwd("/Users/rc/Desktop")
+#load('reports.Rda')
+#makerun <- function(a) as.numeric(unlist(strsplit(a, ', ')))
+#a <- array(reports$repbin)
+#b <- apply(a,1,makerun)
+#c <- lapply(b,runs.test) 
+#str(c[1])
+#tidy(c[[1]])
+#d <- lappy(c,tidy) # need way to surpress warnings everyline
+#d is list
+#[[6]]
+#  runs n1 n2 n statistic p.value    method   alternative
+#1    1  0  4 4       NaN     NaN Runs Test nonrandomness
+#d[[1]]$p.value # bingo!
+#save(d, file = "runs.Rda")
+```
+
+**Next up**
+
+Create a column to summarize p.value
+```{r, results="asis", echo = FALSE, warning=FALSE}
+# dplyr for evaluating Shapiro-Wilks
+#something %>% mutate(case_when, 
+#            p.value == is.nan, "NA",
+#            p.value > 0.05,  "Random",
+#            p.value <= 0.05, "Nonrandom"
+#            )
+``` 
+
+Question: Why the NaNs? Need to scan binreps to visually inspect?
+
+
+# Fall of FICO
+date: 2018-06-28 
+
+PCA allows categorical variables, as well as numeric. We have a ton of those. FAMD function in FactoMineR
+
+Location: 5-digit zip too small as a market proxy, metro too big; use 3-digit zip: 
+
+    select round(zip/100,0) from y6c
+    
+categorical, how to prevent auto scaling just make them character
+
+* dtype
+* fpd
+* ltype
+* ptype
+* pmi
+* ppp
+* purpose
+* ptype
+* otype
+* performance category
+* origination grade
+* 3digitzip
+
+# refactor dataset
+    
+    library(tidyverse)
+    library(DBI)
+    library(RMySQL)
+    drv <- dbDriver("MySQL")
+    con <- dbConnect(drv, username="root", password="", dbname ="dlf", host="localhost")
+    res <- dbGetQuery(con, "SELECT ctapeno, deal, remit, fico, dti, cltv, orate, obal grade, round(zip/100,0), dtype, fpd,ltype, pmiflag, ppp, otype, purpose, ptype FROM y6c")
+    cs <- as.tibble(res)
+    require(binaryLogic)
+    require(stringi)
+    reports <- cs %>% rowwise %>% mutate(repbin = toString(as.binary(remit))) %>% rowwise %>% mutate(repstr = str_replace_all(repbin,"[, ]",'')) %>% mutate(reports = str_count(repstr)) %>% select(ctapeno, repstr, reports)
+    perf <- reports %>% mutate(category = case_when(str_detect(repstr, '111$') ~ "C", str_count(repstr, '0') <= 9 ~ "B", str_count(repstr, '0') > 9 ~ "A")) %>% select(ctapeno, category)
+    y6rf <- cs %>% inner_join(perf, by = "ctapeno")
+    #y6rf = y6 refactored
+    y6rf <- y6rf %>% mutate(zip = as.character(`round(zip/100,0)`), pmiflag = as.character(pmiflag), ppp = as.character(ppp), perf = category)
+    y6rf <- y6rf %>% select(ctapeno, deal,fico,dti,cltv,orate, grade, dtype,fpd,ltype, pmiflag, ppp,  otype, purpose, ptype, zip, perf)
+    dbWriteTable(con, "loans", y6rf)
+    # test
+    # res <- dbGetQuery(con, "SELECT * from loans limit 25") passed
+
+# Merge tapes
+
+date: 2018-06-27
+
+Combined y6 and y7 to consolidate fields into y6c (which has y7 data by addition of fields)
+
+Origination numeric fields (plus fpd, not yet taken):
+
+dti, cltv, orate, ltv, obal use as pc to predict "down", maybe throw in fico as a lagniappe
+
+"SELECT fico, dti, cltv, orate, obal FROM y6c"
+
+```{r, results="asis", echo = FALSE, warning=FALSE}
+#library(tidyverse)
+#library(DBI)
+#library(RMySQL)
+#drv <- dbDriver("MySQL")
+#con <- dbConnect(drv, username="root", password="", dbname ="dlf", host="localhost")
+#res <- dbGetQuery(con, "SELECT fico, dti, cltv, orate, obal, down FROM y6c")
+# down is the response variable
+# pca is shorthand for principal component analysis
+#pca <- as.tibble(res)
+#scaly <- pca %>% transmute(fico = scale(fico), dti = scale(dti), cltv = #scale(cltv), orate = scale(orate), obal = scale(obal), down = scale(down))
+# these need to be scaled, or obal will dominate
+#r <- prcomp(~ scale(pca$fico) + scale(pca$dti) + scale(pca$cltv) + scale(pca$orate) + scale(pca$obal))
+``` 
+
+Problem: still not sure what P1 ... P5 represent. 2018-07-06 ok, got it, plane through n-space minimizing residuals ~ lm
+
+Let's do pairwise OLS lm first
+```{r, results="asis", echo = FALSE, warning=FALSE}
+#mod <- lm(scale(pca$fico) ~ scale(pca$dti))```
+# big fat ugly blog, w/ or w/o scaling
+#ARS < 0.001, useless
+#mod <- lm(scale(pca$fico) ~ scale(pca$cltv))
+# a little better: Adjusted R-squared:  0.08743 
+# but still ugly blob
+#mod <- lm(scale(pca$fico) ~ scale(pca$orate))
+# Adjusted R-squared:  0.03585 
+# Interesting CLTV cliffs, QQ near norm
+#mod <- lm(scale(pca$fico) ~ scale(pca$obal))
+# Adjusted R-squared:  0.0115 
+# Another big blob
+#mod <- lm(scale(pca$dti) ~ scale(pca$cltv))
+# Adjusted R-squared:  0.01469
+# Blob
+#mod <- lm(scale(pca$dti) ~ scale(pca$orate))
+# Adjusted R-squared:  0.00581 
+# fat tailed and cliffs
+#mod <- lm(scale(pca$dti) ~ scale(pca$cltv))
+# 	Adjusted R-squared:  0.01469
+# Blob
+#mod <- lm(scale(pca$cltv) ~ scale(pca$orate))
+# Adjusted R-squared:  0.02928 
+# Cliffs and really skinny tailed
+#mod <- lm(scale(pca$cltv) ~ scale(pca$obal))
+# Adjusted R-squared:  0.006216 
+# Blob
+#mod <- lm(scale(pca$orate) ~ scale(pca$obal))
+# FINALLY Adjusted R-squared:  0.2038 p-value: < 2.2e-16
+# Lower fat tail, cliffed
+#mod <- lm(scale(pca$down) ~ scale(pca$orate) + scale(pca$obal))
+# against latest delinquency string
+# Adjusted R-squared:  0.0325
+# Blob with REALLY fat high tail
+#r <- prcomp(scaly)
+#library(FactoMineR)
+#res.pca <- PCA(scaly) # freezes
+#plot(res.pca <- PCA(scaly), invisible="quali") # same
+#try a sample of pca; no scale needed PCA does that
+
+```
+
+How about cov?
+
+> cov(scaly)
+                 fico         dti        cltv       orate        obal        down
+    fico   1.00000000 -0.03594626  0.29570774 -0.18935765  0.10728314 -0.04441833
+    dti   -0.03594626  1.00000000  0.12124129 -0.07629329  0.11736560  0.02532160
+    cltv   0.29570774  0.12124129  1.00000000  0.17115040 -0.07890685  0.12093407
+    orate -0.18935765 -0.07629329  0.17115040  1.00000000 -0.45150260  0.11757547
+    obal   0.10728314  0.11736560 -0.07890685 -0.45150260  1.00000000  0.06891944
+    down  -0.04441833  0.02532160  0.12093407  0.11757547  0.06891944  1.00000000
+    > cor(scaly)
+                 fico         dti        cltv       orate        obal        down
+    fico   1.00000000 -0.03594626  0.29570774 -0.18935765  0.10728314 -0.04441833
+    dti   -0.03594626  1.00000000  0.12124129 -0.07629329  0.11736560  0.02532160
+    cltv   0.29570774  0.12124129  1.00000000  0.17115040 -0.07890685  0.12093407
+    orate -0.18935765 -0.07629329  0.17115040  1.00000000 -0.45150260  0.11757547
+    obal   0.10728314  0.11736560 -0.07890685 -0.45150260  1.00000000  0.06891944
+    down  -0.04441833  0.02532160  0.12093407  0.11757547  0.06891944  1.00000000
+    > 
+
+# PCA pricipal components
+
+> r <- prcomp(scaly)
+    > r
+    Standard deviations (1, .., p=6):
+    [1] 1.2523144 1.1503207 1.0457500 0.9812385 0.7564960 0.6926491
+
+    Rotation (n x k) = (6 x 6):
+                 PC1         PC2         PC3         PC4        PC5        PC6
+    fico  -0.2726069 0.568920661 -0.47632326  0.11276894  0.4755543 -0.3691371
+    dti   -0.1710298 0.215539163  0.55919570 -0.71903668  0.2849873 -0.1155868
+    cltv   0.1376170 0.745824779 -0.02405669 -0.09615915 -0.5261476  0.3716859
+    orate  0.6811577 0.095976905  0.08191957 -0.02775104 -0.1778098 -0.6983662
+    obal  -0.6340908 0.005058523  0.24268157  0.20396340 -0.5331799 -0.4616569
+    down   0.1069994 0.253732918  0.62787932  0.64703296  0.3160727  0.1066990
+
+```{r, results="asis", echo = FALSE, warning=FALSE}
+library(FactoMineR)
+# res.pca <- PCA(scaly) too big, reduce to 1000
+#result <- sample_n(pca, 1000)
+
+#result.pca <- PCA(result)
+#summary(result.pca)
+#lapply(dimdesc(result.pca), lapply, round,2)
+```
+Individual factors map looks like a heart
+
+> summary(result.pca)
+
+    Call:
+    PCA(X = result) 
+
+
+    Eigenvalues
+                           Dim.1   Dim.2   Dim.3   Dim.4   Dim.5   Dim.6
+    Variance               1.566   1.290   1.131   0.954   0.562   0.497
+    % of var.             26.095  21.508  18.843  15.892   9.375   8.288
+    Cumulative % of var.  26.095  47.603  66.445  82.337  91.712 100.000
+
+    Individuals (the 10 first)
+              Dist    Dim.1    ctr   cos2    Dim.2    ctr   cos2    Dim.3    ctr   cos2  
+    1     |  3.273 |  0.226  0.003  0.005 | -2.569  0.511  0.616 |  0.921  0.075  0.079 |
+    2     |  1.752 | -0.992  0.063  0.321 |  0.813  0.051  0.216 |  0.156  0.002  0.008 |
+    3     |  3.504 |  1.888  0.228  0.290 | -2.466  0.471  0.495 | -0.053  0.000  0.000 |
+    4     |  2.965 |  0.790  0.040  0.071 |  0.999  0.077  0.113 |  1.192  0.126  0.162 |
+    5     |  3.460 | -1.356  0.118  0.154 | -2.739  0.581  0.627 |  0.578  0.030  0.028 |
+    6     |  3.264 | -1.380  0.122  0.179 |  0.763  0.045  0.055 |  1.981  0.347  0.368 |
+    7     |  1.599 |  0.040  0.000  0.001 |  0.629  0.031  0.155 | -0.072  0.000  0.002 |
+    8     |  3.289 | -2.299  0.338  0.489 | -0.143  0.002  0.002 |  2.255  0.450  0.470 |
+    9     |  4.524 | -2.889  0.533  0.408 | -3.371  0.881  0.555 |  0.164  0.002  0.001 |
+    10    |  2.062 |  1.657  0.175  0.646 | -0.228  0.004  0.012 | -0.298  0.008  0.021 |
+
+    Variables
+             Dim.1    ctr   cos2    Dim.2    ctr   cos2    Dim.3    ctr   cos2  
+    fico  |  0.499 15.884  0.249 |  0.567 24.919  0.322 | -0.411 14.926  0.169 |
+    dti   |  0.278  4.925  0.077 |  0.213  3.515  0.045 |  0.519 23.840  0.270 |
+    cltv  |  0.096  0.588  0.009 |  0.876 59.465  0.767 |  0.082  0.589  0.007 |
+    orate | -0.804 41.294  0.647 |  0.272  5.727  0.074 |  0.167  2.467  0.028 |
+    obal  |  0.764 37.288  0.584 | -0.269  5.606  0.072 |  0.263  6.141  0.069 |
+    down  | -0.018  0.022  0.000 |  0.100  0.768  0.010 |  0.767 52.036  0.588 |
+    > 
+
+        > lapply(dimdesc(result.pca), lapply, round,2)
+    $Dim.1
+    $Dim.1$quanti
+          correlation p.value
+    obal         0.76       0
+    fico         0.50       0
+    dti          0.28       0
+    cltv         0.10       0
+    orate       -0.80       0
+
+
+    $Dim.2
+    $Dim.2$quanti
+          correlation p.value
+    cltv         0.88       0
+    fico         0.57       0
+    orate        0.27       0
+    dti          0.21       0
+    down         0.10       0
+    obal        -0.27       0
+
+
+    $Dim.3
+    $Dim.3$quanti
+          correlation p.value
+    down         0.77    0.00
+    dti          0.52    0.00
+    obal         0.26    0.00
+    orate        0.17    0.00
+    cltv         0.08    0.01
+    fico        -0.41    0.00
+
+
+
+date: '2018-06-26'
+
+# Notes on covariance of categorical variables
+
+
+```{r eval = FALSE, echo=FALSE, message=FALSE, warning=FALSE, results="asis"}
+#library(tidyverse)
+#library(DBI)
+#library(knitr)
+#library(kableExtra)
+#library(RMySQL)
+#require(binaryLogic)
+#require(stringi)
+#drv <- dbDriver("MySQL")
+#con <- dbConnect(drv, username="root", password="", dbname ="dlf", host="localhost")
+#res <- dbGetQuery(con, "SELECT ctapeno, deal, remit, fico, grade FROM y7")
+#cs is shorthand for credit score
+#cs <- as.tibble(res)
+#reports <- cs %>% rowwise %>% mutate(repbin = toString(as.binary(remit))) %>% rowwise %>% mutate(repstr = str_replace_all(repbin,"[, ]",'')) %>% mutate(reports = str_count(repstr)) %>% select(ctapeno, deal, grade, repstr, reports)
+#elevens <- reports %>% filter(reports == 11)
+#perf11 <- elevens %>% mutate(category = case_when(str_detect(repstr, '111$') ~ "C", str_count(repstr, '0') <= 9 ~ "B", str_count(repstr, '0') > 9 ~ "A")) %>% select(ctapeno,deal,grade,category)
+
+t#ab1 <-  table(perf11$grade,perf11$category)
+#print(tab1)
+``` 
+Cross tab of risk categories and performance categories (as.table). 
+
+     A~B, A~C, B~C, A~B+C cov()?
+
+1. Convert to % (function or matrix)
+2. Compare to Y7 as a whole
+3. Measure 'r, $delta$` between %age in Y7 and d/f categories
+<pre>
+             A     B     C
+     A       4  2125   317
+     A-      1   648   100
+     A+      3  2712   381
+     AA      0     1     0
+     AP     35 18971  2654
+     AP+     0   781    97
+     B       1   687    95
+     B-      0     1     0
+     B+      0   547    66
+     C       2   865   125
+</pre>
+From the [LBMLT 2006-1] pro supp @ *Underwriting of the Mortgage Loans* (incomplete description)
+
+> Risk Categories
+
+    Under the sponsor's underwriting programs, various risk categories are used to grade the likelihood that the prospective borrower will satisfy the repayment conditions of the mortgage loan.  These risk categories establish the maximum permitted loan-to-value ratio and loan amount, given the occupancy status of the mortgaged property and the prospective borrower's credit history and debt ratio.
+
+    Mortgage loans are originated under the sponsor's underwriting guidelines using the following categories and criteria for grading the potential likelihood that a prospective borrower will satisfy the repayment obligations of a mortgage loan:
+
+    Credit Grade:  "Premium A".  Under the "Premium A" risk category, the prospective borrower must have a credit report reflecting a one year credit history and a prior mortgage or rental history evidencing no 30-day late payments during the last 12 months.  No notice of default filings or foreclosures may have occurred during the preceding 36 months.  No open lawsuits are permitted; however, the prospective borrower may be a plaintiff in a lawsuit if a reasonable explanation is provided.  Maximum qualifying debt service-to-income ratio is 55.  A maximum loan-to-value ratio of 100% is permitted for owner occupied single-family, two-unit and condominium properties, a maximum loan-to-value ratio of 95% is permitted for second homes, and a maximum loan-to-value ratio of 85% is permitted for owner occupied mortgage properties consisting of three-to-four units.  A maximum loan-to-value ratio of 90% is permitted for non-owner occupied single-family, two-unit and condominium properties, and a maximum loan-to-value ratio of 80% is permitted for non-owner occupied properties consisting of three-to-four units.
+
+    Credit Grade:  "A".  Under the "A" risk category, a maximum of one 30-day late payment within the last 12 months is permitted on an existing mortgage loan.  A maximum of one rolling 30-day late payment is allowed.  No notice of default filings or foreclosures may have occurred during the preceding 36 months.  The mortgaged property must be in at least average condition.  A maximum loan-to-value ratio of 100% is permitted for owner occupied single-family, two-unit and condominium properties, a maximum loan-to-value ratio of 95% is permitted for second homes, and a maximum loan-to-value ratio of 85% is permitted for owner occupied mortgaged properties consisting of three-to-four units.  A maximum loan-to-value ratio of 90% is permitted for non-owner occupied single-family, two-unit and condominium properties, and a maximum loan-to-value ratio of 80% is permitted for non-owner occupied mortgaged properties consisting of three-to-four units.  Generally, the debt service-to-income ratio maximum may be 55% based on the prospective borrower's net disposable income and if the loan-to-value ratio is less than or equal to 90%.  In addition, the prospective borrower must have a credit score of 500 or higher (550 or higher for interest only mortgage loans).
+
+    Credit Grade:  "A‑".  Under the "A‑" risk category, a maximum of two 30-day late payments within the last 12 months is permitted on an existing mortgage loan.  A maximum of two rolling 30-day late payments is allowed.  No notice of default filings or foreclosures may have occurred during the preceding 36 months.  The mortgaged property must be in at least average condition.  A maximum loan-to-value ratio of 95% is permitted for owner occupied single-family, two-unit and condominium properties, a maximum loan-to-value ratio of 90% is permitted for second homes, and a maximum loan-to-value ratio of 85% is permitted for owner occupied mortgaged properties consisting of three-to-four units.  A maximum loan-to-value ratio of 90% is permitted for non-owner occupied single-family, two-unit and condominium properties, and a maximum loan-to-value ratio of 80% is permitted for non-owner occupied mortgaged properties consisting of three-to-four units.  Generally, the debt service-to-income ratio maximum may be 55% based on the prospective borrower's net disposable income and if the loan-to-value ratio is less than or equal to 90%.  In addition, the prospective borrower must have a credit score of 500 or higher (550 or higher for interest only mortgage loans).
+
+    Credit Grade:  "B+".  Under the "B+" risk category, a maximum of three 30-day late payments within the last 12 months is permitted on an existing mortgage loan.  No notice of default filings or foreclosures may have occurred during the preceding 24 months.  The mortgaged property must be in at least average condition.  A maximum loan-to-value ratio of 95% is permitted for owner occupied single-family, two-unit and condominium properties, a maximum loan-to-value ratio of 90% is permitted for second homes, and a maximum loan-to-value ratio of 85% is permitted for owner occupied mortgaged properties consisting of three-to-four units.  A maximum loan-to-value ratio of 90% is permitted for non-owner occupied single-family, two-unit and condominium properties, and a maximum loan-to-value ratio of 80% is permitted for non-owner occupied mortgaged properties consisting of three-to-four units.  Generally, the debt service-to-income ratio must be 55% or less based on the prospective borrower's net disposable income and/or loan-to-value ratio.  In addition, the prospective borrower must have a credit score of 500 or higher (550 or higher for interest only mortgage loans).
+
+    Credit Grade:  "B".  Under the "B" risk category, a maximum of one 60-day late payment within the last 12 months is permitted on an existing mortgage loan.  No notice of default filings or foreclosures may have occurred during the preceding 18 months.  The mortgaged property must be in at least average condition.  A maximum loan-to-value ratio of 90% is permitted for owner occupied single-family, two-unit and condominium properties, a maximum loan-to-value ratio of 85% is permitted for second homes, and a maximum loan-to-value ratio of 80% is permitted for owner occupied mortgaged properties consisting of three-to-four units.  A maximum loan-to-value ratio of 85% is permitted for non-owner occupied single-family, two-unit and condominium properties, and a maximum loan-to-value ratio of 75% is permitted for non-owner occupied mortgaged properties consisting of three-to-four units.  Generally, the debt service-to-income ratio must be 55% or less based on the prospective borrower's net disposable income and/or loan-to-value ratio.  In addition, the prospective borrower must have a credit score of 500 or higher (550 or higher for interest only mortgage loans).
+
+    Credit Grade:  "C".  Under the "C" risk category, the prospective borrower may have experienced significant credit problems in the past.  A maximum of four 60-day late payments and no 90-day late payments, or three 60-day late payments and one 90-day late payment, or if the loan-to-value ratio does not exceed 70%, two 90-day late payments and one 120-day late payment, within the last 12 months is permitted on an existing mortgage loan.  No notice of default filings or foreclosures may have occurred during the preceding 12 months.  The mortgaged property must be in at least average condition.  A maximum loan-to-value ratio of 85% is permitted for owner occupied single-family, two-unit and condominium properties, a maximum loan-to-value ratio of 80% is permitted for second homes, and a maximum loan-to-value ratio of 75% is permitted for owner occupied mortgaged properties consisting of three-to-four units.  A maximum loan-to-value ratio of 80% is permitted for non-owner occupied single-family, two-unit and condominium properties, and a maximum loan-to-value ratio of 70% is permitted for non-owner occupied mortgaged properties consisting of three-to-four units.  Generally, the debt service-to-income ratio must not exceed 55%.
+
+[LBMLT 2006-1]: https://goo.gl/756A4w
