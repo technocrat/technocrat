@@ -25,15 +25,15 @@
 <meta name="author" content="Richard Careaga">
 
 
-<meta name="date" content="2018-09-01">
+<meta name="date" content="2018-08-25">
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   
   
-<link rel="prev" href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html">
-<link rel="next" href="daycare.html">
+<link rel="prev" href="assorted-examples-of-toolmaking.html">
+
 <script src="libs/jquery-2.2.3/jquery.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
@@ -112,7 +112,6 @@
 <li class="chapter" data-level="5.2" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-3.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-3.html#next-steps-overfit-or-stratify"><i class="fa fa-check"></i><b>5.2</b> Next steps: Overfit or Stratify?</a><ul>
 <li class="chapter" data-level="5.2.1" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-3.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-3.html#overview"><i class="fa fa-check"></i><b>5.2.1</b> Overview</a></li>
 </ul></li>
-<li class="chapter" data-level="5.3" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-3.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-3.html#where-are-we-left"><i class="fa fa-check"></i><b>5.3</b> Where are we left?</a></li>
 </ul></li>
 <li class="chapter" data-level="6" data-path="daycare.html"><a href="daycare.html"><i class="fa fa-check"></i><b>6</b> Daycare Costs and Unexamined Assumptions</a><ul>
 <li class="chapter" data-level="6.1" data-path="daycare.html"><a href="daycare.html#case-description-2"><i class="fa fa-check"></i><b>6.1</b> Case Description</a></li>
@@ -215,225 +214,121 @@
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-3" class="section level1">
-<h1><span class="header-section-number">5</span> The subprime mortgage crisis unfolds in early 2007, part 3</h1>
-<p>Keywords: population, sub-population, implicit assumptions, stratification, logistic regression, odds ratio</p>
-<div id="selection-bias" class="section level2">
-<h2><span class="header-section-number">5.1</span> Selection bias</h2>
-<p>The most telling finding of this exploratory data analysis (aside from confirming that the 2006 vintage of subprime loans issued in the LBMLT series of transaction was, indeed poorly performing) is a lurking hidden assumption: <em>Because the loans were all originated by the same organization and securitized in the same year, they collectively represent a population.</em></p>
-<p>Technically speaking, the loans are a population, a set of observations of individual loans of interest about which we are looking for associations between characteristics at origination and subsequent loan performance. For the most part we haven’t found any.</p>
-<div id="fico-the-light-that-failed" class="section level3">
-<h3><span class="header-section-number">5.1.1</span> FICO, the light that failed</h3>
-<p>In part 1, we looked at the distribution of FICO scores and saw that they were not normally distributed, and so were unlikely to have predictive value for loan performance, which itself was far from normally distributed. We should check that with regression.</p>
-<div id="logisic-regression-required" class="section level4">
-<h4><span class="header-section-number">5.1.1.1</span> Logisic regression required</h4>
-<p>Because I coded loan performance into a 3-level scale (one or fewer non-payments, more than one, but not the three most recent, and the three most recent), <em>perf</em> is not a qualitative variable. Even if we substituted integers for the letter coding, we would have to deal with vexing questions: is the difference between one or fewer and more than one, but not last three missed payments, the same as more than one, including the three most recent?</p>
-<p>We can dodge this question, by making <em>perf</em> pseudo-quantitative, by setting one or fewer defaults to the integer 1 and the other two categories to the integer 0. And we must use <em>logistic regression</em> rather than ordinary linear regression, which can yield probabilities outside the range {0,1}. First, we need to collapse “A”, “B”, “C” performance categories into “A” = 1 (performing) and “B” &amp; “C” = 0 (non-performing).</p>
-<pre><code>## ── Attaching packages ─────────────────────────────────────────────────────────── tidyverse 1.2.1 ──</code></pre>
+<div id="criticism" class="section level1">
+<h1><span class="header-section-number">10</span> Criticism</h1>
+<div id="b-schools-need-data-science-faculty" class="section level2">
+<h2><span class="header-section-number">10.1</span> B Schools Need Data Science Faculty</h2>
+<div id="catchy-titles-in-academic-papers-attract-readers.-its-hard-to-resist." class="section level3">
+<h3><span class="header-section-number">10.1.1</span> Catchy titles in academic papers attract readers. It’s hard to resist.</h3>
+<blockquote>
+<p>When Harry Fired Sally: The Double Standard in Punishing Misconduct Mark L. Egan, Gregor Matvos, and Amit Seru NBER Working Paper No. 23242 March 2017, Revised August 2018 JEL No. D18,G24,G28,J71</p>
+</blockquote>
+</div>
+<div id="the-paper-examines-gender-inequlity-in-the-securities-business" class="section level3">
+<h3><span class="header-section-number">10.1.2</span> The paper examines gender inequlity in the securities business</h3>
+<p>The authors identify a <a href="http://www.nber.org/papers/w23242">gender punishment gap</a> in their analysis of over one million cases in which an employee required to be licensed by the Securities and Exchange Commission (<em>SEC</em>) through the Financial Industry Regulatory Authority (<em>FINRA</em>) and was found to have engaged in misconduct in violation of FINRA’s rules. They find that women are terminated at a higher rate than their male counterparts and that they require a longer time to obtain another position at a different firm.</p>
+<p>That this gender based disparity exists is highly plausible based on anecdoctal evidence in many areas of economic and social life and many academic studies.</p>
+<p>My interest lies in their methodological approach. They give their model at page 9 of the report.</p>
+</div>
+<div id="the-authors-construct-a-multiple-linear-regression-model" class="section level3">
+<h3><span class="header-section-number">10.1.3</span> The authors construct a multiple linear regression model</h3>
+<p>Separation model:</p>
+<p>$Misconduct_iqjlt=αFemale_i+βX_it+µ_qjlt+ε*_iqjlt$</p>
+<p>(© 2017 by Mark L. Egan, Gregor Matvos, and Amit Seru. All rights reserved. Short sections of text, not to exceed two paragraphs, may be quoted without explicit permission provided that full credit,including © notice, is given to the source.)</p>
+<p>The authors characterize their model as linear regression. Mutiple regression equations are an extension of ordinary least square regression where</p>
+<p>$y = mx + b$</p>
+<p>with the addition of other terms.</p>
+<p>The subscripts indicate individual, licensure, firm, time, and county.</p>
+</div>
+<div id="the-authors-collect-an-impressively-large-database" class="section level3">
+<h3><span class="header-section-number">10.1.4</span> The authors collect an impressively large database</h3>
+<p>The authors collected monthly records on 1.2 million registered advisers during the 2005-2015 period. They carefully analyzed first names to determine gender and censored cases where the given name was ambiguous. I was impressed by the effort put into controlling for variables with the potential to bias their results.</p>
+</div>
+<div id="the-authors-make-an-unforced-error-in-their-choice-of-methodology" class="section level3">
+<h3><span class="header-section-number">10.1.5</span> The authors make an unforced error in their choice of methodology</h3>
+<p>But now be dragons. The dependent variable is binary: how likely, given misconduct in year 0, is a subject likely to be fired in year 2. In the aggregate are there gender differences in that likelihood?</p>
+<p>The technical term for this class of problem is <em>logistic regression,</em> commonly performed through a statistical technique similar to linear regression, termed <em>generalized linear model</em> with a specification of a <em>binary outcome.</em></p>
+</div>
+<div id="how-could-this-happen" class="section level3">
+<h3><span class="header-section-number">10.1.6</span> How could this happen?</h3>
+<p>The authors had good data, careful thinking about controls, yet applied a mistaken analysis. How could they have put so much time and effort into analysis, yet fall into such an obvious methodological trap?</p>
+<p>My gut reaction is that they had no data science colleague down the hall to drop in and consult with.</p>
+</div>
+<div id="who-am-i-to-criticize" class="section level3">
+<h3><span class="header-section-number">10.1.7</span> Who am I to criticize?</h3>
+<p>Two of the authors are affiliated with business schools that <a href="https://www.economist.com/whichmba/full-time-mba-ranking">2017 rankings by <em>The Economist</em></a> include in the top 5 world wide. The third is affiliated with another university that is highly regarded in a number of other fields.</p>
+<p>I am a mere student of applied statistics. If the question of methodological appropriateness should be decided solely on credentials, stop here.</p>
+</div>
+<div id="why-am-i-doing-this" class="section level3">
+<h3><span class="header-section-number">10.1.8</span> Why am I doing this?</h3>
+<p>It’s an important issue and the cause of promoting gender equality in this business can be set back by a faulty analysis.</p>
+<blockquote>
+<p>Harumph, says top management. Must not be true, then. – imaginary executive</p>
+</blockquote>
+<p>It’s also an important reminder not to take impressive looking quantitative analyses at face value.</p>
+</div>
+<div id="how-do-i-know" class="section level3">
+<h3><span class="header-section-number">10.1.9</span> How do I know?</h3>
+<p>I’ve run my own multiple regression analyses and logistic models and I will show what the output looks like. I’ll only take their principal model, separation given misconduct as the basis for illustrating the issues.</p>
+</div>
+<div id="their-results" class="section level3">
+<h3><span class="header-section-number">10.1.10</span> Their results</h3>
+<p>Table 3b of the paper shows their results on separation given misconduct. If accurate, the results are not pretty. <em>Whether or not accurate</em>, the results are incomplete and misleading, even if their methodology were applicable.</p>
+<div class="figure">
+<img src="https://s3-us-west-2.amazonaws.com/tuva/Table3b.png" alt="Table 3b" />
+<p class="caption">Table 3b</p>
+</div>
+<p>Starting at the top, the first task to determine what the numbered columns refer to. The first column does not control for differences among the adviser’s experience and licensing, year, firm or county. The second column adds adviser exerpience and licensing. The third column adds year, firm and county. The fourth column adds the possible combinations of potential licenses that the individual holds.</p>
+<p>Essentially these are four different models.</p>
+<ol style="list-style-type: decimal">
+<li>$Misconduct_i = Person_i$</li>
+<li>$Misconduct_iq = αFemale_i + ε_iqjlt$</li>
+<li>$Misconduct_iqj = αFemale_i + βX_it + ε_iqjlt$</li>
+<li>$Misconduct_iqjlt = αFemale_i + βX_it + µ_qjlt + ε_iqjlt$</li>
+</ol>
+<p>as described on page 11.</p>
+<p>On page 11, the authors state: “The coefficient on misconduct measures the probability that a <em>male</em> adviser experiences a job separation following misconduct.” (emphasis added). Thus, predicting male separation from some measure of female misconduct and female status, with or without other control, seems non-sensical. Perhaps the authors expect the reader to infer the corresponding coefficient for the probability that a <em>female</em> adviser experiences a job separation. That dog won’t hunt.</p>
+<p>Each column reports a number of “observations,” which correspond to the 10-year period of the data, meaning about 400K-600K observations per year. According to Table 1 on page 62, however, the 10-year incidence of misconduct by male advisers in any given year was 0.72%. Therefore, we expect to observe, on average <em>obvervations</em>/10*0.072 misconduct incidents by males per year or, for the first model approximately 43,350 incidents, of which some proportion resulted in separation. That is the <em>n</em>, or population size, that goes into the calculations, including the degrees of freedom needed to calculate the F-statistic. From the information presented, we cannot be sure what value of <em>n</em> was relied on.</p>
+<p>Finally, the means of the dependent variable have unexplained similarity. Case three should not be identical to cases one and two if the added independent variables are increasing explanatory power, and the mean in case four seems too little difference from case three, given the increase in R-Squared. Without access to the author’s data, however, there is no way for me to decide that.</p>
+<p>The first line, “Misconduct” contains coefficients for each of the columns, given in percentages. (More often coefficients are expressed in proportions.) Coefficients are a prediction of the effect of the variable on the outcome, holding the other variables constant. The asterisks following each measure are explained in a note to Table 3b as standard errors less than 0.01. The terminology of expressing standard errors in the form <em>p &lt; 0.01</em> is also unusual. A <em>p-value</em> measure of “statistical significance” (the probability that the result was a product of chance) usually refers to the probability of the variable is greater than a measure called the <em>t value.</em> Standard errors are also not generally expressed as percentages.</p>
+<p>R-squared, sometimes called the coefficient of determination and indicates the proportion of the variance in the data that an independent variable accounts for. It is usually tweeked to an <em>adjusted R square</em> to better eliminate random variation.</p>
+<p>A value of R-squared that is equal to 1 completely explains the variance. A value of 0 indicates a complete lack of explanatory power. For the first column, R-squared is 0.004. Four basis points on a billion dollars is not chump change. The same proportion in a analytic study is. The result of the second column is R-squared equals 0.014. These two columns tell us essentially nothing except the failure of the model to reflect reality when not controlling for other factors.</p>
+<p>Columns three and four show R-squared of 0.332 and 0.403, respectively, which show appreciable effects in a multiple linear regression model appropriately applied.</p>
+</div>
+<div id="a-counterexample-what-a-data-scientist-would-expect-to-see-in-a-multiple-linear-regression-model-output" class="section level3">
+<h3><span class="header-section-number">10.1.11</span> A counterexample: what a data scientist would expect to see in a multiple linear regression model output</h3>
+<p>Data on <a href="https://www.kaggle.com/harlfoxem/housesalesprediction?login=true">Seattle area housing prices</a> provide a convenient way to illustrate the usual output of a multiple linear regression model output. This is a 21K dataset with 20 variables on housing characteristics and sales price.</p>
+<p>The first thing I am going to do is to split the dataset 2:1 into a training set and a test set. I’ll model the training set, then see if I get comparable results on the test set. That’s something the authors of the paper omitted. I’ll be using the R statistical programming language.</p>
+<pre><code>## ── Attaching packages ─────────────────────────────────────── tidyverse 1.2.1 ──</code></pre>
 <pre><code>## ✔ ggplot2 3.0.0     ✔ purrr   0.2.5
 ## ✔ tibble  1.4.2     ✔ dplyr   0.7.6
 ## ✔ tidyr   0.8.1     ✔ stringr 1.3.1
 ## ✔ readr   1.1.1     ✔ forcats 0.3.0</code></pre>
-<pre><code>## ── Conflicts ────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
+<pre><code>## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
 ## ✖ dplyr::filter() masks stats::filter()
 ## ✖ dplyr::lag()    masks stats::lag()</code></pre>
-<p>Now, we are ready to model the quantitative variable <em>fico</em> against the integer encoded qualitative variable <em>perf</em> using the generalized linear lineals function <strong>glm</strong> to perform logistic regression.’</p>
-<p>Call: glm(formula = perf ~ fico, family = binomial, data = fp)</p>
-<p>Deviance Residuals: Min 1Q Median 3Q Max<br />
--0.1484 -0.1360 -0.1336 -0.1306 3.1440</p>
-<p>Coefficients: Estimate Std. Error z value Pr(&gt;|z|)<br />
-(Intercept) -3.9120970 0.4059923 -9.636 &lt;2e-16 **<em> fico -0.0012708 0.0006423 -1.979 0.0479 </em><br />
-— Signif. codes: 0 ‘<em><strong>’ 0.001 ’</strong>’ 0.01 ’</em>’ 0.05 ‘.’ 0.1 ‘’ 1</p>
-<p>(Dispersion parameter for binomial family taken to be 1)</p>
-<pre><code>Null deviance: 9768.4  on 96144  degrees of freedom</code></pre>
-<p>Residual deviance: 9764.5 on 96143 degrees of freedom AIC: 9768.5</p>
-<p>Number of Fisher Scoring iterations: 7</p>
-<p>(I also ran the model with standardized <em>fico</em> and binning into increments of 5 points with substantially the same output.)</p>
-<p>The good news about the model run is that its results have a p-value &lt; 0.05. However, unlike linear regression, which gives us adjusted R squared to show the proportion of variance that the independent variable accounts for, we need to go further in logistic regression to get an idea of how useful the output is.</p>
-<p>The <em>bad</em> news is that <em>fico</em> has miniscule predictive usefulness; for every point increase in <em>fico</em>, the odds ratio of a loan being in performing status changes by -0.0012708 <strong>in a negative direction.</strong> We can even put confidence intervals around this.</p>
-<pre><code>## Waiting for profiling to be done...</code></pre>
-<pre><code>               2.5 %        97.5 %</code></pre>
-<p>(Intercept) -4.709279081 -3.117820e+00 fico -0.002530868 -1.316035e-05</p>
-<p>What if we turn the question around to ask whether <em>fico</em> has an association with the portion of non-performing loans that were in default status at the latest report. Recall that the loans has been bucketed into “A” (one or fewer missed payments), “B” (more than one but current as of the latest report) an “C” (in default, three payments down as of the latest report).</p>
-<p>To repose the question, all that is required is to redefine a function from</p>
-<pre><code># function to collapse &quot;A&quot;, &quot;B&quot;, &quot;C&quot; performance categories into
-# A = 1 (performing) and B &amp; C = 0 (non-performing)
-cat2int &lt;- function (x) {ifelse (x == &quot;A&quot;, 1, 0)}</code></pre>
-<p>to</p>
-<pre><code># function to collapse &quot;A&quot;, &quot;B&quot;, &quot;C&quot; performance categories into
-# A &amp; B = 1 (non-defaulted) and C = 0 (defaulted)
-cat2int_d &lt;- function (x) {ifelse (x == &quot;C&quot;, 0, 1)}</code></pre>
-<p>Call: glm(formula = perf ~ fico, family = “binomial”, data = fp)</p>
-<p>Deviance Residuals: Min 1Q Median 3Q Max<br />
--2.0501 0.5142 0.5155 0.5164 0.5200</p>
-<p>Coefficients: Estimate Std. Error z value Pr(&gt;|z|)<br />
-(Intercept) 1.8806399 0.1156557 16.261 &lt;2e-16 *** fico 0.0001102 0.0001820 0.605 0.545<br />
-— Signif. codes: 0 ‘<em><strong>’ 0.001 ’</strong>’ 0.01 ’</em>’ 0.05 ‘.’ 0.1 ‘’ 1</p>
-<p>(Dispersion parameter for binomial family taken to be 1)</p>
-<pre><code>Null deviance: 72266  on 96144  degrees of freedom</code></pre>
-<p>Residual deviance: 72265 on 96143 degrees of freedom AIC: 72269</p>
-<p>Number of Fisher Scoring iterations: 4</p>
-<p>Here, the utility of <em>fico</em> has completely vanished. The p-value shows that.</p>
+<pre><code>## Parsed with column specification:
+## cols(
+##   .default = col_integer(),
+##   id = col_character(),
+##   date = col_datetime(format = &quot;&quot;),
+##   price = col_double(),
+##   bathrooms = col_double(),
+##   floors = col_double(),
+##   lat = col_double(),
+##   long = col_double()
+## )</code></pre>
+<pre><code>## See spec(...) for full column specifications.</code></pre>
+<p>Observations: 21,613 Variables: 21 $ id <chr> “7129300520”, “6414100192”, “5631500400”, “24872… $ date <dttm> 2014-10-13, 2014-12-09, 2015-02-25, 2014-12-09,… $ price <dbl> 221900, 538000, 180000, 604000, 510000, 1225000,… $ bedrooms <int> 3, 3, 2, 4, 3, 4, 3, 3, 3, 3, 3, 2, 3, 3, 5, 4, … $ bathrooms <dbl> 1.00, 2.25, 1.00, 3.00, 2.00, 4.50, 2.25, 1.50, … $ sqft_living <int> 1180, 2570, 770, 1960, 1680, 5420, 1715, 1060, 1… $ sqft_lot <int> 5650, 7242, 10000, 5000, 8080, 101930, 6819, 971… $ floors <dbl> 1.0, 2.0, 1.0, 1.0, 1.0, 1.0, 2.0, 1.0, 1.0, 2.0… $ waterfront <int> 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, … $ view <int> 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, … $ condition <int> 3, 3, 3, 5, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 3, 3, … $ grade <int> 7, 7, 6, 7, 8, 11, 7, 7, 7, 7, 8, 7, 7, 7, 7, 9,… $ sqft_above <int> 1180, 2170, 770, 1050, 1680, 3890, 1715, 1060, 1… $ sqft_basement <int> 0, 400, 0, 910, 0, 1530, 0, 0, 730, 0, 1700, 300… $ yr_built <int> 1955, 1951, 1933, 1965, 1987, 2001, 1995, 1963, … $ yr_renovated <int> 0, 1991, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, … $ zipcode <int> 98178, 98125, 98028, 98136, 98074, 98053, 98003,… $ lat <dbl> 47.5112, 47.7210, 47.7379, 47.5208, 47.6168, 47…. $ long <dbl> -122.257, -122.319, -122.233, -122.393, -122.045… $ sqft_living15 <int> 1340, 1690, 2720, 1360, 1800, 4760, 2238, 1650, … $ sqft_lot15 <int> 5650, 7639, 8062, 5000, 7503, 101930, 6819, 9711…</p>
+<p>Call: lm(formula = price ~ bedrooms + bathrooms + sqft_living + sqft_lot + yr_built, data = train)</p>
+<p>Residuals: Min 1Q Median 3Q Max -1663960 -132607 -17597 99351 3130051</p>
+<p>Coefficients: Estimate Std. Error t value Pr(&gt;|t|)<br />
+(Intercept) 5.753e+06 1.545e+05 37.247 &lt; 2e-16 <strong><em> bedrooms -6.733e+04 2.825e+03 -23.834 &lt; 2e-16 </em></strong> bathrooms 7.997e+04 4.531e+03 17.652 &lt; 2e-16 <strong><em> sqft_living 2.939e+02 3.675e+00 79.966 &lt; 2e-16 </em></strong> sqft_lot -3.624e-01 5.259e-02 -6.891 5.76e-12 <strong><em> yr_built -2.924e+03 7.955e+01 -36.760 &lt; 2e-16 </em></strong> — Signif. codes: 0 ‘<em><strong>’ 0.001 ’</strong>’ 0.01 ’</em>’ 0.05 ‘.’ 0.1 ‘’ 1</p>
+<p>Residual standard error: 241700 on 14259 degrees of freedom Multiple R-squared: 0.5464, Adjusted R-squared: 0.5462 F-statistic: 3435 on 5 and 14259 DF, p-value: &lt; 2.2e-16</p>
+<p>Well, now! I pick a handful of variables off the top of my head and presto! My model explains over 50% of the variation in price. Am I good or what?</p>
+<p>Not really, and I’ll explain all the bonehead errors in another post (didn’t normalize, used variables that are not truly independent, didn’t check the distribution of residual errors and a host of other sins). But let’s talk about the information you should expect from a multiple linear regression.</p>
+
 </div>
-</div>
-</div>
-<div id="next-steps-overfit-or-stratify" class="section level2">
-<h2><span class="header-section-number">5.2</span> Next steps: Overfit or Stratify?</h2>
-<p>We could continue to add variables to the logistic regression or we can stratify the population.</p>
-<p>It’s a gut-call. (Neuroscientists tell me that people with brain injuries that cut off their emotions from their rational thinking can never come to a conclusion. They keep spinning their wheels like <a href="https://www.imdb.com/title/tt0093779/characters/nm0001728?ref_=ttfc_fc_cl_t5">Vizzini</a>). I don’t know if I would have made the same decision at the time, but now I know that 2006 was a very dynamic year. The real estate markets changed. I also didn’t focus on the fact that three of the deals were put together by a different team.</p>
-<p>So, rather than considering the 2006 loans as a single population, I decided to look at the first and last pools and the second of three pools that were put together by the different team: LBMLT 2006-1 and LBMLT 2006-11, the first and last deals, and LBMLT 2006-WL2, the third party deal.</p>
-<div id="overview" class="section level3">
-<h3><span class="header-section-number">5.2.1</span> Overview</h3>
-<p>Before spending a lot of effort, the first thing to do is to check whether there are any considerable bottom line differences among the three deals in terms of their payment performance. Recall that “A” loans has one or fewer missed payments, “B” loans had multiple missed payments, but were current as of the most recent reporting date, an “C” loans were in uncured default, having missed the three most recent payments at the reporting date.</p>
-<p>When we look at the summary table, the three deals may have taken different paths to get there, but they all arrived at much the same place.</p>
-<div id="percentage-performance-category-by-deal" class="section level4">
-<h4><span class="header-section-number">5.2.1.1</span> Percentage Performance Category by Deal</h4>
-<pre><code>## 
-## Attaching package: &#39;lubridate&#39;</code></pre>
-<pre><code>## The following object is masked from &#39;package:base&#39;:
-## 
-##     date</code></pre>
-<table>
-<thead>
-<tr>
-<th style="text-align:left;">
-</th>
-<th style="text-align:right;">
-A
-</th>
-<th style="text-align:right;">
-B
-</th>
-<th style="text-align:right;">
-C
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left;">
-LBMLT 2006-1
-</td>
-<td style="text-align:right;">
-1.1
-</td>
-<td style="text-align:right;">
-86.7
-</td>
-<td style="text-align:right;">
-12.2
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-LBMLT 2006-11
-</td>
-<td style="text-align:right;">
-0.9
-</td>
-<td style="text-align:right;">
-86.6
-</td>
-<td style="text-align:right;">
-12.5
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-LBMLT 2006-WL2
-</td>
-<td style="text-align:right;">
-0.9
-</td>
-<td style="text-align:right;">
-86.9
-</td>
-<td style="text-align:right;">
-12.2
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div id="fico-fails-again" class="section level4">
-<h4><span class="header-section-number">5.2.1.2</span> FICO fails again</h4>
-<p>Call: glm(formula = perf ~ fico, family = “binomial”, data = fp)</p>
-<pre><code>Deviance Residuals: 
-    Min       1Q   Median       3Q      Max  
--2.0923   0.5040   0.5109   0.5159   0.5305  
-
-Coefficients:
-            Estimate Std. Error z value Pr(&gt;|z|)    
-(Intercept)  1.96621    0.02116  92.924   &lt;2e-16 ***
-fico         0.03155    0.02119   1.489    0.137    
----
-Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
-
-(Dispersion parameter for binomial family taken to be 1)
-
-    Null deviance: 15455  on 20742  degrees of freedom
-Residual deviance: 15453  on 20741  degrees of freedom
-AIC: 15457
-
-Number of Fisher Scoring iterations: 4</code></pre>
-</div>
-<div id="contributions-of-other-quantitative-variables-are-also-nil" class="section level4">
-<h4><span class="header-section-number">5.2.1.3</span> Contributions of other quantitative variables are also nil</h4>
-<pre><code>Call:
-glm(formula = perf ~ fico + dti + cltv + obal + orate + fpd, 
-    family = &quot;binomial&quot;, data = fp)
-
-Deviance Residuals: 
-    Min       1Q   Median       3Q      Max  
--2.0980   0.5022   0.5096   0.5165   0.5492  
-
-Coefficients:
-              Estimate Std. Error z value Pr(&gt;|z|)  
-(Intercept)  3.384e+00  1.748e+00   1.936   0.0529 .
-fico         2.849e-02  2.298e-02   1.240   0.2150  
-dti         -3.695e-03  2.176e-02  -0.170   0.8652  
-cltv         1.243e-02  2.312e-02   0.538   0.5909  
-obal        -3.764e-03  2.399e-02  -0.157   0.8753  
-orate       -7.318e-05  2.487e-02  -0.003   0.9977  
-fpd         -1.072e-04  1.321e-04  -0.811   0.4174  
----
-Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
-
-(Dispersion parameter for binomial family taken to be 1)
-
-    Null deviance: 15455  on 20742  degrees of freedom
-Residual deviance: 15452  on 20736  degrees of freedom
-AIC: 15466</code></pre>
-<p>We might also consider seeing if we can find an association between one of the independent variables and the others. Can we predict the original loan amount using the other quantitative variables?</p>
-<pre><code>Call:
-lm(formula = obal ~ fico + dti + cltv + orate + fpd, data = fp)
-
-Coefficients:
-(Intercept)         fico          dti         cltv        orate          fpd  
- -1.306e+01    4.431e-02    1.021e-01   -1.073e-02   -4.330e-01    9.873e-04  
-
-
-ASSESSMENT OF THE LINEAR MODEL ASSUMPTIONS
-USING THE GLOBAL TEST ON 4 DEGREES-OF-FREEDOM:
-Level of Significance =  0.05 
-
-Call:
- gvlma::gvlma(x = mod.lm) 
-
-                       Value p-value                   Decision
-Global Stat        28857.604  0.0000 Assumptions NOT satisfied!
-Skewness           10457.408  0.0000 Assumptions NOT satisfied!
-Kurtosis           18125.177  0.0000 Assumptions NOT satisfied!
-Link Function          5.277  0.0216 Assumptions NOT satisfied!
-Heteroscedasticity   269.742  0.0000 Assumptions NOT satisfied!</code></pre>
-<p>Without stepping through the output, the short answer is no; these data do not satisfy the assumptions needed for a valid linear regression model.</p>
-</div>
-</div>
-</div>
-<div id="where-are-we-left" class="section level2">
-<h2><span class="header-section-number">5.3</span> Where are we left?</h2>
-<p>If linear regression is off the table, so is a logistic regression that includes the quatitative data. In the next section, we turn to correspondence analysis to give the categorical variabes their turn.</p>
-
 </div>
 </div>
             </section>
@@ -441,8 +336,8 @@ Heteroscedasticity   269.742  0.0000 Assumptions NOT satisfied!</code></pre>
           </div>
         </div>
       </div>
-<a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="daycare.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="assorted-examples-of-toolmaking.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>

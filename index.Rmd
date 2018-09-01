@@ -28,9 +28,10 @@ Its intent is to provide prospective employers with concrete evidence of my abil
 * 2018-07-14 Logistic regression of FICO on performance
 * 2018-07-21 added PH125.6x: Data Science: Wrangling certificate
 * 2018-08-04 added PH125.5x: Data Science: Productivity certificate
-* 2018-08-04 new blog at https://technocrat.rbind.io
+* 2018-08-04 new blog at http://technocrat.rbind.io
 * 2018-08-14 added PH125.7x: Data Science: Linear Regression certificate
 * 2018-08-15 Stratified suprime data set
+* 2018-09-01 Exhuasted linear regression on subprime loan dataset
 
 ## Literate programming: the tight integration of code and text
 
@@ -80,7 +81,7 @@ I've completed the following online courses, to consolidate and expand my previo
 
 ![BerkeleyX Data8.1x Certificate](https://s3-us-west-2.amazonaws.com/tuva/BerkeleyX+Data8.1x+Certificate+%7C+edX.png)
 ![Data8.2x: Foundations of Data Science: Inferential Thinking by Resampling](https://s3-us-west-2.amazonaws.com/tuva/BerkeleyX+Data8.2x+Certificate+%7C+edX.png)
- 
+Data8.3x: Foundations of Data Science: Prediction and Machine Learning (passing grade, certificate issuance schedule for September 18, 2018)
  
 ### Prior analytic and programming experience
 
