@@ -25,7 +25,7 @@
 <meta name="author" content="Richard Careaga">
 
 
-<meta name="date" content="2018-09-01">
+<meta name="date" content="2018-09-05">
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -112,7 +112,6 @@
 <li class="chapter" data-level="5.2" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-3.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-3.html#next-steps-overfit-or-stratify"><i class="fa fa-check"></i><b>5.2</b> Next steps: Overfit or Stratify?</a><ul>
 <li class="chapter" data-level="5.2.1" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-3.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-3.html#overview"><i class="fa fa-check"></i><b>5.2.1</b> Overview</a></li>
 </ul></li>
-<li class="chapter" data-level="5.3" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-3.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-3.html#where-are-we-left"><i class="fa fa-check"></i><b>5.3</b> Where are we left?</a></li>
 </ul></li>
 <li class="chapter" data-level="6" data-path="daycare.html"><a href="daycare.html"><i class="fa fa-check"></i><b>6</b> Daycare Costs and Unexamined Assumptions</a><ul>
 <li class="chapter" data-level="6.1" data-path="daycare.html"><a href="daycare.html#case-description-2"><i class="fa fa-check"></i><b>6.1</b> Case Description</a></li>
@@ -225,9 +224,9 @@
 <div id="fico-the-light-that-failed" class="section level3">
 <h3><span class="header-section-number">5.1.1</span> FICO, the light that failed</h3>
 <p>In part 1, we looked at the distribution of FICO scores and saw that they were not normally distributed, and so were unlikely to have predictive value for loan performance, which itself was far from normally distributed. We should check that with regression.</p>
-<div id="logisic-regression-required" class="section level4">
-<h4><span class="header-section-number">5.1.1.1</span> Logisic regression required</h4>
-<p>Because I coded loan performance into a 3-level scale (one or fewer non-payments, more than one, but not the three most recent, and the three most recent), <em>perf</em> is not a qualitative variable. Even if we substituted integers for the letter coding, we would have to deal with vexing questions: is the difference between one or fewer and more than one, but not last three missed payments, the same as more than one, including the three most recent?</p>
+<div id="logistic-regression-required" class="section level4">
+<h4><span class="header-section-number">5.1.1.1</span> Logistic regression required</h4>
+<p>Because I coded loan performance into a 3-level scale (one or fewer non-payments, more than one, but not the three most recent, and the three most recent), <em>perf</em> is not a qualitative (or categorical) variable. Even if we substituted integers for the letter coding, we would have to deal with vexing questions: is the difference between one or fewer and more than one, but not last three missed payments, the same as more than one, including the three most recent?</p>
 <p>We can dodge this question, by making <em>perf</em> pseudo-quantitative, by setting one or fewer defaults to the integer 1 and the other two categories to the integer 0. And we must use <em>logistic regression</em> rather than ordinary linear regression, which can yield probabilities outside the range {0,1}. First, we need to collapse “A”, “B”, “C” performance categories into “A” = 1 (performing) and “B” &amp; “C” = 0 (non-performing).</p>
 <pre><code>## ── Attaching packages ─────────────────────────────────────────────────────────── tidyverse 1.2.1 ──</code></pre>
 <pre><code>## ✔ ggplot2 3.0.0     ✔ purrr   0.2.5
@@ -284,7 +283,7 @@ cat2int_d &lt;- function (x) {ifelse (x == &quot;C&quot;, 0, 1)}</code></pre>
 <p>So, rather than considering the 2006 loans as a single population, I decided to look at the first and last pools and the second of three pools that were put together by the different team: LBMLT 2006-1 and LBMLT 2006-11, the first and last deals, and LBMLT 2006-WL2, the third party deal.</p>
 <div id="overview" class="section level3">
 <h3><span class="header-section-number">5.2.1</span> Overview</h3>
-<p>Before spending a lot of effort, the first thing to do is to check whether there are any considerable bottom line differences among the three deals in terms of their payment performance. Recall that “A” loans has one or fewer missed payments, “B” loans had multiple missed payments, but were current as of the most recent reporting date, an “C” loans were in uncured default, having missed the three most recent payments at the reporting date.</p>
+<p>Before spending a lot of effort, the first thing to do is to check whether there are any considerable bottom line differences among all the deals in terms of their payment performance. Recall that “A” loans has one or fewer missed payments, “B” loans had multiple missed payments, but were current as of the most recent reporting date, an “C” loans were in uncured default, having missed the three most recent payments at the reporting date.</p>
 <p>When we look at the summary table, the three deals may have taken different paths to get there, but they all arrived at much the same place.</p>
 <div id="percentage-performance-category-by-deal" class="section level4">
 <h4><span class="header-section-number">5.2.1.1</span> Percentage Performance Category by Deal</h4>
@@ -326,6 +325,20 @@ LBMLT 2006-1
 </tr>
 <tr>
 <td style="text-align:left;">
+LBMLT 2006-10
+</td>
+<td style="text-align:right;">
+0.8
+</td>
+<td style="text-align:right;">
+87.1
+</td>
+<td style="text-align:right;">
+12.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
 LBMLT 2006-11
 </td>
 <td style="text-align:right;">
@@ -336,6 +349,132 @@ LBMLT 2006-11
 </td>
 <td style="text-align:right;">
 12.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LBMLT 2006-2
+</td>
+<td style="text-align:right;">
+0.9
+</td>
+<td style="text-align:right;">
+86.6
+</td>
+<td style="text-align:right;">
+12.6
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LBMLT 2006-3
+</td>
+<td style="text-align:right;">
+0.9
+</td>
+<td style="text-align:right;">
+86.4
+</td>
+<td style="text-align:right;">
+12.7
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LBMLT 2006-4
+</td>
+<td style="text-align:right;">
+0.7
+</td>
+<td style="text-align:right;">
+86.7
+</td>
+<td style="text-align:right;">
+12.6
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LBMLT 2006-5
+</td>
+<td style="text-align:right;">
+0.8
+</td>
+<td style="text-align:right;">
+86.8
+</td>
+<td style="text-align:right;">
+12.4
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LBMLT 2006-6
+</td>
+<td style="text-align:right;">
+1.0
+</td>
+<td style="text-align:right;">
+86.6
+</td>
+<td style="text-align:right;">
+12.4
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LBMLT 2006-7
+</td>
+<td style="text-align:right;">
+0.9
+</td>
+<td style="text-align:right;">
+86.8
+</td>
+<td style="text-align:right;">
+12.3
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LBMLT 2006-8
+</td>
+<td style="text-align:right;">
+0.8
+</td>
+<td style="text-align:right;">
+87.0
+</td>
+<td style="text-align:right;">
+12.2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LBMLT 2006-9
+</td>
+<td style="text-align:right;">
+0.9
+</td>
+<td style="text-align:right;">
+86.2
+</td>
+<td style="text-align:right;">
+12.9
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LBMLT 2006-WL1
+</td>
+<td style="text-align:right;">
+1.0
+</td>
+<td style="text-align:right;">
+86.9
+</td>
+<td style="text-align:right;">
+12.1
 </td>
 </tr>
 <tr>
@@ -352,88 +491,27 @@ LBMLT 2006-WL2
 12.2
 </td>
 </tr>
+<tr>
+<td style="text-align:left;">
+LBMLT 2006-WL3
+</td>
+<td style="text-align:right;">
+0.8
+</td>
+<td style="text-align:right;">
+86.2
+</td>
+<td style="text-align:right;">
+13.0
+</td>
+</tr>
 </tbody>
 </table>
-</div>
-<div id="fico-fails-again" class="section level4">
-<h4><span class="header-section-number">5.2.1.2</span> FICO fails again</h4>
-<p>Call: glm(formula = perf ~ fico, family = “binomial”, data = fp)</p>
-<pre><code>Deviance Residuals: 
-    Min       1Q   Median       3Q      Max  
--2.0923   0.5040   0.5109   0.5159   0.5305  
+<p><strong>It’s implausible that <em>all</em> deals would be so close in performance.</strong></p>
+<p>This calls for some investigation, to which I will return next time.</p>
 
-Coefficients:
-            Estimate Std. Error z value Pr(&gt;|z|)    
-(Intercept)  1.96621    0.02116  92.924   &lt;2e-16 ***
-fico         0.03155    0.02119   1.489    0.137    
----
-Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
-
-(Dispersion parameter for binomial family taken to be 1)
-
-    Null deviance: 15455  on 20742  degrees of freedom
-Residual deviance: 15453  on 20741  degrees of freedom
-AIC: 15457
-
-Number of Fisher Scoring iterations: 4</code></pre>
-</div>
-<div id="contributions-of-other-quantitative-variables-are-also-nil" class="section level4">
-<h4><span class="header-section-number">5.2.1.3</span> Contributions of other quantitative variables are also nil</h4>
-<pre><code>Call:
-glm(formula = perf ~ fico + dti + cltv + obal + orate + fpd, 
-    family = &quot;binomial&quot;, data = fp)
-
-Deviance Residuals: 
-    Min       1Q   Median       3Q      Max  
--2.0980   0.5022   0.5096   0.5165   0.5492  
-
-Coefficients:
-              Estimate Std. Error z value Pr(&gt;|z|)  
-(Intercept)  3.384e+00  1.748e+00   1.936   0.0529 .
-fico         2.849e-02  2.298e-02   1.240   0.2150  
-dti         -3.695e-03  2.176e-02  -0.170   0.8652  
-cltv         1.243e-02  2.312e-02   0.538   0.5909  
-obal        -3.764e-03  2.399e-02  -0.157   0.8753  
-orate       -7.318e-05  2.487e-02  -0.003   0.9977  
-fpd         -1.072e-04  1.321e-04  -0.811   0.4174  
----
-Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
-
-(Dispersion parameter for binomial family taken to be 1)
-
-    Null deviance: 15455  on 20742  degrees of freedom
-Residual deviance: 15452  on 20736  degrees of freedom
-AIC: 15466</code></pre>
-<p>We might also consider seeing if we can find an association between one of the independent variables and the others. Can we predict the original loan amount using the other quantitative variables?</p>
-<pre><code>Call:
-lm(formula = obal ~ fico + dti + cltv + orate + fpd, data = fp)
-
-Coefficients:
-(Intercept)         fico          dti         cltv        orate          fpd  
- -1.306e+01    4.431e-02    1.021e-01   -1.073e-02   -4.330e-01    9.873e-04  
-
-
-ASSESSMENT OF THE LINEAR MODEL ASSUMPTIONS
-USING THE GLOBAL TEST ON 4 DEGREES-OF-FREEDOM:
-Level of Significance =  0.05 
-
-Call:
- gvlma::gvlma(x = mod.lm) 
-
-                       Value p-value                   Decision
-Global Stat        28857.604  0.0000 Assumptions NOT satisfied!
-Skewness           10457.408  0.0000 Assumptions NOT satisfied!
-Kurtosis           18125.177  0.0000 Assumptions NOT satisfied!
-Link Function          5.277  0.0216 Assumptions NOT satisfied!
-Heteroscedasticity   269.742  0.0000 Assumptions NOT satisfied!</code></pre>
-<p>Without stepping through the output, the short answer is no; these data do not satisfy the assumptions needed for a valid linear regression model.</p>
 </div>
 </div>
-</div>
-<div id="where-are-we-left" class="section level2">
-<h2><span class="header-section-number">5.3</span> Where are we left?</h2>
-<p>If linear regression is off the table, so is a logistic regression that includes the quatitative data. In the next section, we turn to correspondence analysis to give the categorical variabes their turn.</p>
-
 </div>
 </div>
             </section>
