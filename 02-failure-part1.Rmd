@@ -19,7 +19,13 @@ This is the case that Donald Rumsfelt (*known knowns, known unknowns and unknown
 
 It became apparent that I wasn't going to get any help dealing with my rising sense of unease that the company faced potential liabilities as a result of these transactions. I was senior enough to set my own priorities so I decided to assemble the data to see what I could make of it.
 
-## Data Wrangling
+## Lessons Learned
+
+Successes included data wrangling, learning how to build, query and modify SQL tables, picking up enough R and Python to do some useful descriptive work and exploratory data analysis and realizing that tens of thousands of high-dimensional records are no piece of cake.
+
+Abysmal failures included first and foremost complete ignorance of when you should **not** apply linear or logistic regression and totally munging selection of the dependent variable, which I only discovered during the course of writing part 3 of this case. I will be coming back to redo the illustrative work here and in part 2 to correct that. Like the leftover in Pandora's box, revisiting this early effort illustrates the need for looking at results with a critical eye. At every step.
+
+## Data Wrangling 
 
 There were 14 transactions issued in 2006, all of which were accompanied by tapes similar to the [LBMLT 2006-1] deal with origination data. I also looked at default data, from over 100 spreadsheets, many with manual changes, that had to be beaten into submission.
 
@@ -260,9 +266,11 @@ As a group, FICO scores have *fat tails,* a trait that is present in each of the
 
 With variations, all the deals have similiar distributions. The variability of FICO scores makes their use as an independent variable in, say, regression analysis potentially problematic.
 
+(Retrospective insight: The residuals of FICO scores against the regression line were far from normally distributed.)
+
 ### Possible strategies to deal with the issues
 
-Sampling the pool with a reasonably large number of observations will provide a well-behaved normal distribution, courtesy of the Central Limit Theorem. Alternatively, we can cluster based on the distance of each point from the trendline.
+Sampling the pool with a reasonably large number of observations will provide a well-behaved normal distribution, courtesy of the Central Limit Theorem. (Retrospective insight: not necessarily.) Alternatively, we can cluster based on the distance of each point from the trendline.
 
 #### Possible complication
 
@@ -380,7 +388,7 @@ As a result, I turn to the survivors in a similar data base:
     +----------+---------------+------+-----+---------+-------+
     48 rows in set (0.00 sec)
     
-Some new fields will be important. As of the end of the first quarter 2007 *down* is the number of months that a loan has been delinquent. A value of down greater than 3 generally indicates a loan in foreclosure or a loan that has been foreclosed and is in the process of being sold.
+Some new fields will be important. As of the end of the first quarter 2007 *down* is the number of months that a loan has been delinquent. A value of down greater than 3 generally indicates a loan in foreclosure or a loan that has been foreclosed and is in the process of being sold. (Retrospective insight: *this* is how I should have measured performance.)
 
 The field *remit* is the past-month payment history encoded as a base10 number. The remittance reports contain a character field in the form "D110011011110" that shows whether a payment has been made ('0') or missed ('1') during the life of the loan. A little utility program converts the field to the equivalent binary number that captures that information.
 
@@ -400,7 +408,7 @@ The field *remit* is the past-month payment history encoded as a base10 number. 
         """returns the binary of integer n, using count number of digits"""
         return "".join([str((n >> y) & 1) for y in range(count-1, -1, -1)])
 
-So, for example, if the remit field contains a value of 4198, the binary string representation, '1000001100110', can be interpreted as follows: missed the payment 12 months before, made five payments, missed two, made two, missed two, made one."
+So, for example, if the remit field contains a value of 4198, the binary string representation, '1000001100110', can be interpreted as follows: missed the payment 12 months before, made five payments, missed two, made two, missed two, made one." (Retrospective insight: the conversion loses information before the first missed payment.)
 
 #### Creating a performance outcome measure
 
@@ -448,7 +456,7 @@ This suggests a 3-factor performance metric:
 * B: Troubled: Three or more delinquencies a reporting stratum but current on most recent reporting date
 * C: Non-performing: Uncured default on most recent reporting date
 
-The problem is thus a *classification* problem. Do FICO scores allow us to classify loans? The first task is to assign each loan its appropriate metric.
+The problem is thus a *classification* problem. Do FICO scores allow us to classify loans? The first task is to assign each loan its appropriate metric. (Retrospective insight: the alternative *down* parameter should have been tested, as well.)
 
 #### Implementing the metric
 
@@ -497,6 +505,8 @@ perf11 <- elevens %>%
 p <- ggplot(perf11,aes(x=category, y = fico)) + geom_boxplot() + ggtitle("FICO scores for loans remaining in 2007\nwith 11-month payment history by performance") + labs(y = "FICO", x = "A = Performing, B = Non-performing, C = Defaulted")
 ```
 
+(Retrospective insight: the function to classify binary digits into three categories may have been the source of the problem that I discuss at the end of part 3, which is that the distribution was not just "broadly similar," but virtually identical. I should not have written this in R, but in a purpose built parser.)
+
 The boxplots show that the three categories of loans are broadly similar. The blow to orthodoxy is that the performing loans are composed of somewhat lower FICO scores than the non-performing and defaulted loans.
 
 The distributions of the three categories show the same non-normal character as the original pools, but this time we'll calculate them using the Shapiro-Wilk normality test based on a sample of 5,000, due to limitations of the test.
@@ -524,3 +534,5 @@ Category A *might* be normally distributed. With only 46 loans, it hardly matter
 ## Results at this point
 
 The report of "poor performance" of the 2006 mortgage loans as a group was well founded, based on the `r nrow(perf11)` loans that survived into 2007 and had an 11-month payment history. Only `r nrow(perf11A)` loans had a satisfactory record, less than `r round(nrow(perf11A)/nrow(perf11) * 100, 2)`% of the pool.
+
+(Retrospective insight. The conclusion is not supported by the analysis, which will need to be reworked.)

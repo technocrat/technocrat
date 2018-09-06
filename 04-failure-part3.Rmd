@@ -2,6 +2,10 @@
 
 Keywords: population, sub-population, implicit assumptions, stratification, logistic regression, odds ratio
 
+## Reminder of Flaws to be Corrected
+
+A poor choice of performance indicator or a defective classification function makes the conclusions drawn regarding relationships among the *perf* response variables and the other variables suspect and subject to revision.
+
 ## Selection bias
 
 The most telling finding of this exploratory data analysis (aside from confirming that the 2006 vintage of subprime loans issued in the LBMLT series of transaction was, indeed poorly performing) is a lurking hidden assumption: *Because the loans were all originated by the same organization and securitized in the same year, they collectively represent a population.*
@@ -12,9 +16,11 @@ Technically speaking, the loans are a population, a set of observations of indiv
 
 In part 1, we looked at the distribution of FICO scores and saw that they were not normally distributed, and so were unlikely to have predictive value for loan performance, which itself was far from normally distributed. We should check that with regression.
 
-#### Logisic regression required
+(Retrospective insight: neither ordinary least squred nor logistic regression will work.)
 
-Because I coded loan performance into a 3-level scale (one or fewer non-payments, more than one, but not the three most recent, and the three most recent), *perf* is not a qualitative variable. Even if we substituted integers for the letter coding, we would have to deal with vexing questions: is the difference between one or fewer and more than one, but not last three missed payments, the same as more than one, including the three most recent?
+#### Logistic regression required
+
+Because I coded loan performance into a 3-level scale (one or fewer non-payments, more than one, but not the three most recent, and the three most recent), *perf* is not a qualitative (or categorical) variable. Even if we substituted integers for the letter coding, we would have to deal with vexing questions: is the difference between one or fewer and more than one, but not last three missed payments, the same as more than one, including the three most recent?
 
 We can dodge this question, by making *perf* pseudo-quantitative, by setting one or fewer defaults to the integer 1 and the other two categories to the integer 0. And we must use *logistic regression* rather than ordinary linear regression, which can yield probabilities outside the range {0,1}. First, we need to collapse "A", "B", "C" performance categories into "A" = 1 (performing) and "B" & "C" = 0 (non-performing).
 
@@ -91,110 +97,34 @@ So, rather than considering the 2006 loans as a single population, I decided to 
 
 ### Overview
 
-Before spending a lot of effort, the first thing to do is to check whether there are any considerable bottom line differences among the three deals in terms of their payment performance. Recall that "A" loans has one or fewer missed payments, "B" loans had multiple missed payments, but were current as of the most recent reporting date, an "C" loans were in uncured default, having missed the three most recent payments at the reporting date.
+Before spending a lot of effort, the first thing to do is to check whether there are any considerable bottom line differences among all the deals in terms of their payment performance. Recall that "A" loans has one or fewer missed payments, "B" loans had multiple missed payments, but were current as of the most recent reporting date, an "C" loans were in uncured default, having missed the three most recent payments at the reporting date.
 
 When we look at the summary table, the three deals may have taken different paths to get there, but they all arrived at much the same place.
+
+(Spoiler: here's the reveal of a misstep in the preceding work.)
 
 #### Percentage Performance Category by Deal
 ```{r, by_deal, eval=TRUE, results="asis", echo = FALSE, warning=FALSE}
 library(tidyverse)
 library(lubridate)
-
 con <- dbConnect(drv, username="root", password="", dbname ="dlf", host="localhost")
 cs <- as.tibble(dbGetQuery(con, "SELECT * FROM loans"))
-deals <- cs %>% filter(deal == 'LBMLT 2006-1' | deal == 'LBMLT 2006-11' | deal == 'LBMLT 2006-WL2')
+deals <- cs # %>% filter(deal == 'LBMLT 2006-1' | deal == 'LBMLT 2006-11' | deal == 'LBMLT 2006-WL2')
 tabperf <- with(deals, table(deal, perf))
 kable(round(prop.table(tabperf, margin = 1),3) * 100)
 ``` 
 
-#### FICO fails again
+**It's implausible that *all* deals would be so close in performance.**  
 
-```{r, fico_by_deal, eval=TRUE, results="asis", echo = FALSE, warning=FALSE}
-fp <- deals %>% mutate(perf = cat2int_d(perf)) %>% filter(fico > 1) %>% mutate(fpd = as_date(fpd)) %>% mutate(fico = scale(fico), dti = scale(dti), cltv = scale(cltv), orate = scale(orate), obal = scale(obal), fpd = scale(fpd))
-colnames(fp) <- c("deal", "fico", "dti", "cltv", "obal", "orate", "fpd", "perf")
-#fico.mod <- glm(perf ~ fico, data = fp, family = "binomial")
-#summary(fico.mod)
-#RMarkdown throws an error here on the call to glm that it doesn't earlier, what follows is a output cut and pasted from console
+```{r, results="asis", echo = TRUE, warning=FALSE}
+test.my <- chisq.test(tabperf[,1:3])
+test.my
 ``` 
 
-Call:
-    glm(formula = perf ~ fico, family = "binomial", data = fp)
+The question, of course, is why, and the place to look is where the independent variable, *perf* was taken and what happened to it along the way.
 
-    Deviance Residuals: 
-        Min       1Q   Median       3Q      Max  
-    -2.0923   0.5040   0.5109   0.5159   0.5305  
+In the database that I created in 2007, the source data encoded payment history as a string in the form "D011001110111" where "D" stands for delinquency, "0" indicates no delinquency, and 1 indicates a delinquency. The history is additive from left to right. I made the decision to compress this information into a base 2 integer by parsing the string to drop the "D" and convert the remaining digits from binary to decimal representation. In the example, 011001110111 binary equals 1655 decimal.
 
-    Coefficients:
-                Estimate Std. Error z value Pr(>|z|)    
-    (Intercept)  1.96621    0.02116  92.924   <2e-16 ***
-    fico         0.03155    0.02119   1.489    0.137    
-    ---
-    Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+I now believe that was a poor choice, if for no other reason than that it discards one bit if the binary representation begins with zero. Fortunately, I have an alternative metric, which also has the advantage of being continuous -- the number of months as of the latest report for the 2006 vintage loans that each loan has been delinquent.
 
-    (Dispersion parameter for binomial family taken to be 1)
-
-        Null deviance: 15455  on 20742  degrees of freedom
-    Residual deviance: 15453  on 20741  degrees of freedom
-    AIC: 15457
-
-    Number of Fisher Scoring iterations: 4
-
-#### Contributions of other quantitative variables are also nil
-
-    Call:
-    glm(formula = perf ~ fico + dti + cltv + obal + orate + fpd, 
-        family = "binomial", data = fp)
-
-    Deviance Residuals: 
-        Min       1Q   Median       3Q      Max  
-    -2.0980   0.5022   0.5096   0.5165   0.5492  
-
-    Coefficients:
-                  Estimate Std. Error z value Pr(>|z|)  
-    (Intercept)  3.384e+00  1.748e+00   1.936   0.0529 .
-    fico         2.849e-02  2.298e-02   1.240   0.2150  
-    dti         -3.695e-03  2.176e-02  -0.170   0.8652  
-    cltv         1.243e-02  2.312e-02   0.538   0.5909  
-    obal        -3.764e-03  2.399e-02  -0.157   0.8753  
-    orate       -7.318e-05  2.487e-02  -0.003   0.9977  
-    fpd         -1.072e-04  1.321e-04  -0.811   0.4174  
-    ---
-    Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
-
-    (Dispersion parameter for binomial family taken to be 1)
-
-        Null deviance: 15455  on 20742  degrees of freedom
-    Residual deviance: 15452  on 20736  degrees of freedom
-    AIC: 15466
-
-We might also consider seeing if we can find an association between one of the independent variables and the others. Can we predict the original loan amount using the other quantitative variables?
-
-    
-    Call:
-    lm(formula = obal ~ fico + dti + cltv + orate + fpd, data = fp)
-
-    Coefficients:
-    (Intercept)         fico          dti         cltv        orate          fpd  
-     -1.306e+01    4.431e-02    1.021e-01   -1.073e-02   -4.330e-01    9.873e-04  
-
-
-    ASSESSMENT OF THE LINEAR MODEL ASSUMPTIONS
-    USING THE GLOBAL TEST ON 4 DEGREES-OF-FREEDOM:
-    Level of Significance =  0.05 
-
-    Call:
-     gvlma::gvlma(x = mod.lm) 
-
-                           Value p-value                   Decision
-    Global Stat        28857.604  0.0000 Assumptions NOT satisfied!
-    Skewness           10457.408  0.0000 Assumptions NOT satisfied!
-    Kurtosis           18125.177  0.0000 Assumptions NOT satisfied!
-    Link Function          5.277  0.0216 Assumptions NOT satisfied!
-    Heteroscedasticity   269.742  0.0000 Assumptions NOT satisfied!
-
-Without stepping through the output, the short answer is no; these data do not satisfy the assumptions needed for a valid linear regression model.
-
-## Where are we left?
-
-If linear regression is off the table, so is a logistic regression that includes the quatitative data. In the next section, we turn to correspondence analysis to give the categorical variabes their turn.
-
+To which I now turn.

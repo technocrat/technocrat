@@ -2,6 +2,10 @@
 
 Keywords: refactoring, unsupervised learning, principal component analysis, k-means clustering, correspondence analysis, chi-squared test, contingency table, pivot, correlation table
 
+## Reminder of Flaws to be Corrected
+
+A poor choice of performance indicator or a defective classification function makes the conclusions drawn regarding relationships among the *perf* response variables and the other variables suspect and subject to revision.
+
 ## The fall of FICO
 
 The problem with the conventional wisdom of long standing is that it loses sight of history. The prominence of FICO in home loan credit underwriting described in the [Pinto Testimony] had its origins in a different time (the early 1990s) and a different lending environment. Freddie Mac was in a good position to ensure that all other things *were* equal. It made only what came to be called "prime" loans, generally for no more than 80% of the value of the property, under more stringent limitations on the debt-to-income ratio of the borrower and many other criteria that it kept within a narrow range, and offered only a few varieties of loans.
@@ -12,7 +16,7 @@ In the subprime market that emerged in the late 90s, all of those factors change
 
 Some of the testing of FICO as a useful metric involved subsetting the data. There were many more variables than the ones used, some of them categorical and some categorical coded as numeric. One potentially useful variable is location, because we know that real estate value are location sensitive. We have four location fields in the database, all derived from the postal zip code:
 
-* The zip code itself, which is generally either much smaller or much larger than the real estate market, and also changes at the convenience of the postal service. *See* the discussion at [On the use of ZIP codes and ZIP code tabulation areas (ZCTAs) for the spatial analysis of epidemiological data].
+* The zip code itself, which is generally either much smaller or much larger than the real estate market, and also changes at the convenience of the postal service. 
 
 * The metropolitan area derived from the U.S. Census ZIP code tabulation area, but covers a larger area than most real estate markets
 
@@ -109,7 +113,7 @@ From the loadings chart on the right, we see that *obal* (the original amount of
 
 The variables *fico* and *cltv* have some correlation (`r round(cor(cs$fico,cs$cltv),3)`), while *fico* and *dti* (`r round(cor(cs$fico,cs$dti),3)`) and *dti* and *cltv* (`r round(cor(cs$dti,cs$cltv),3)`) have low correlations.
 
-The variable *orate,* however, is clearly discrete, so we re-run without it and increase the size of the sample to 9,000.
+The variable *orate,* however, is clearly discrete (it takes only a handful of integer values), so we re-run without it and increase the size of the sample to 9,000.
 
 ```{r, results="asis", echo = FALSE, warning=FALSE}
 res <- dbGetQuery(con, "SELECT fico, cltv, obal, dti FROM loans")
@@ -165,7 +169,7 @@ Because I don't run the MySQL server with rollback and to avoid a proliferation 
     Query OK, 96147 rows affected (1.06 sec)
     Records: 96147  Duplicates: 0  Warnings: 0
 
-The strategy is to create df loans w/all fields and cbind cs.k$clusters, renam "value" to kcluster and write back to loans, after dropping it
+The strategy is to create df loans with all fields and cbind cs.k$clusters, renamed "value" to kcluster and write back to loans.
 
     dbWriteTable(con, "loans", cs)
 
@@ -208,7 +212,9 @@ Do the clusters derived from the principal components of the numeric variables, 
 
 If they do, we have the makings of a model; otherwise, we need to look at the other data available. 
 
-### Correspondence analysis
+(Retrospective insight: we know know that the model won't be a regression)
+
+### Correlation analysis
 
 Principal component analysis and many other data tools work only on continuous data; for discrete (or categorical) values, we turn to contingency tables, where one variable is in the rows and the other in the columns, so this is sometimes called an *r x c* table.
 
@@ -244,7 +250,9 @@ print("Sample 3 chi square test for independence")
 print(chisq.test(table(s3)))
 ``` 
 
-The chi square tests don't allow us to conclude that the loan performance and PCA-dervived clusters are not independent. Put more plainly, the one seems to have nothing to do with the other.
+The chi square tests show that for each of the samples, the pricipal components are independent of performance.
+
+(Retrospective insight: to be done with revised performance metric)
 
 ### What do other categorical contingency tables tell us?
 
@@ -256,8 +264,9 @@ library(DBI)
 library(RMySQL)
 drv <- dbDriver("MySQL")
 con <- dbConnect(drv, username="root", password="", dbname ="dlf", host="localhost")
-cs <- as.tibble(dbGetQuery(con, "SELECT grade,perf FROM loans"))# WHERE grade = 'A+' OR grade = 'AP'"))
-(table(cs), format.args = list(big.mark = ","), caption = "Contingency table of credit grade (row) by performance (column)") %>% kable_styling(bootstrap_options = "striped", full_width = F) 
+cs <- as.tibble(dbGetQuery(con, "SELECT grade,perf FROM loans"))
+# WHERE grade = 'A+' OR grade = 'AP'"))
+#(table(cs), format.args = list(big.mark = ","), caption = "Contingency table of credit grade (row) by performance (column)") %>% kable_styling(bootstrap_options = "striped", full_width = F) 
 chisq.test(table(cs))
 
 ``` 
@@ -273,14 +282,14 @@ can be easy to overlook, but it has an important message: Some of the grades are
 We can restrict the selection to only the A- and AP categories easily enough.
 
 ```{r gradperf, results="asis", echo = FALSE, warning=FALSE}
-cs <- as.tibble(dbGetQuery(con, "SELECT grade,perf FROM loans WHERE grade = 'A+' OR grade = 'AP'"))
+cs <- as.tibble(dbGetQuery(con, "SELECT grade, perf FROM loans WHERE grade = 'A+' OR grade = 'AP'"))
 kable(table(cs), format.args = list(big.mark = ","), caption = "Contingency table of credit grades A+ and AP (row) by performance (column)") %>% kable_styling(bootstrap_options = "striped", full_width = F) 
 chisq.test(table(cs))
 ``` 
 
-These results would be encouraging, with a *p-value* greater than 0.05, allowing us to accept the alternative to independence (that those two credit grades, at least, have something to do with performance) but it  fails to account for the other credit grades.
+With a *p-value* greater than 0.05, the A- and AP credit grades are not independent of performance. 
 
-Let's try another categorical variabe, which transaction contained each loan, compared to that loan's performance.
+Let's try another categorical variabe, which transaction contained each loan, compared to that loan's performance. The "deal" is not independent of performance.
 
 ```{r loanbydeal, results="asis", echo = FALSE, warning=FALSE}
 cs <- as.tibble(dbGetQuery(con, "SELECT deal,perf FROM loans"))
@@ -289,7 +298,7 @@ chisq.test(table(cs))
 
 ``` 
 
-On the other hand, the initial interest rates we have to consider as independent of performance.
+The initial interest rates are independent of performance.
 
 ```{r loanbymargin, results="asis", echo = FALSE, warning=FALSE}
 cs <- as.tibble(dbGetQuery(con, "SELECT orate,perf FROM loans"))
@@ -297,7 +306,7 @@ kable(table(cs), format.args = list(big.mark = ","), caption = "Contingency tabl
 chisq.test(table(cs))
 ``` 
 
-The first payment date, indicating the time of origination, has an association with performance.
+The first payment date, indicating the time of origination, is not independent
 
 ```{r fpd, results="oasis", echo = FALSE, warning=FALSE}
 cs <- as.tibble(dbGetQuery(con, "SELECT fpd,perf FROM loans"))
@@ -336,7 +345,7 @@ cs <- as.tibble(dbGetQuery(con, "SELECT purpose,perf FROM loans"))
 kable(table(cs), format.args = list(big.mark = ","), caption = "Contingency table of loan purpose (row) by performance (column)") %>% kable_styling(bootstrap_options = "striped", full_width = F) 
 chisq.test(table(cs))
 ``` 
-Property type is independent of perforannce.
+Property type is not independent of perforannce.
 
 ```{r loanbyptype, results="asis", echo = FALSE, warning=FALSE}
 cs <- as.tibble(dbGetQuery(con, "SELECT ptype,perf FROM loans"))
