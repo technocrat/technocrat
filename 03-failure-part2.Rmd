@@ -114,7 +114,7 @@ pve
 
 The following represents the unsupervised classification of the *fico, cltv, obal*, and *dti* of an approximately 10% sample from the **loans** dataset.
 
-```{r, results="asis", echo = FALSE, warning=FALSE}
+```{r, results="asis", echo = TRUE, warning=FALSE}
 css.k <- kmeans(css, 3, iter.max = 20, nstart = 50)
 plot(css, col=(css.k$cluster+1), main="K-Means Clustering Result with K=3, n = 9,000, nstart = 50, max.iter = 20", pch=20, cex=2)
 ```
