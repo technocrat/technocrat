@@ -25,7 +25,7 @@
 <meta name="author" content="Richard Careaga">
 
 
-<meta name="date" content="2018-09-07">
+<meta name="date" content="2018-09-08">
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -86,12 +86,12 @@
 <li class="chapter" data-level="3.3" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html#data-wrangling"><i class="fa fa-check"></i><b>3.3</b> Data Wrangling</a><ul>
 <li class="chapter" data-level="3.3.1" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html#the-pool-dataset"><i class="fa fa-check"></i><b>3.3.1</b> The pool dataset</a></li>
 </ul></li>
-<li class="chapter" data-level="3.4" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html#preliminary-analysis-based-on-fico-scores"><i class="fa fa-check"></i><b>3.4</b> Preliminary analysis, based on FICO scores</a><ul>
+<li class="chapter" data-level="3.4" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html#preliminary-analysis-based-on-fico-scores-using-linear-regression"><i class="fa fa-check"></i><b>3.4</b> Preliminary analysis, based on FICO scores, using linear regression</a><ul>
 <li class="chapter" data-level="3.4.1" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html#ficos-importance"><i class="fa fa-check"></i><b>3.4.1</b> FICO’s importance</a></li>
-<li class="chapter" data-level="3.4.2" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html#fico-scores-in-the-pool"><i class="fa fa-check"></i><b>3.4.2</b> FICO scores in the pool</a></li>
-<li class="chapter" data-level="3.4.3" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html#the-fico-scores-are-not-normally-distributed"><i class="fa fa-check"></i><b>3.4.3</b> The FICO scores are not normally distributed</a></li>
-<li class="chapter" data-level="3.4.4" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html#none-of-the-quantitative-variables-can-be-used-in-regression-for-the-pool-as-a-whole"><i class="fa fa-check"></i><b>3.4.4</b> None of the quantitative variables can be used in regression for the pool as a whole</a></li>
-<li class="chapter" data-level="3.4.5" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html#performance-outcome-measure"><i class="fa fa-check"></i><b>3.4.5</b> Performance outcome measure</a></li>
+<li class="chapter" data-level="3.4.2" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html#performance-outcome-measure"><i class="fa fa-check"></i><b>3.4.2</b> Performance outcome measure</a></li>
+<li class="chapter" data-level="3.4.3" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html#fico-scores-in-the-pool"><i class="fa fa-check"></i><b>3.4.3</b> FICO scores in the pool</a></li>
+<li class="chapter" data-level="3.4.4" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html#the-fico-scores-are-not-normally-distributed"><i class="fa fa-check"></i><b>3.4.4</b> The FICO scores are not normally distributed</a></li>
+<li class="chapter" data-level="3.4.5" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html#none-of-the-quantitative-variables-can-be-used-in-linear-regression-for-the-pool-as-a-whole"><i class="fa fa-check"></i><b>3.4.5</b> None of the quantitative variables can be used in linear regression for the pool as a whole</a></li>
 </ul></li>
 </ul></li>
 <li class="chapter" data-level="4" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html"><i class="fa fa-check"></i><b>4</b> The subprime mortgage crisis unfolds in early 2007, part 2</a><ul>
@@ -208,7 +208,7 @@
 <div id="header">
 <h1 class="title">Data Science Portfolio</h1>
 <p class="author"><em>Richard Careaga</em></p>
-<p class="date"><em>2018-09-07</em></p>
+<p class="date"><em>2018-09-08</em></p>
 </div>
 <div id="preface" class="section level1">
 <h1><span class="header-section-number">1</span> Purpose</h1>
@@ -233,6 +233,7 @@
 <li>2018-08-15 Stratified suprime data set</li>
 <li>2018-09-01 Exhuasted linear regression on subprime loan dataset</li>
 <li>2018-09-07 Major revisions to part 1 and part 2 of subprime dataset</li>
+<li>2018-09-08 Completed revisions to part 1 of subprime dataset</li>
 </ul>
 </div>
 <div id="literate-programming-the-tight-integration-of-code-and-text" class="section level2">

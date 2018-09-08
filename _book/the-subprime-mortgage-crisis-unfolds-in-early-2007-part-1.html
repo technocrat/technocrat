@@ -25,7 +25,7 @@
 <meta name="author" content="Richard Careaga">
 
 
-<meta name="date" content="2018-09-07">
+<meta name="date" content="2018-09-08">
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -124,12 +124,12 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li class="chapter" data-level="3.3" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html#data-wrangling"><i class="fa fa-check"></i><b>3.3</b> Data Wrangling</a><ul>
 <li class="chapter" data-level="3.3.1" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html#the-pool-dataset"><i class="fa fa-check"></i><b>3.3.1</b> The pool dataset</a></li>
 </ul></li>
-<li class="chapter" data-level="3.4" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html#preliminary-analysis-based-on-fico-scores"><i class="fa fa-check"></i><b>3.4</b> Preliminary analysis, based on FICO scores</a><ul>
+<li class="chapter" data-level="3.4" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html#preliminary-analysis-based-on-fico-scores-using-linear-regression"><i class="fa fa-check"></i><b>3.4</b> Preliminary analysis, based on FICO scores, using linear regression</a><ul>
 <li class="chapter" data-level="3.4.1" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html#ficos-importance"><i class="fa fa-check"></i><b>3.4.1</b> FICO’s importance</a></li>
-<li class="chapter" data-level="3.4.2" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html#fico-scores-in-the-pool"><i class="fa fa-check"></i><b>3.4.2</b> FICO scores in the pool</a></li>
-<li class="chapter" data-level="3.4.3" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html#the-fico-scores-are-not-normally-distributed"><i class="fa fa-check"></i><b>3.4.3</b> The FICO scores are not normally distributed</a></li>
-<li class="chapter" data-level="3.4.4" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html#none-of-the-quantitative-variables-can-be-used-in-regression-for-the-pool-as-a-whole"><i class="fa fa-check"></i><b>3.4.4</b> None of the quantitative variables can be used in regression for the pool as a whole</a></li>
-<li class="chapter" data-level="3.4.5" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html#performance-outcome-measure"><i class="fa fa-check"></i><b>3.4.5</b> Performance outcome measure</a></li>
+<li class="chapter" data-level="3.4.2" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html#performance-outcome-measure"><i class="fa fa-check"></i><b>3.4.2</b> Performance outcome measure</a></li>
+<li class="chapter" data-level="3.4.3" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html#fico-scores-in-the-pool"><i class="fa fa-check"></i><b>3.4.3</b> FICO scores in the pool</a></li>
+<li class="chapter" data-level="3.4.4" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html#the-fico-scores-are-not-normally-distributed"><i class="fa fa-check"></i><b>3.4.4</b> The FICO scores are not normally distributed</a></li>
+<li class="chapter" data-level="3.4.5" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html#none-of-the-quantitative-variables-can-be-used-in-linear-regression-for-the-pool-as-a-whole"><i class="fa fa-check"></i><b>3.4.5</b> None of the quantitative variables can be used in linear regression for the pool as a whole</a></li>
 </ul></li>
 </ul></li>
 <li class="chapter" data-level="4" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html"><i class="fa fa-check"></i><b>4</b> The subprime mortgage crisis unfolds in early 2007, part 2</a><ul>
@@ -245,11 +245,11 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
             <section class="normal" id="section-">
 <div id="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1" class="section level1">
 <h1><span class="header-section-number">3</span> The subprime mortgage crisis unfolds in early 2007, part 1</h1>
-<p>Keywords: large database, MySQL, Python, data wrangling, exploratory data analysis, data mining, linar regression, normality of residuals</p>
+<p>Keywords: large database, MySQL, Python, data wrangling, exploratory data analysis, data mining, linear regression, normality of residuals</p>
 <div id="case-description-1" class="section level2">
 <h2><span class="header-section-number">3.1</span> Case Description</h2>
-<p>Washington Mutual Bank originated subprime loans as one of its home loan mortgage types. The term <em>subprime</em> has always been hard to pin down precisely. Generally, though, they represented higher-interest rate loans to less creditworthy borrowers. In competition with other lenders, the risks types, such as the borrower’s debt-to-income ratio, the combined loan-to-value ratio (considering both the first and any second lien loan), the level of income and asset verification, and the purpose of the loan began to become <em>layered.</em> That is, the cumulative risk increased. And too much reliance, perhaps, was being placed on ever-increasing home values.</p>
-<p>In early 2007, a marketing specialist from Washington Mutual Bank’s Wall Street subsidiary, called me to say that investors were complaining about the peformance of our subprime securities issued in 2006. I was the principal lawyer in-house dealing with mortgage backed securities, and he wanted to know what kinds of written materials he could provide to investors.</p>
+<p>Washington Mutual Bank originated subprime loans as one of its home loan mortgage types. The term <em>subprime</em> has always been hard to pin down precisely. Generally, though, they represented higher-interest rate loans to less creditworthy borrowers. In competition with other lenders, the risk types, such as the borrower’s debt-to-income ratio, the combined loan-to-value ratio (considering both the first and any second lien loan), the level of income and asset verification, and the purpose of the loan began to become <em>layered.</em> That is, the cumulative risk increased. And too much reliance, perhaps, was being placed on ever-increasing home values.</p>
+<p>In early 2007, a marketing specialist from Washington Mutual Bank’s Wall Street subsidiary, called me to say that investors were complaining about the performance of our subprime securities issued in 2006. I was the principal lawyer in-house dealing with mortgage backed securities, and he wanted to know what kinds of written materials he could provide to investors.</p>
 <p>I had some questions that had no ready answers:</p>
 <ul>
 <li>How did our pools of mortgage loans differ?</li>
@@ -364,8 +364,8 @@ def make_date(entry):
 <p>The performance data was available only in spreadsheet form, by month and transaction, which also required considerable scrubbing to bring into the database. I combined them into a single file, used a supplemental zipcode lookup table to identify the metropolitan area (for possible use with the Case Shiller Index of Home Prices).</p>
 </div>
 </div>
-<div id="preliminary-analysis-based-on-fico-scores" class="section level2">
-<h2><span class="header-section-number">3.4</span> Preliminary analysis, based on FICO scores</h2>
+<div id="preliminary-analysis-based-on-fico-scores-using-linear-regression" class="section level2">
+<h2><span class="header-section-number">3.4</span> Preliminary analysis, based on FICO scores, using linear regression</h2>
 <div id="ficos-importance" class="section level3">
 <h3><span class="header-section-number">3.4.1</span> FICO’s importance</h3>
 <p>In 1995, Freddie Mac advised lenders that it had found that consumer credit scores developed by Fair, Issac and Company, Inc. (<strong>FICO</strong> scores) strongly predicted the likelihood of default on mortgage loans. Freddie Mac’s communication is reproduced as Attachment 2 in testimony before the U.S. House Committee on Oversight and Government Reform, the [Pinto testimony], beginning at page 28 of the pdf.</p>
@@ -377,8 +377,12 @@ def make_date(entry):
 <p>The rating agencies and buyers involved in residential mortgage backed securities, however, attached considerable importance to credit scores, generically referred to as FICOs. Therefore, the FICO composition was an obvious starting point.</p>
 <p><img src="_main_files/figure-html/setup4-1.png" width="672" /></p>
 </div>
+<div id="performance-outcome-measure" class="section level3">
+<h3><span class="header-section-number">3.4.2</span> Performance outcome measure</h3>
+<p><em>Down</em> is the number of missed payments as of the latest date. If a borrower misses three consequtive payments, foreclosure is triggered, which may be a relatively quick process in states that do not require a court proceeding or relatively lengthy in those that do. It is what we are trying to predict with the data at hand. It will be the dependent variable.</p>
+</div>
 <div id="fico-scores-in-the-pool" class="section level3">
-<h3><span class="header-section-number">3.4.2</span> FICO scores in the pool</h3>
+<h3><span class="header-section-number">3.4.3</span> FICO scores in the pool</h3>
 <p>FICO scores have a minimum value of 300, and a maximum value of 850. Foreign borrowers have a FICO score of 0. The summary statistics are:</p>
 <pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 ##   465.0   603.0   632.0   633.6   665.0   821.0</code></pre>
@@ -684,7 +688,7 @@ LBMLT 2006-2
 <p>The variability among transactions suggest that <em>if</em> FICO scores have an influence on default rates, it may be necessary to stratify of otherwise transform the data to obtain useful results.</p>
 </div>
 <div id="the-fico-scores-are-not-normally-distributed" class="section level3">
-<h3><span class="header-section-number">3.4.3</span> The FICO scores are not normally distributed</h3>
+<h3><span class="header-section-number">3.4.4</span> The FICO scores are not normally distributed</h3>
 <p><img src="_main_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
 <p>As a group, FICO scores have <em>fat tails,</em> a trait that is present in each of the deals to some degree. There are more loans with very low FICO scores than you would expect if score were randomly distributed plus more loans with high score. We also see a dip in the 500-600 range (loans that may only have been originated due to compensating factors), which are fewer than the sub-500 FICO loans.</p>
 <p>An approximately 12% random sample with replacement of normalized scores shows a similar pattern.</p>
@@ -693,14 +697,14 @@ LBMLT 2006-2
 <p><img src="_main_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
 <p>A candidate variable that is not normally distributed, even when sampled, raises a red flag. Can it be used as part of a regression model? Let’s find out.</p>
 </div>
-<div id="none-of-the-quantitative-variables-can-be-used-in-regression-for-the-pool-as-a-whole" class="section level3">
-<h3><span class="header-section-number">3.4.4</span> None of the quantitative variables can be used in regression for the pool as a whole</h3>
+<div id="none-of-the-quantitative-variables-can-be-used-in-linear-regression-for-the-pool-as-a-whole" class="section level3">
+<h3><span class="header-section-number">3.4.5</span> None of the quantitative variables can be used in linear regression for the pool as a whole</h3>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">fico.sam.mod &lt;-<span class="st"> </span><span class="kw">lm</span>(down <span class="op">~</span><span class="st"> </span>fico, <span class="dt">data =</span> sam)
 <span class="kw">library</span>(ggfortify)
 <span class="kw">autoplot</span>(fico.sam.mod, <span class="dt">label.size =</span> <span class="dv">3</span>)</code></pre></div>
 <p><img src="_main_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
 <p>The diagnostic on the upper right corner shows the distribution of the residuals (differences between the data point and the best fit line) compared to the expected difference, represented by the dashed line, a normal distribution.</p>
-<p>This eliminates <em>fico</em> as a candidate independent variable in any generalized linear regression model, including logistic regression.</p>
+<p>This eliminates <em>fico</em> as a candidate independent variable in any ordinary least square linear regression model.</p>
 <p>We see the same problem with the debt-to-income ratio, <em>dti</em>,</p>
 <p><img src="_main_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
 <p>combined loan-to-value ratio, <em>cltv</em>,</p>
@@ -711,11 +715,7 @@ LBMLT 2006-2
 <p><img src="_main_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
 <p>and all the quantitative variables taken together</p>
 <p><img src="_main_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
-<p>With the possible exception of <em>orate</em>, which takes on discrete values and is a candidate for logistic regression, none of the quantitative variables can be used in any linear regression or logistic regression.</p>
-</div>
-<div id="performance-outcome-measure" class="section level3">
-<h3><span class="header-section-number">3.4.5</span> Performance outcome measure</h3>
-<p><em>Down</em> is the number of missed payments as of the latest date. If a borrower misses three consequtive payments, foreclosure is triggered, which may be a relatively quick process in states that do not require a court proceeding or relatively lengthy in those that do. It is what we are trying to predict with the data at hand.</p>
+<p>In the following section, we turn to logistic regression, which relaxes the assumption of normality of residuals.</p>
 
 </div>
 </div>

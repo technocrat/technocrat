@@ -1,12 +1,12 @@
 # The subprime mortgage crisis unfolds in early 2007, part 1
 
-Keywords: large database, MySQL, Python, data wrangling, exploratory data analysis, data mining, linar regression, normality of residuals
+Keywords: large database, MySQL, Python, data wrangling, exploratory data analysis, data mining, linear regression, normality of residuals
 
 ## Case Description
 
-Washington Mutual Bank originated subprime loans as one of its home loan mortgage types. The term *subprime* has always been hard to pin down precisely. Generally, though, they represented higher-interest rate loans to less creditworthy borrowers. In competition with other lenders, the risks types, such as the borrower's debt-to-income ratio, the combined loan-to-value ratio (considering both the first and any second lien loan), the level of income and asset verification, and the purpose of the loan began to become *layered.* That is, the cumulative risk increased. And too much reliance, perhaps, was being placed on ever-increasing home values.
+Washington Mutual Bank originated subprime loans as one of its home loan mortgage types. The term *subprime* has always been hard to pin down precisely. Generally, though, they represented higher-interest rate loans to less creditworthy borrowers. In competition with other lenders, the risk types, such as the borrower's debt-to-income ratio, the combined loan-to-value ratio (considering both the first and any second lien loan), the level of income and asset verification, and the purpose of the loan began to become *layered.* That is, the cumulative risk increased. And too much reliance, perhaps, was being placed on ever-increasing home values.
 
-In early 2007, a marketing specialist from Washington Mutual Bank's Wall Street subsidiary, called me to say that investors were complaining about the peformance of our subprime securities issued in 2006. I was the principal lawyer in-house dealing with mortgage backed securities, and he wanted to know what kinds of written materials he could provide to investors.
+In early 2007, a marketing specialist from Washington Mutual Bank's Wall Street subsidiary, called me to say that investors were complaining about the performance of our subprime securities issued in 2006. I was the principal lawyer in-house dealing with mortgage backed securities, and he wanted to know what kinds of written materials he could provide to investors.
 
 I had some questions that had no ready answers:
 
@@ -135,7 +135,7 @@ pairs, making their extraction easy. One of the typical tasks was converting dat
         
 The performance data was available only in spreadsheet form, by month and transaction, which also required considerable scrubbing to bring into the database. I combined them into a single file, used a supplemental zipcode lookup table to identify the metropolitan area (for possible use with the Case Shiller Index of Home Prices).
 
-## Preliminary analysis, based on FICO scores
+## Preliminary analysis, based on FICO scores, using linear regression
 
 ### FICO's importance
 
@@ -163,6 +163,10 @@ colnames(cs) <- c("deal", "down", "fico", "dti", "cltv", "obal", "orate", "fpd")
 p <- ggplot(cs, aes(x=fico)) + geom_histogram(binwidth = 5) + coord_cartesian(xlim = c(300,850))
 p + ggtitle("FICO scores for transactions in pool in increments of 5") + labs(x = "FICO", y = "Number of Loans")
 ``` 
+
+### Performance outcome measure
+
+*Down* is the number of missed payments as of the latest date. If a borrower misses three consequtive payments, foreclosure is triggered, which may be a relatively quick process in states that do not require a court proceeding or relatively lengthy in those that do. It is what we are trying to predict with the data at hand. It will be the dependent variable.
 
 ### FICO scores in the pool
 
@@ -222,7 +226,7 @@ ggplot(sam) + aes(sample=fico) + stat_qq(distribution=qnorm) + stat_qq_line() + 
 
 A candidate variable that is not normally distributed, even when sampled, raises a red flag. Can it be used as part of a regression model? Let's find out.
 
-### None of the quantitative variables can be used in regression for the pool as a whole
+### None of the quantitative variables can be used in linear regression for the pool as a whole
 
 ```{r, results="asis", echo = TRUE, warning=FALSE}
 fico.sam.mod <- lm(down ~ fico, data = sam)
@@ -232,7 +236,7 @@ autoplot(fico.sam.mod, label.size = 3)
 
 The diagnostic on the upper right corner shows the distribution of the residuals (differences between the data point and the best fit line) compared to the expected difference, represented by the dashed line, a normal distribution.
 
-This eliminates *fico* as a candidate independent variable in any generalized linear regression model, including logistic regression.
+This eliminates *fico* as a candidate independent variable in any ordinary least square linear regression model.
 
 We see the same problem with the debt-to-income ratio, *dti*,
 
@@ -269,8 +273,5 @@ all.sam.mod <- lm(down ~ dti + cltv + obal + orate , data = sam)
 autoplot(all.sam.mod, label.size = 3)
 ```
 
-With the possible exception of *orate*, which takes on discrete values and is a candidate for logistic regression, none of the quantitative variables can be used in any linear regression or logistic regression.
+In the following section, we turn to logistic regression, which relaxes the assumption of normality of residuals.
 
-### Performance outcome measure
-
-*Down* is the number of missed payments as of the latest date. If a borrower misses three consequtive payments, foreclosure is triggered, which may be a relatively quick process in states that do not require a court proceeding or relatively lengthy in those that do. It is what we are trying to predict with the data at hand.

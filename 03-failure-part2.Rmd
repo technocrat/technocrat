@@ -112,7 +112,7 @@ pve
 
 ## K-means clustering
 
-The following represents the unsupervised classification of the *fico, cltv, obal*, and *dti* of an approximately 10% sample from the **loans** dataset.
+The following represents the unsupervised classification of the *fico, cltv, obal*, and *dti* of an approximately 10% sample from the pool.
 
 ```{r, results="asis", echo = TRUE, warning=FALSE}
 css.k <- kmeans(css, 3, iter.max = 20, nstart = 50)
