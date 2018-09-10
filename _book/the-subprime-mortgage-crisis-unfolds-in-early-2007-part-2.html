@@ -25,7 +25,7 @@
 <meta name="author" content="Richard Careaga">
 
 
-<meta name="date" content="2018-09-07">
+<meta name="date" content="2018-09-09">
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -47,45 +47,9 @@
 
 
 
+<script src="libs/kePrint-0.0.1/kePrint.js"></script>
 
 
-<style type="text/css">
-div.sourceCode { overflow-x: auto; }
-table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
-  margin: 0; padding: 0; vertical-align: baseline; border: none; }
-table.sourceCode { width: 100%; line-height: 100%; }
-td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
-td.sourceCode { padding-left: 5px; }
-code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
-code > span.dt { color: #902000; } /* DataType */
-code > span.dv { color: #40a070; } /* DecVal */
-code > span.bn { color: #40a070; } /* BaseN */
-code > span.fl { color: #40a070; } /* Float */
-code > span.ch { color: #4070a0; } /* Char */
-code > span.st { color: #4070a0; } /* String */
-code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
-code > span.ot { color: #007020; } /* Other */
-code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
-code > span.fu { color: #06287e; } /* Function */
-code > span.er { color: #ff0000; font-weight: bold; } /* Error */
-code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
-code > span.cn { color: #880000; } /* Constant */
-code > span.sc { color: #4070a0; } /* SpecialChar */
-code > span.vs { color: #4070a0; } /* VerbatimString */
-code > span.ss { color: #bb6688; } /* SpecialString */
-code > span.im { } /* Import */
-code > span.va { color: #19177c; } /* Variable */
-code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
-code > span.op { color: #666666; } /* Operator */
-code > span.bu { } /* BuiltIn */
-code > span.ex { } /* Extension */
-code > span.pp { color: #bc7a00; } /* Preprocessor */
-code > span.at { color: #7d9029; } /* Attribute */
-code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
-code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
-code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
-code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
-</style>
 
 </head>
 
@@ -123,23 +87,24 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li class="chapter" data-level="3.3" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html#data-wrangling"><i class="fa fa-check"></i><b>3.3</b> Data Wrangling</a><ul>
 <li class="chapter" data-level="3.3.1" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html#the-pool-dataset"><i class="fa fa-check"></i><b>3.3.1</b> The pool dataset</a></li>
 </ul></li>
-<li class="chapter" data-level="3.4" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html#preliminary-analysis-based-on-fico-scores"><i class="fa fa-check"></i><b>3.4</b> Preliminary analysis, based on FICO scores</a><ul>
+<li class="chapter" data-level="3.4" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html#preliminary-analysis-based-on-fico-scores-using-linear-regression"><i class="fa fa-check"></i><b>3.4</b> Preliminary analysis, based on FICO scores, using linear regression</a><ul>
 <li class="chapter" data-level="3.4.1" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html#ficos-importance"><i class="fa fa-check"></i><b>3.4.1</b> FICO’s importance</a></li>
-<li class="chapter" data-level="3.4.2" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html#fico-scores-in-the-pool"><i class="fa fa-check"></i><b>3.4.2</b> FICO scores in the pool</a></li>
-<li class="chapter" data-level="3.4.3" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html#the-fico-scores-are-not-normally-distributed"><i class="fa fa-check"></i><b>3.4.3</b> The FICO scores are not normally distributed</a></li>
-<li class="chapter" data-level="3.4.4" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html#none-of-the-quantitative-variables-can-be-used-in-regression-for-the-pool-as-a-whole"><i class="fa fa-check"></i><b>3.4.4</b> None of the quantitative variables can be used in regression for the pool as a whole</a></li>
-<li class="chapter" data-level="3.4.5" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html#performance-outcome-measure"><i class="fa fa-check"></i><b>3.4.5</b> Performance outcome measure</a></li>
+<li class="chapter" data-level="3.4.2" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html#performance-outcome-measure"><i class="fa fa-check"></i><b>3.4.2</b> Performance outcome measure</a></li>
+<li class="chapter" data-level="3.4.3" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html#fico-scores-in-the-pool"><i class="fa fa-check"></i><b>3.4.3</b> FICO scores in the pool</a></li>
+<li class="chapter" data-level="3.4.4" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html#the-fico-scores-are-not-normally-distributed"><i class="fa fa-check"></i><b>3.4.4</b> The FICO scores are not normally distributed</a></li>
+<li class="chapter" data-level="3.4.5" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-1.html#none-of-the-quantitative-variables-can-be-used-in-linear-regression-for-the-pool-as-a-whole"><i class="fa fa-check"></i><b>3.4.5</b> None of the quantitative variables can be used in linear regression for the pool as a whole</a></li>
 </ul></li>
 </ul></li>
 <li class="chapter" data-level="4" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html"><i class="fa fa-check"></i><b>4</b> The subprime mortgage crisis unfolds in early 2007, part 2</a><ul>
 <li class="chapter" data-level="4.1" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html#the-fall-of-fico"><i class="fa fa-check"></i><b>4.1</b> The fall of FICO</a></li>
-<li class="chapter" data-level="4.2" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html#restructuring-the-data"><i class="fa fa-check"></i><b>4.2</b> Restructuring the data</a></li>
-<li class="chapter" data-level="4.3" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html#logistic-regression-using-locational-fields"><i class="fa fa-check"></i><b>4.3</b> Logistic regression using locational fields</a></li>
-<li class="chapter" data-level="4.4" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html#principal-component-analysis"><i class="fa fa-check"></i><b>4.4</b> Principal component analysis</a></li>
-<li class="chapter" data-level="4.5" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html#k-means-clustering"><i class="fa fa-check"></i><b>4.5</b> K-means clustering</a><ul>
-<li class="chapter" data-level="4.5.1" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html#housekeeping"><i class="fa fa-check"></i><b>4.5.1</b> Housekeeping</a></li>
+<li class="chapter" data-level="4.2" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html#overview-of-the-down-dependent-variable"><i class="fa fa-check"></i><b>4.2</b> Overview of the <em>down</em> dependent variable</a></li>
+<li class="chapter" data-level="4.3" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html#logistic-regression"><i class="fa fa-check"></i><b>4.3</b> Logistic Regression</a><ul>
+<li class="chapter" data-level="4.3.1" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html#restructuring-the-data"><i class="fa fa-check"></i><b>4.3.1</b> Restructuring the data</a></li>
+<li class="chapter" data-level="4.3.2" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html#creating-training-and-testing-subsets-and-their-subsamples"><i class="fa fa-check"></i><b>4.3.2</b> Creating training and testing subsets and their subsamples</a></li>
+<li class="chapter" data-level="4.3.3" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html#using-the-quantitative-variables-to-predict-loan-performance-with-logistic-regression"><i class="fa fa-check"></i><b>4.3.3</b> Using the quantitative variables to predict loan performance with logistic regression</a></li>
+<li class="chapter" data-level="4.3.4" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html#intepreting-the-results"><i class="fa fa-check"></i><b>4.3.4</b> Intepreting the results</a></li>
+<li class="chapter" data-level="4.3.5" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html#next-steps"><i class="fa fa-check"></i><b>4.3.5</b> Next steps</a></li>
 </ul></li>
-<li class="chapter" data-level="4.6" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html#do-the-clusters-predict-loan-performance"><i class="fa fa-check"></i><b>4.6</b> Do the clusters predict loan performance?</a></li>
 </ul></li>
 <li class="chapter" data-level="5" data-path="daycare.html"><a href="daycare.html"><i class="fa fa-check"></i><b>5</b> Daycare Costs and Unexamined Assumptions</a><ul>
 <li class="chapter" data-level="5.1" data-path="daycare.html"><a href="daycare.html#case-description-2"><i class="fa fa-check"></i><b>5.1</b> Case Description</a></li>
@@ -191,7 +156,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li class="chapter" data-level="7.5.1" data-path="counted.html"><a href="counted.html#detail-underlying-deaths-of-women"><i class="fa fa-check"></i><b>7.5.1</b> Detail underlying deaths of women</a></li>
 <li class="chapter" data-level="7.5.2" data-path="counted.html"><a href="counted.html#cautionary-example"><i class="fa fa-check"></i><b>7.5.2</b> Cautionary Example</a></li>
 </ul></li>
-<li class="chapter" data-level="7.6" data-path="counted.html"><a href="counted.html#next-steps"><i class="fa fa-check"></i><b>7.6</b> Next steps</a><ul>
+<li class="chapter" data-level="7.6" data-path="counted.html"><a href="counted.html#next-steps-1"><i class="fa fa-check"></i><b>7.6</b> Next steps</a><ul>
 <li class="chapter" data-level="7.6.1" data-path="counted.html"><a href="counted.html#finer-geographic-detail"><i class="fa fa-check"></i><b>7.6.1</b> Finer geographic detail</a></li>
 <li class="chapter" data-level="7.6.2" data-path="counted.html"><a href="counted.html#testing-hypotheses"><i class="fa fa-check"></i><b>7.6.2</b> Testing hypotheses</a></li>
 </ul></li>
@@ -209,21 +174,6 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li class="chapter" data-level="8.6" data-path="assorted-examples-of-toolmaking.html"><a href="assorted-examples-of-toolmaking.html#parsing-system-date-strings-into-python-datetime-objects"><i class="fa fa-check"></i><b>8.6</b> Parsing system date strings into Python datetime objects</a></li>
 <li class="chapter" data-level="8.7" data-path="assorted-examples-of-toolmaking.html"><a href="assorted-examples-of-toolmaking.html#combination-of-k-items-taken-n-at-a-time"><i class="fa fa-check"></i><b>8.7</b> Combination of k items, taken n at a time</a></li>
 <li class="chapter" data-level="8.8" data-path="assorted-examples-of-toolmaking.html"><a href="assorted-examples-of-toolmaking.html#flexbison-to-compile-data-parser-for-june-20-2018-form"><i class="fa fa-check"></i><b>8.8</b> Flex/Bison to compile data parser for June 20, 2018 form</a></li>
-</ul></li>
-<li class="chapter" data-level="9" data-path="criticism.html"><a href="criticism.html"><i class="fa fa-check"></i><b>9</b> Criticism</a><ul>
-<li class="chapter" data-level="9.1" data-path="criticism.html"><a href="criticism.html#b-schools-need-data-science-faculty"><i class="fa fa-check"></i><b>9.1</b> B Schools Need Data Science Faculty</a><ul>
-<li class="chapter" data-level="9.1.1" data-path="criticism.html"><a href="criticism.html#catchy-titles-in-academic-papers-attract-readers.-its-hard-to-resist."><i class="fa fa-check"></i><b>9.1.1</b> Catchy titles in academic papers attract readers. It’s hard to resist.</a></li>
-<li class="chapter" data-level="9.1.2" data-path="criticism.html"><a href="criticism.html#the-paper-examines-gender-inequlity-in-the-securities-business"><i class="fa fa-check"></i><b>9.1.2</b> The paper examines gender inequlity in the securities business</a></li>
-<li class="chapter" data-level="9.1.3" data-path="criticism.html"><a href="criticism.html#the-authors-construct-a-multiple-linear-regression-model"><i class="fa fa-check"></i><b>9.1.3</b> The authors construct a multiple linear regression model</a></li>
-<li class="chapter" data-level="9.1.4" data-path="criticism.html"><a href="criticism.html#the-authors-collect-an-impressively-large-database"><i class="fa fa-check"></i><b>9.1.4</b> The authors collect an impressively large database</a></li>
-<li class="chapter" data-level="9.1.5" data-path="criticism.html"><a href="criticism.html#the-authors-make-an-unforced-error-in-their-choice-of-methodology"><i class="fa fa-check"></i><b>9.1.5</b> The authors make an unforced error in their choice of methodology</a></li>
-<li class="chapter" data-level="9.1.6" data-path="criticism.html"><a href="criticism.html#how-could-this-happen"><i class="fa fa-check"></i><b>9.1.6</b> How could this happen?</a></li>
-<li class="chapter" data-level="9.1.7" data-path="criticism.html"><a href="criticism.html#who-am-i-to-criticize"><i class="fa fa-check"></i><b>9.1.7</b> Who am I to criticize?</a></li>
-<li class="chapter" data-level="9.1.8" data-path="criticism.html"><a href="criticism.html#why-am-i-doing-this"><i class="fa fa-check"></i><b>9.1.8</b> Why am I doing this?</a></li>
-<li class="chapter" data-level="9.1.9" data-path="criticism.html"><a href="criticism.html#how-do-i-know"><i class="fa fa-check"></i><b>9.1.9</b> How do I know?</a></li>
-<li class="chapter" data-level="9.1.10" data-path="criticism.html"><a href="criticism.html#their-results"><i class="fa fa-check"></i><b>9.1.10</b> Their results</a></li>
-<li class="chapter" data-level="9.1.11" data-path="criticism.html"><a href="criticism.html#a-counterexample-what-a-data-scientist-would-expect-to-see-in-a-multiple-linear-regression-model-output"><i class="fa fa-check"></i><b>9.1.11</b> A counterexample: what a data scientist would expect to see in a multiple linear regression model output</a></li>
-</ul></li>
 </ul></li>
 </ul>
 
@@ -250,88 +200,829 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <p>The problem with the conventional wisdom of long standing is that it loses sight of history. The prominence of FICO in home loan credit underwriting described in the <a href="https://democrats-oversight.house.gov/sites/democrats.oversight.house.gov/files/documents/Fannie%20Freddie%20Testimony%20of%20Edward%20Pinto%2012.9.08%20written%20submission%20Full.pdf">Pinto Testimony</a> had its origins in a different time (the early 1990s) and a different lending environment. Freddie Mac was in a good position to ensure that all other things <em>were</em> equal. It made only what came to be called “prime” loans, generally for no more than 80% of the value of the property, under more stringent limitations on the debt-to-income ratio of the borrower and many other criteria that it kept within a narrow range, and offered only a few varieties of loans.</p>
 <p>In the subprime market that emerged in the late 90s, all of those factors changed. Criteria that were narrow became broad, documentation was relaxed and a widespread assumption was that continually rising home values would preclude any problems. It’s not surprising that FICO lost its predictive power.</p>
 </div>
-<div id="restructuring-the-data" class="section level2">
-<h2><span class="header-section-number">4.2</span> Restructuring the data</h2>
-<p>Some of the testing of FICO as a useful metric involved subsetting the data. There were many more variables than the ones used, some of them categorical and some categorical coded as numeric. One potentially useful variable is location, because we know that real estate value are location sensitive. We have four location fields in the database, all derived from the postal zip code:</p>
-<ul>
-<li><p>The zip code itself, which is generally either much smaller or much larger than the real estate market, and also changes at the convenience of the postal service.</p></li>
-<li><p>The metropolitan area derived from the U.S. Census ZIP code tabulation area, but covers a larger area than most real estate markets</p></li>
-<li><p>Longitude and latitude dervived from the ZCTA’s, used for mapping</p></li>
-</ul>
+<div id="overview-of-the-down-dependent-variable" class="section level2">
+<h2><span class="header-section-number">4.2</span> Overview of the <em>down</em> dependent variable</h2>
+<pre><code>## Version:  1.36.23
+## Date:     2017-03-03
+## Author:   Philip Leifeld (University of Glasgow)
+## 
+## Please cite the JSS article in your publications -- see citation(&quot;texreg&quot;).</code></pre>
+<pre><code>## 
+## Attaching package: &#39;texreg&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:tidyr&#39;:
+## 
+##     extract</code></pre>
+<img src="_main_files/figure-html/setup4A-1.png" width="672" />
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+<span id="tab:setup4A">Table 4.1: </span>Number of loans with negative values of <em>down</em> by transaction
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+deal
+</th>
+<th style="text-align:right;">
+count
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+LBMLT 2006-1
+</td>
+<td style="text-align:right;">
+18
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LBMLT 2006-10
+</td>
+<td style="text-align:right;">
+18
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LBMLT 2006-11
+</td>
+<td style="text-align:right;">
+25
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LBMLT 2006-2
+</td>
+<td style="text-align:right;">
+40
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LBMLT 2006-3
+</td>
+<td style="text-align:right;">
+21
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LBMLT 2006-4
+</td>
+<td style="text-align:right;">
+34
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LBMLT 2006-5
+</td>
+<td style="text-align:right;">
+18
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LBMLT 2006-6
+</td>
+<td style="text-align:right;">
+26
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LBMLT 2006-7
+</td>
+<td style="text-align:right;">
+21
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LBMLT 2006-8
+</td>
+<td style="text-align:right;">
+23
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LBMLT 2006-9
+</td>
+<td style="text-align:right;">
+27
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LBMLT 2006-WL1
+</td>
+<td style="text-align:right;">
+17
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LBMLT 2006-WL2
+</td>
+<td style="text-align:right;">
+32
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LBMLT 2006-WL3
+</td>
+<td style="text-align:right;">
+33
+</td>
+</tr>
+</tbody>
+</table>
+<pre><code>MariaDB [dlf]&gt; select down, count(down) from y7 group by down;
++------+-------------+
+| down | count(down) |
++------+-------------+
+|  -13 |           1 |
+|  -10 |           1 |
+|   -7 |           2 |
+|   -6 |           3 |
+|   -5 |           6 |
+|   -4 |           4 |
+|   -3 |          16 |
+|   -2 |          67 |
+|   -1 |         253 |
+|    0 |       64229 |
+|    1 |       10245 |
+|    2 |        4724 |
+|    3 |        2830 |
+|    4 |        2074 |
+|    5 |        1763 |
+|    6 |        1627 |
+|    7 |        1451 |
+|    8 |        1470 |
+|    9 |        1286 |
+|   10 |        1019 |
+|   11 |         852 |
+|   12 |         728 |
+|   13 |         600 |
+|   14 |         448 |
+|   15 |         306 |
+|   16 |         160 |
+|   17 |          88 |
+|   18 |          18 |
++------+-------------+</code></pre>
+<p>Most of the loans are current – <em>down</em> = 0 – but a substantial number are in arrears by one or two payments or defaulted and in various stages of foreclosure.</p>
+<p>The negative entries represent a few hundred loans that have made up to 13 months of advanced monthly payments (this was confirmed by checking a field in the database <em>ptd</em>, paid through date).</p>
 </div>
-<div id="logistic-regression-using-locational-fields" class="section level2">
-<h2><span class="header-section-number">4.3</span> Logistic regression using locational fields</h2>
-<p>As a compromise, I converted the 5-digit zip codes into 3-digit zip codes. In metropolitan areas, the 3-digit codes are the sizes comparable to how the multiple listing services divide the market. We’ll see if there is any value in this proxy measure of real estate market, using logistic regression (linear regression is inappropriate because zip codes are not continuous).</p>
-<p><img src="_main_files/figure-html/setup4A-1.png" width="672" /></p>
-<p>We continue to bump up against the same problem in the Normal Q-Q plot.</p>
-<p>Do metropolitan areas do a better job?</p>
-<p><img src="_main_files/figure-html/unnamed-chunk-1-1.png" width="672" /></p>
-<p>No.</p>
-<p>[In preparation, remaining categorical variables for logistic regression]</p>
+<div id="logistic-regression" class="section level2">
+<h2><span class="header-section-number">4.3</span> Logistic Regression</h2>
+<div id="restructuring-the-data" class="section level3">
+<h3><span class="header-section-number">4.3.1</span> Restructuring the data</h3>
+<p>In this section we will be using logistic regression, for which we need a response variable that is binary, 1 or 0, performing or non-performing. This requires classifying the 28 values of <em>down.</em> I have chosen to classify two or fewer payments missed as performing (1), and three or more payments missed as non-performing (0). The binary performance variable will be named <em>perf.</em></p>
+<p>Some of the testing of FICO as a useful metric involved subsetting the data. There were many more variables than the ones used, some of them categorical and some categorical coded as numeric. Here is a summary of the remaining variables</p>
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+<span id="tab:binarize">Table 4.2: </span>Performance Summary
+</caption>
+<thead>
+<tr>
+<th style="text-align:right;">
+perf
+</th>
+<th style="text-align:right;">
+count
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+16,720
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+79,549
+</td>
+</tr>
+</tbody>
+</table>
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+<span id="tab:binarize">Table 4.2: </span>Origination Credit Grades Summary
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+grade
+</th>
+<th style="text-align:right;">
+count
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+A
+</td>
+<td style="text-align:right;">
+6,886
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+A-
+</td>
+<td style="text-align:right;">
+1,989
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+A+
+</td>
+<td style="text-align:right;">
+9,604
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+AA
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+AP
+</td>
+<td style="text-align:right;">
+69,104
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+AP+
+</td>
+<td style="text-align:right;">
+2,573
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+B
+</td>
+<td style="text-align:right;">
+2,039
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+B-
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+B+
+</td>
+<td style="text-align:right;">
+1,568
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+C
+</td>
+<td style="text-align:right;">
+2,502
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+D
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+</tbody>
+</table>
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+<span id="tab:binarize">Table 4.2: </span>Loan Purpose Summary
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+purpose
+</th>
+<th style="text-align:right;">
+count
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Purchase
+</td>
+<td style="text-align:right;">
+62,077
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Refi - Cashout
+</td>
+<td style="text-align:right;">
+30,101
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Refi - No Cashout
+</td>
+<td style="text-align:right;">
+4,091
+</td>
+</tr>
+</tbody>
+</table>
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+<span id="tab:binarize">Table 4.2: </span>Underwriting Documentation Type
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+dtype
+</th>
+<th style="text-align:right;">
+count
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Full
+</td>
+<td style="text-align:right;">
+52,580
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Limited
+</td>
+<td style="text-align:right;">
+3,789
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Stated
+</td>
+<td style="text-align:right;">
+39,900
+</td>
+</tr>
+</tbody>
+</table>
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+<span id="tab:binarize">Table 4.2: </span>Loan Type Summary
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+ltype
+</th>
+<th style="text-align:right;">
+count
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+2/28 LIBOR
+</td>
+<td style="text-align:right;">
+27,224
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2/38 LIBOR
+</td>
+<td style="text-align:right;">
+22,602
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2nd Fixed
+</td>
+<td style="text-align:right;">
+15,145
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+3/27 LIBOR
+</td>
+<td style="text-align:right;">
+3,564
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+3/37 LIBOR
+</td>
+<td style="text-align:right;">
+3,614
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+5/25 LIBOR
+</td>
+<td style="text-align:right;">
+4,303
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+5/35 LIBOR
+</td>
+<td style="text-align:right;">
+2,705
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+6 Month LIBOR
+</td>
+<td style="text-align:right;">
+51
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Fixed
+</td>
+<td style="text-align:right;">
+12,292
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+I/O 2/28 LIBOR
+</td>
+<td style="text-align:right;">
+3,492
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+I/O 3/27 LIBOR
+</td>
+<td style="text-align:right;">
+378
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+I/O 3/37 LIBOR
+</td>
+<td style="text-align:right;">
+63
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+I/O 5/25 LIBOR
+</td>
+<td style="text-align:right;">
+836
+</td>
+</tr>
+</tbody>
+</table>
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+<span id="tab:binarize">Table 4.2: </span>Occupancy Type Summary
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+otype
+</th>
+<th style="text-align:right;">
+count
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+NOO
+</td>
+<td style="text-align:right;">
+11,197
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+OO
+</td>
+<td style="text-align:right;">
+83,959
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+sechome
+</td>
+<td style="text-align:right;">
+1,113
+</td>
+</tr>
+</tbody>
+</table>
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+<span id="tab:binarize">Table 4.2: </span>Property Type Summary
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+ptype
+</th>
+<th style="text-align:right;">
+count
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+2-4 Units
+</td>
+<td style="text-align:right;">
+6,536
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Condo
+</td>
+<td style="text-align:right;">
+8,276
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+PUD
+</td>
+<td style="text-align:right;">
+12,052
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+SFR
+</td>
+<td style="text-align:right;">
+69,191
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Townhouse
+</td>
+<td style="text-align:right;">
+214
+</td>
+</tr>
+</tbody>
+</table>
 </div>
-<div id="principal-component-analysis" class="section level2">
-<h2><span class="header-section-number">4.4</span> Principal component analysis</h2>
-<p><img src="_main_files/figure-html/psa1-1.png" width="672" /></p>
-<p>The cumulative variance is 0.258, 0.498, 0.706, 0.863, 1 for this sample of 300.</p>
-<p>From the loadings chart on the right, we see that <em>obal</em> (the original amount of the loan) and <em>orate</em> (the original rate of interest) are negatively correlated, -0.451. The remaining continuous variables, <em>fico</em>, <em>dti</em> (debt-to-income ratio), <em>cltv</em> (the ratio of first and second loans to the value of the mortgaged property), have small correlations:</p>
-<p>The variables <em>fico</em> and <em>cltv</em> have some correlation (0.295), while <em>fico</em> and <em>dti</em> (-0.036) and <em>dti</em> and <em>cltv</em> (0.121) have low correlations.</p>
-<p>The variable <em>orate,</em> however, is clearly discrete (it takes only a handful of integer values), so we re-run without it and increase the size of the sample to 9,000.</p>
-<p><img src="_main_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
-<p>The variances are [1] 0.2902293 0.2621526 0.2522584 0.1953596</p>
+<div id="creating-training-and-testing-subsets-and-their-subsamples" class="section level3">
+<h3><span class="header-section-number">4.3.2</span> Creating training and testing subsets and their subsamples</h3>
+<p>The next step is to split the original dataset into a training set of approximately 2/3 of the data and a test set of the data and normalize the numeric data to prepare for testing.</p>
+<p>This results in a training set with 64,211 and a test set with 46,748, each of which is a moderately largish dataset in its own right, so we will sample 12% of each to get reduced sets, a training sample of 7,705 and a test sample of 5,610.</p>
 </div>
-<div id="k-means-clustering" class="section level2">
-<h2><span class="header-section-number">4.5</span> K-means clustering</h2>
-<p>The following represents the unsupervised classification of the <em>fico, cltv, obal</em>, and <em>dti</em> of an approximately 10% sample from the <strong>loans</strong> dataset.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">css.k &lt;-<span class="st"> </span><span class="kw">kmeans</span>(css, <span class="dv">3</span>, <span class="dt">iter.max =</span> <span class="dv">20</span>, <span class="dt">nstart =</span> <span class="dv">50</span>)
-<span class="kw">plot</span>(css, <span class="dt">col=</span>(css.k<span class="op">$</span>cluster<span class="op">+</span><span class="dv">1</span>), <span class="dt">main=</span><span class="st">&quot;K-Means Clustering Result with K=3, n = 9,000, nstart = 50, max.iter = 20&quot;</span>, <span class="dt">pch=</span><span class="dv">20</span>, <span class="dt">cex=</span><span class="dv">2</span>)</code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
-<p>Using the entire population, rather than a sample creates somewhat better defined clusters</p>
-<div class="figure">
-<img src="http://media.richard-careaga.com/img/Kmeans_loans.png" alt="K-means clustering of all loans in loans database" />
-<p class="caption">K-means clustering of all loans in loans database</p>
+<div id="using-the-quantitative-variables-to-predict-loan-performance-with-logistic-regression" class="section level3">
+<h3><span class="header-section-number">4.3.3</span> Using the quantitative variables to predict loan performance with logistic regression</h3>
+<p>To start, we are going to return to the numeric variables, <em>fico, dti, cltv, obal and orate</em>. This time the dependent variable will not be continuous, as was <em>down</em> on the linear regression model, but binary, <em>perf</em>, with 0 for performing and 1 for non-performing. For this we use a generlized linear model on the sample of our training set.</p>
+<table style="width:88%;">
+<caption>Fitting generalized (binomial/logit) linear model: perf ~ fico + dti + cltv + obal + orate</caption>
+<colgroup>
+<col width="25%" />
+<col width="15%" />
+<col width="18%" />
+<col width="13%" />
+<col width="15%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center"> </th>
+<th align="center">Estimate</th>
+<th align="center">Std. Error</th>
+<th align="center">z value</th>
+<th align="center">Pr(&gt;|z|)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center"><strong>(Intercept)</strong></td>
+<td align="center">1.655</td>
+<td align="center">0.03416</td>
+<td align="center">48.46</td>
+<td align="center">0</td>
+</tr>
+<tr class="even">
+<td align="center"><strong>fico</strong></td>
+<td align="center">0.1664</td>
+<td align="center">0.03537</td>
+<td align="center">4.704</td>
+<td align="center">2.555e-06</td>
+</tr>
+<tr class="odd">
+<td align="center"><strong>dti</strong></td>
+<td align="center">0.004971</td>
+<td align="center">0.03175</td>
+<td align="center">0.1566</td>
+<td align="center">0.8756</td>
+</tr>
+<tr class="even">
+<td align="center"><strong>cltv</strong></td>
+<td align="center">-0.573</td>
+<td align="center">0.04992</td>
+<td align="center">-11.48</td>
+<td align="center">1.712e-30</td>
+</tr>
+<tr class="odd">
+<td align="center"><strong>obal</strong></td>
+<td align="center">-0.4225</td>
+<td align="center">0.03186</td>
+<td align="center">-13.26</td>
+<td align="center">3.85e-40</td>
+</tr>
+<tr class="even">
+<td align="center"><strong>orate</strong></td>
+<td align="center">-0.4079</td>
+<td align="center">0.035</td>
+<td align="center">-11.65</td>
+<td align="center">2.174e-31</td>
+</tr>
+</tbody>
+</table>
+<p>All of the numeric variables have <em>some</em> degree of predictive power, except for <em>dti</em>.</p>
+<p>Omitting <em>dti</em> yields</p>
+<table style="width:88%;">
+<caption>Fitting generalized (binomial/logit) linear model: perf ~ fico + cltv + obal + orate</caption>
+<colgroup>
+<col width="25%" />
+<col width="15%" />
+<col width="18%" />
+<col width="13%" />
+<col width="15%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center"> </th>
+<th align="center">Estimate</th>
+<th align="center">Std. Error</th>
+<th align="center">z value</th>
+<th align="center">Pr(&gt;|z|)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center"><strong>(Intercept)</strong></td>
+<td align="center">1.655</td>
+<td align="center">0.03414</td>
+<td align="center">48.48</td>
+<td align="center">0</td>
+</tr>
+<tr class="even">
+<td align="center"><strong>fico</strong></td>
+<td align="center">0.1658</td>
+<td align="center">0.0352</td>
+<td align="center">4.711</td>
+<td align="center">2.462e-06</td>
+</tr>
+<tr class="odd">
+<td align="center"><strong>cltv</strong></td>
+<td align="center">-0.5717</td>
+<td align="center">0.04918</td>
+<td align="center">-11.62</td>
+<td align="center">3.132e-31</td>
+</tr>
+<tr class="even">
+<td align="center"><strong>obal</strong></td>
+<td align="center">-0.4221</td>
+<td align="center">0.03174</td>
+<td align="center">-13.3</td>
+<td align="center">2.442e-40</td>
+</tr>
+<tr class="odd">
+<td align="center"><strong>orate</strong></td>
+<td align="center">-0.4082</td>
+<td align="center">0.03493</td>
+<td align="center">-11.68</td>
+<td align="center">1.525e-31</td>
+</tr>
+</tbody>
+</table>
 </div>
-<p>Consideration might be given to separately clustering high-balance loans. Other outliers, such as the zero FICO scores, can be safely ignored, as can be the anomalous loan with a 97% <em>dti</em> ratio.</p>
-<div id="housekeeping" class="section level3">
-<h3><span class="header-section-number">4.5.1</span> Housekeeping</h3>
-<p>Since PCA is a relatively expensive calculation for 100K records, I saved the result to and Rda file for reuse. Now, I’ll add it to the create a new loans database as another categorical variable.</p>
-<p>Because I don’t run the MySQL server with rollback and to avoid a proliferation of names</p>
-<pre><code>MariaDB [dlf]&gt; CREATE TABLE y7k AS SELECT * from y7;
-Query OK, 96147 rows affected (1.06 sec)
-Records: 96147  Duplicates: 0  Warnings: 0</code></pre>
-<p>The strategy is to create df loans with all fields and cbind cs.k$clusters, renamed “value” to kcluster and write back to loans.</p>
-<pre><code>dbWriteTable(con, &quot;y7k&quot;, cs)</code></pre>
-<p>Here’s the code (not run, to avoid churn)</p>
-<pre><code>library(tidyverse)
-library(DBI)
-library(RMySQL)
-library(FactoMineR)
+<div id="intepreting-the-results" class="section level3">
+<h3><span class="header-section-number">4.3.4</span> Intepreting the results</h3>
+<div id="how-well-does-the-training-set-self-classify" class="section level4">
+<h4><span class="header-section-number">4.3.4.1</span> How well does the training set self-classify?</h4>
+<p>Given the training model, we are going to turn it on itself through the <em>predict</em> function, which will give the probability for each loan of its <em>perf</em> being non-zero. This produces what is called a <em>confusion matrix.</em></p>
+<table style="width:32%;">
+<colgroup>
+<col width="12%" />
+<col width="9%" />
+<col width="9%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center"> </th>
+<th align="center">0</th>
+<th align="center">1</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center"><strong>0</strong></td>
+<td align="center">14</td>
+<td align="center">12</td>
+</tr>
+<tr class="even">
+<td align="center"><strong>1</strong></td>
+<td align="center">1393</td>
+<td align="center">6286</td>
+</tr>
+</tbody>
+</table>
+<p>The model classified 0.82 of the outcomes as having a greater than 50% probability of performing (*i.e., better than guessing). If we had set the bar at 75%, the results are similar: 0.81. Reaching for 80% accuracy, however, drops the results to 0.62.</p>
+</div>
+<div id="does-the-training-model-do-as-well-on-the-test-sample-it-hasnt-yet-seen" class="section level4">
+<h4><span class="header-section-number">4.3.4.2</span> Does the training model do as well on the test sample it hasn’t yet seen?</h4>
+<table style="width:29%;">
+<colgroup>
+<col width="12%" />
+<col width="8%" />
+<col width="8%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center"> </th>
+<th align="center">0</th>
+<th align="center">1</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center"><strong>0</strong></td>
+<td align="center">11</td>
+<td align="center">8</td>
+</tr>
+<tr class="even">
+<td align="center"><strong>1</strong></td>
+<td align="center">956</td>
+<td align="center">4635</td>
+</tr>
+</tbody>
+</table>
+<p>The training model does quite well on the test data. The model classified 0.83 of the outcomes as having a greater than 50% probability of performing (*i.e., better than guessing). If we had set the bar at 75%, the results are similar: 0.8. Reaching for 80% accuracy, however, drops the results to 0.62.</p>
+</div>
+</div>
+<div id="next-steps" class="section level3">
+<h3><span class="header-section-number">4.3.5</span> Next steps</h3>
+<p>We have a promising logistic model based on all of the quantitative variables but one, <em>dti</em>, that lacked predictive power. You could say, informally, that it has 75% accuracy. In the next installment, we will look at the effects of adding in the qualitative variables.</p>
 
-drv &lt;- dbDriver(&quot;MySQL&quot;)
-con &lt;- dbConnect(drv, username=&quot;root&quot;, password=&quot;&quot;, dbname =&quot;dlf&quot;, host=&quot;localhost&quot;)
-res &lt;- dbGetQuery(con, &quot;SELECT * from y7&quot;)
-cs &lt;- as.tibble(res)
-load(&quot;data/kmeans_loans.Rda&quot;) # brings in cs.k
-#check for missing values
-nrow(cs) == length(cs.k$cluster)
-# convert to data frame
-csk &lt;- as.tibble(cs.k$cluster)
-# rename the column
-csk &lt;- csk %&gt;% transmute(kcluster = value)
-# combine
-loans &lt;- bind_cols(cs,csk)
-# remove duplicate rownames column
-loans &lt;- loans[-1]
-# write back to SQL
-#dbWriteTable(con, &quot;loans&quot;, y7k) 
-# test
-#dbGetQuery(con, &quot;SELECT * from loans limit 25&quot;)</code></pre>
 </div>
-</div>
-<div id="do-the-clusters-predict-loan-performance" class="section level2">
-<h2><span class="header-section-number">4.6</span> Do the clusters predict loan performance?</h2>
-<p>Do the clusters derived from the principal components of the numeric variables, <em>obal</em>, <em>orate</em>, <em>dti</em> and <em>cltv</em> have an association with the <em>down</em> variable of consequtive payments missed?</p>
-<p>If they do, we have the makings of a model; otherwise, we need to look at the other data available.</p>
-
 </div>
 </div>
             </section>

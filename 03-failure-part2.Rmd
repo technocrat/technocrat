@@ -8,177 +8,177 @@ The problem with the conventional wisdom of long standing is that it loses sight
 
 In the subprime market that emerged in the late 90s, all of those factors changed. Criteria that were narrow became broad, documentation was relaxed and a widespread assumption was that continually rising home values would preclude any problems. It's not surprising that FICO lost its predictive power.
 
-## Restructuring the data
+## Overview of the *down* dependent variable
 
-Some of the testing of FICO as a useful metric involved subsetting the data. There were many more variables than the ones used, some of them categorical and some categorical coded as numeric. One potentially useful variable is location, because we know that real estate value are location sensitive. We have four location fields in the database, all derived from the postal zip code:
-
-* The zip code itself, which is generally either much smaller or much larger than the real estate market, and also changes at the convenience of the postal service. 
-
-* The metropolitan area derived from the U.S. Census ZIP code tabulation area, but covers a larger area than most real estate markets
-
-* Longitude and latitude dervived from the ZCTA's, used for mapping
-
-## Logistic regression using locational fields
-
-As a compromise, I converted the 5-digit zip codes into 3-digit zip codes. In metropolitan areas, the 3-digit codes are the sizes comparable to how the multiple listing services divide the market. We'll see if there is any value in this proxy measure of real estate market, using logistic regression (linear regression is inappropriate because zip codes are not continuous).
-
-```{r setup4A,echo = FALSE, warning=FALSE, message=FALSE}
+```{r setup4A, results="asis", echo = FALSE, warning=FALSE}
+suppressPackageStartupMessages(library(tidyverse))
+suppressPackageStartupMessages(library(lubridate))
 library(tidyverse)
-library(DBI)
-library(RMySQL)
+library(lubridate)
 library(ggfortify)
-drv <- dbDriver("MySQL")
-con <- dbConnect(drv, username="root", password="", dbname ="dlf", host="localhost")
-res <- as.tibble(dbGetQuery(con, "SELECT down, round(zip/100,0) FROM y7"))
-colnames(res) <- c("down", "zip3")
-res.mod <- glm(down ~ zip3, data=res)
-autoplot(res.mod)
-``` 
-
-We continue to bump up against the same problem in the Normal Q-Q plot.
-
-Do metropolitan areas do a better job?
-
-```{r, results="asis", echo = FALSE, warning=FALSE}
-res <- as.tibble(dbGetQuery(con, "SELECT down, metro FROM y7"))
-res.mod <- glm(down ~ metro, data=res)
-rm(res)
-autoplot(res.mod)
-```
-
-No.
-
-[In preparation, remaining categorical variables for logistic regression]
-
-## Principal component analysis
-
-```{r psa1,  echo = FALSE, message=FALSE, warning=FALSE}
-library(tidyverse)
 library(DBI)
 library(RMySQL)
-#library(FacoMineR)
+library(knitr)
+library(kableExtra)
+library(texreg)
+library(pander)
+knitr::knit_hooks$set(inline = function(x) { if(!is.numeric(x)){ x }else{ prettyNum(round(x,2), big.mark=",") } })
+
 drv <- dbDriver("MySQL")
 con <- dbConnect(drv, username="root", password="", dbname ="dlf", host="localhost")
-res <- dbGetQuery(con, "SELECT fico, cltv, orate, obal, dti FROM loans")
-cs <- as.tibble(res) # cs contains only the continuous variables
-css <- sample_n(cs,300, replace = FALSE) 
-# naming conventions following James et al. *An Introduction to Statistical Learning*
-
-pr.out <- prcomp(css, scale = TRUE)
-pr.var <- pr.out$sdev*2
-pve <- pr.var/sum(pr.var)
-# ------------------------------------------------------------------------
-# Plots
-par(mfrow=c(1,2))
-
-screeplot(pr.out, type = "lines")
-
-biplot(pr.out, scale = 0)
+dn <- as.tibble(dbGetQuery(con, "SELECT deal, down from y7"))#
+ggplot(dn, aes(x=down)) + geom_histogram(binwidth=1)
+zerodown <- dn %>% filter(down < 0) %>% group_by(deal) %>% summarize("count" = n())
+kable(zerodown, format.args = list(big.mark = ","), caption = "Number of loans with negative values of *down* by transaction")  %>% kable_styling(bootstrap_options = "striped", full_width = F) 
+rm(dn, zerodown)
 ``` 
 
-```{r cov1, echo = FALSE, warning=FALSE, message=FALSE}
-orate_s <- cs$orate
-obal_s <- cs$obal
+    MariaDB [dlf]> select down, count(down) from y7 group by down;
+    +------+-------------+
+    | down | count(down) |
+    +------+-------------+
+    |  -13 |           1 |
+    |  -10 |           1 |
+    |   -7 |           2 |
+    |   -6 |           3 |
+    |   -5 |           6 |
+    |   -4 |           4 |
+    |   -3 |          16 |
+    |   -2 |          67 |
+    |   -1 |         253 |
+    |    0 |       64229 |
+    |    1 |       10245 |
+    |    2 |        4724 |
+    |    3 |        2830 |
+    |    4 |        2074 |
+    |    5 |        1763 |
+    |    6 |        1627 |
+    |    7 |        1451 |
+    |    8 |        1470 |
+    |    9 |        1286 |
+    |   10 |        1019 |
+    |   11 |         852 |
+    |   12 |         728 |
+    |   13 |         600 |
+    |   14 |         448 |
+    |   15 |         306 |
+    |   16 |         160 |
+    |   17 |          88 |
+    |   18 |          18 |
+    +------+-------------+
+
+Most of the loans are current -- *down* = 0 -- but a substantial number are in arrears by one or two payments or defaulted and in various stages of foreclosure.
+
+The negative entries represent a few hundred loans that have made up to 13 months of advanced monthly payments (this was confirmed by checking a field in the database *ptd*, paid through date).
+
+## Logistic Regression
+
+### Restructuring the data
+
+In this section we will be using logistic regression, for which we need a response variable that is binary, 1 or 0, performing or non-performing. This requires classifying the 28 values of *down.* I have chosen to classify two or fewer payments missed as performing (1), and three or more payments missed as non-performing (0). The binary performance variable will be named *perf.*
+
+Some of the testing of FICO as a useful metric involved subsetting the data. There were many more variables than the ones used, some of them categorical and some categorical coded as numeric. Here is a summary of the remaining variables
+
+```{r binarize, results="asis", echo = FALSE, warning=FALSE}
+perf <- function(x) {ifelse (x <= 2, 1, 0)}
+pcthit <- function(confusion_matrix) {((confusion_matrix[[1]] + confusion_matrix[,2][2])/sum(confusion_matrix))[[1]]}
+
+y7pop <- as.tibble(dbGetQuery(con, "SELECT deal, down, fico, dti, cltv, obal, orate, fpd, +
+grade, purpose, dtype, ltype, otype, ptype, zip, metro FROM y7"))
+#training and testing sets must be created before application of perf function, which creates a matrix in y7pop, which breaks setdiff, which expects numeric in this situation
+y7train <- y7pop %>% sample_frac(0.667, replace = TRUE)
+y7test <- setdiff(y7train, y7pop) 
+y7pop <- y7pop %>% filter(fico > 1) %>% mutate(fpd = as_date(fpd)) 
+y7pop <- y7pop %>% mutate(perf = as.integer(perf(down)), down = NULL, fico = scale(fico))
+y7pop<- y7pop %>% mutate(dti = scale(dti), cltv = scale(cltv))
+y7pop <- y7pop %>% mutate(orate = scale(orate), obal = scale(obal))
+# Summary
+kable((y7pop %>% group_by(perf) %>% summarize(count = n())), format.args = list(big.mark = ","), caption = "Performance Summary")  %>% kable_styling(bootstrap_options = "striped", full_width = F)
+kable((y7pop %>% group_by(grade) %>% summarize(count = n())), format.args = list(big.mark = ","), caption = "Origination Credit Grades Summary")  %>% kable_styling(bootstrap_options = "striped", full_width = F)
+kable((y7pop %>% group_by(purpose) %>% summarize(count = n())), format.args = list(big.mark = ","), caption = "Loan Purpose Summary")  %>% kable_styling(bootstrap_options = "striped", full_width = F)
+kable((y7pop %>% group_by(dtype) %>% summarize(count = n())), format.args = list(big.mark = ","), caption = "Underwriting Documentation Type")  %>% kable_styling(bootstrap_options = "striped", full_width = F)
+kable((y7pop %>% group_by(ltype) %>% summarize(count = n())), format.args = list(big.mark = ","), caption = "Loan Type Summary")  %>% kable_styling(bootstrap_options = "striped", full_width = F)
+kable((y7pop %>% group_by(otype) %>% summarize(count = n())), format.args = list(big.mark = ","), caption = "Occupancy Type Summary")  %>% kable_styling(bootstrap_options = "striped", full_width = F)
+kable((y7pop %>% group_by(ptype) %>% summarize(count = n())), format.args = list(big.mark = ","), caption = "Property Type Summary")  %>% kable_styling(bootstrap_options = "striped", full_width = F)
+
+rm(y7pop)
 ```
 
-The cumulative variance is  `r round(cumsum(pve),3)` for this sample of 300.
 
-From the loadings chart on the right, we see that *obal* (the original amount of the loan) and *orate* (the original rate of interest) are negatively correlated, `r round(cor(orate_s,obal_s),3)`. The remaining continuous variables, *fico*, *dti* (debt-to-income ratio), *cltv* (the ratio of first and second loans to the value of the mortgaged property), have small correlations:
+### Creating training and testing subsets and their subsamples
 
-The variables *fico* and *cltv* have some correlation (`r round(cor(cs$fico,cs$cltv),3)`), while *fico* and *dti* (`r round(cor(cs$fico,cs$dti),3)`) and *dti* and *cltv* (`r round(cor(cs$dti,cs$cltv),3)`) have low correlations.
-
-The variable *orate,* however, is clearly discrete (it takes only a handful of integer values), so we re-run without it and increase the size of the sample to 9,000.
+The next step is to split the original dataset into a training set of approximately 2/3 of the data and a test set of the data and normalize the numeric data to prepare for testing.
 
 ```{r, results="asis", echo = FALSE, warning=FALSE}
-res <- dbGetQuery(con, "SELECT fico, cltv, obal, dti FROM loans")
-cs <- as.tibble(res) # cs contains only the continuous variables
-css <- sample_n(cs,9000, replace = FALSE)
-pr.out <- prcomp(css, scale = TRUE)
-pr.var <- pr.out$sdev*2
-pve <- pr.var/sum(pr.var)
-par(mfrow=c(1,2))
+y7train <- y7train %>% filter(fico > 1) %>% mutate(fpd = as_date(fpd)) 
+y7train <- y7train %>% mutate(perf = as.integer(perf(down)), down = NULL, fico = scale(fico))
+y7train<- y7train %>% mutate(dti = scale(dti), cltv = scale(cltv))
+y7train <- y7train %>% mutate(orate = scale(orate), obal = scale(obal))
 
-screeplot(pr.out, type = "lines")
+y7test <- y7test %>% filter(fico > 1) %>% mutate(fpd = as_date(fpd)) 
+y7test <- y7test %>% mutate(perf = as.integer(perf(down)), down = NULL, fico = scale(fico))
+y7test<- y7test %>% mutate(dti = scale(dti), cltv = scale(cltv))
+y7test <- y7test %>% mutate(orate = scale(orate), obal = scale(obal))
+samtrain <- sample_frac(y7train, 0.12)
+samtest <- sample_frac(y7test, 0.12)
+```
 
-biplot(pr.out, scale = 0)
+This results in a training set with `r nrow(y7train)` and a test set with `r nrow(y7test)`, each of which is a moderately largish dataset in its own right, so we will sample 12% of each to get reduced sets, a training sample of `r nrow(samtrain)` and a test sample of `r nrow(samtest)`.
 
+### Using the quantitative variables to predict loan performance with logistic regression
+
+To start, we are going to return to the numeric variables, *fico, dti, cltv, obal and orate*. This time the dependent variable will not be continuous, as was *down* on the linear regression model, but binary, *perf*, with 0 for performing and 1 for non-performing. For this we use a generlized linear model on the sample of our training set.
+
+```{r, results="asis", echo = FALSE, warning=FALSE}
+pander(glm(perf~ fico + dti + cltv + obal + orate, data = samtrain, family = binomial))
+```
+
+All of the numeric variables have *some* degree of predictive power, except for *dti*.
+
+Omitting *dti* yields
+
+```{r, results="asis", echo = FALSE, warning=FALSE}
+pander(glm(perf~ fico + cltv + obal + orate, data = samtrain, family = binomial),single.row = TRUE)
+```
+
+### Intepreting the results
+
+#### How well does the training set self-classify?
+
+```{r, results="asis", echo = FALSE, warning=FALSE}
+quant.mod.train <- glm(perf~ fico + cltv + obal + orate, data = samtrain, family = binomial)
+quant.mod.train.probs=predict(quant.mod.train,samtrain,type="response")
+quant.mod.train.pred = rep("0", nrow(samtrain)) 
+quant.mod.train.pred[quant.mod.train.probs > 0.5] = "1"
+```
+
+Given the training model, we are going to turn it on itself through the *predict* function, which will give the probability for each loan of its *perf* being non-zero. This produces what is called a *confusion matrix.*
+
+```{r, results="asis", echo = FALSE, warning=FALSE}
+pander(table(quant.mod.train.pred, samtrain$perf))
 ``` 
 
-The variances are
-```{r, results="asis", echo = FALSE, warning=FALSE}
-pve
-```
+The model classified  `r round(pcthit(table(quant.mod.train.pred, samtrain$perf)),4)` of the outcomes as having a greater than 50% probability of performing (*i.e., better than guessing). If we had set the bar at 75%, the results are similar: `r round(sum(quant.mod.train.probs > 0.75)/nrow(samtrain),4)`. Reaching for 80% accuracy, however, drops the results to `r round(sum(quant.mod.train.probs > 0.80)/nrow(samtrain),4)`.
 
-
-## K-means clustering
-
-The following represents the unsupervised classification of the *fico, cltv, obal*, and *dti* of an approximately 10% sample from the pool.
-
-```{r, results="asis", echo = TRUE, warning=FALSE}
-css.k <- kmeans(css, 3, iter.max = 20, nstart = 50)
-plot(css, col=(css.k$cluster+1), main="K-Means Clustering Result with K=3, n = 9,000, nstart = 50, max.iter = 20", pch=20, cex=2)
-```
-
-Using the entire population, rather than a sample creates somewhat better defined clusters
+#### Does the training model do as well on the test sample it hasn't yet seen?
 
 ```{r, results="asis", echo = FALSE, warning=FALSE}
-## Not run
-## cs.k <- kmeans(cs, 3, iter.max = 20, nstart = 50)
-## use load("kmeans_loans.Rda") # brings in cs.k
-## Not run
-## plot(cs, col=(cs.k$cluster+1), main="K-Means Clustering Result with K=3, n = all_loans, nstart = 50, max.iter = 20", pch=20, cex=2)
-## Use provided link (long running process)
+quant.mod.test.probs=predict(quant.mod.train,samtest,type="response")
+quant.mod.test.pred = rep("0", nrow(samtest))         
+quant.mod.test.pred[quant.mod.test.probs > 0.5] = "1"
+pander(table(quant.mod.test.pred,samtest$perf))
 ```
-![K-means clustering of all loans in loans database](http://media.richard-careaga.com/img/Kmeans_loans.png)
- 
-Consideration might be given to separately clustering high-balance loans. Other outliers, such as the zero FICO scores, can be safely ignored, as can be the anomalous loan with a 97% *dti* ratio.
 
-### Housekeeping
+The training model does quite well on the test data. The model classified `r round(pcthit(table(quant.mod.test.pred, samtest$perf)),4)` of the outcomes as having a greater than 50% probability of performing (*i.e., better than guessing). If we had set the bar at 75%, the results are similar: `r round(sum(quant.mod.test.probs > 0.75)/nrow(samtest),4)`. Reaching for 80% accuracy, however, drops the results to `r round(sum(quant.mod.test.probs > 0.80)/nrow(samtest),4)`.
 
-Since PCA is a relatively expensive calculation for 100K records, I saved the result to and Rda file for reuse. Now, I'll add it to the create a new loans database as another categorical variable.
+### Next steps
 
-Because I don't run the MySQL server with rollback and to avoid a proliferation of names
+We have a promising logistic model based on all of the quantitative variables but one, *dti*, that lacked predictive power. You could say, informally, that it has 75% accuracy. In the next installment, we will look at the effects of adding in the qualitative variables.
 
-    MariaDB [dlf]> CREATE TABLE y7k AS SELECT * from y7;
-    Query OK, 96147 rows affected (1.06 sec)
-    Records: 96147  Duplicates: 0  Warnings: 0
 
-The strategy is to create df loans with all fields and cbind cs.k$clusters, renamed "value" to kcluster and write back to loans.
 
-    dbWriteTable(con, "y7k", cs)
 
-Here's the code (not run, to avoid churn)
 
-    library(tidyverse)
-    library(DBI)
-    library(RMySQL)
-    library(FactoMineR)
-
-    drv <- dbDriver("MySQL")
-    con <- dbConnect(drv, username="root", password="", dbname ="dlf", host="localhost")
-    res <- dbGetQuery(con, "SELECT * from y7")
-    cs <- as.tibble(res)
-    load("data/kmeans_loans.Rda") # brings in cs.k
-    #check for missing values
-    nrow(cs) == length(cs.k$cluster)
-    # convert to data frame
-    csk <- as.tibble(cs.k$cluster)
-    # rename the column
-    csk <- csk %>% transmute(kcluster = value)
-    # combine
-    loans <- bind_cols(cs,csk)
-    # remove duplicate rownames column
-    loans <- loans[-1]
-    # write back to SQL
-    #dbWriteTable(con, "loans", y7k) 
-    # test
-    #dbGetQuery(con, "SELECT * from loans limit 25")
-
-## Do the clusters predict loan performance?
-
-Do the clusters derived from the principal components of the numeric variables, *obal*, *orate*, *dti* and *cltv* have an association with the *down* variable of consequtive payments missed?
-
-If they do, we have the makings of a model; otherwise, we need to look at the other data available. 
 
 
 [credit disclosure]: https://goo.gl/uhX1Pc
