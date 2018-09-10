@@ -25,7 +25,7 @@
 <meta name="author" content="Richard Careaga">
 
 
-<meta name="date" content="2018-09-09">
+<meta name="date" content="2018-09-10">
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -64,12 +64,13 @@
 <ul class="summary">
 <li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Purpose</a><ul>
 <li class="chapter" data-level="1.1" data-path="index.html"><a href="index.html#updates"><i class="fa fa-check"></i><b>1.1</b> Updates</a></li>
-<li class="chapter" data-level="1.2" data-path="index.html"><a href="index.html#background"><i class="fa fa-check"></i><b>1.2</b> Background</a></li>
-<li class="chapter" data-level="1.3" data-path="index.html"><a href="index.html#the-cases"><i class="fa fa-check"></i><b>1.3</b> The Cases</a></li>
-<li class="chapter" data-level="1.4" data-path="index.html"><a href="index.html#current-credentials"><i class="fa fa-check"></i><b>1.4</b> Current Credentials</a><ul>
-<li class="chapter" data-level="1.4.1" data-path="index.html"><a href="index.html#graduate-school-level"><i class="fa fa-check"></i><b>1.4.1</b> Graduate school level</a></li>
-<li class="chapter" data-level="1.4.2" data-path="index.html"><a href="index.html#undergraduate-level"><i class="fa fa-check"></i><b>1.4.2</b> Undergraduate level</a></li>
-<li class="chapter" data-level="1.4.3" data-path="index.html"><a href="index.html#prior-analytic-and-programming-experience"><i class="fa fa-check"></i><b>1.4.3</b> Prior analytic and programming experience</a></li>
+<li class="chapter" data-level="1.2" data-path="index.html"><a href="index.html#literate-programming-the-tight-integration-of-code-and-text"><i class="fa fa-check"></i><b>1.2</b> Literate programming: the tight integration of code and text</a></li>
+<li class="chapter" data-level="1.3" data-path="index.html"><a href="index.html#background"><i class="fa fa-check"></i><b>1.3</b> Background</a></li>
+<li class="chapter" data-level="1.4" data-path="index.html"><a href="index.html#the-cases"><i class="fa fa-check"></i><b>1.4</b> The Cases</a></li>
+<li class="chapter" data-level="1.5" data-path="index.html"><a href="index.html#current-credentials"><i class="fa fa-check"></i><b>1.5</b> Current Credentials</a><ul>
+<li class="chapter" data-level="1.5.1" data-path="index.html"><a href="index.html#graduate-school-level"><i class="fa fa-check"></i><b>1.5.1</b> Graduate school level</a></li>
+<li class="chapter" data-level="1.5.2" data-path="index.html"><a href="index.html#undergraduate-level"><i class="fa fa-check"></i><b>1.5.2</b> Undergraduate level</a></li>
+<li class="chapter" data-level="1.5.3" data-path="index.html"><a href="index.html#prior-analytic-and-programming-experience"><i class="fa fa-check"></i><b>1.5.3</b> Prior analytic and programming experience</a></li>
 </ul></li>
 </ul></li>
 <li class="chapter" data-level="2" data-path="dectab.html"><a href="dectab.html"><i class="fa fa-check"></i><b>2</b> The Financial Cash Flow Model: Python on Wall Street</a><ul>
@@ -193,7 +194,7 @@
 <div id="header">
 <h1 class="title">Data Science Portfolio</h1>
 <p class="author"><em>Richard Careaga</em></p>
-<p class="date"><em>2018-09-09</em></p>
+<p class="date"><em>2018-09-10</em></p>
 </div>
 <div id="preface" class="section level1">
 <h1><span class="header-section-number">1</span> Purpose</h1>
@@ -219,19 +220,23 @@
 <li>2018-09-01 Exhuasted linear regression on subprime loan dataset</li>
 <li>2018-09-07 Major revisions to part 1 and part 2 of subprime dataset</li>
 <li>2018-09-08 Completed revisions to part 1 of subprime dataset (linear regression)</li>
-<li>2018-09-09 Completed revisions to part 2 of subprime dataset (logistic regression using only quntitative variables) ## Literate programming: the tight integration of code and text</li>
+<li>2018-09-09 Completed revisions to part 2 of subprime dataset (logistic regression using only quntitative variables)</li>
+<li>2018-09-10 corrected keywords in revised part 2 of subprime dataset</li>
 </ul>
+</div>
+<div id="literate-programming-the-tight-integration-of-code-and-text" class="section level2">
+<h2><span class="header-section-number">1.2</span> Literate programming: the tight integration of code and text</h2>
 <p>An analysis can have different audiences, and one of those may be peers, who may want to look under the hood to see exactly how the data were processed to produce the results given. This book is in that style and the RMarkdown files used to produce this portfolio are all available:</p>
 <pre><code>git clone https://github.com/technocrat/technocrat.github.io</code></pre>
 </div>
 <div id="background" class="section level2">
-<h2><span class="header-section-number">1.2</span> Background</h2>
+<h2><span class="header-section-number">1.3</span> Background</h2>
 <p>In 2007, I put much effort into acquiring the nuts-and-bolts of data science, dusting off old statistial learning, and throwing them into the front line of the initial skirmishes of the Great Recession. This was not something in my job description at Washington Mutual Bank, the largest ever to fail in the U.S. Fortunately, I was senior enough to decide on my own how best to spend my time.</p>
 <p>I spent a month split between data acquisition and learning three new software tools – MySQL, R and Python. That dataset is one of several cases studies in this document that I use to show what you can expect if you take me on as a data scientist.</p>
 <p>The cases range from spreadsheet sized (a few hundred records) to small (a thousand), middling (125,000) and largest (500,000). As the cases get larger, the number of fields grow, as well, along with the data clean-up.</p>
 </div>
 <div id="the-cases" class="section level2">
-<h2><span class="header-section-number">1.3</span> The Cases</h2>
+<h2><span class="header-section-number">1.4</span> The Cases</h2>
 <p>Each of the cases is designed to illustrate one or more specific skill by presenting an example and explaining what motivated it, what it does, the tools used, and what its output accomplished.</p>
 <ul>
 <li>2015 police involved homicides: Descriptive statistics, observational data hypothesis testing</li>
@@ -243,10 +248,10 @@
 </ul>
 </div>
 <div id="current-credentials" class="section level2">
-<h2><span class="header-section-number">1.4</span> Current Credentials</h2>
+<h2><span class="header-section-number">1.5</span> Current Credentials</h2>
 <p>I’ve completed the following online courses, to consolidate and expand my previous training and experience in data science, which sprung, ultimately, from undergraduate and graduate degrees in geology and geophysics. My plan is to use these cases to apply the many new techniques that I have learned to date, and expect to learn as I complete the remaining courses in the series.</p>
 <div id="graduate-school-level" class="section level3">
-<h3><span class="header-section-number">1.4.1</span> Graduate school level</h3>
+<h3><span class="header-section-number">1.5.1</span> Graduate school level</h3>
 <div class="figure">
 <img src="https://s3-us-west-2.amazonaws.com/tuva/MITxPRO+DSx+Certificate+%7C+MIT+xPro.png" alt="MITxPro Data Science and Big Data Analytics: Making Data-Driven Decisions" />
 <p class="caption">MITxPro Data Science and Big Data Analytics: Making Data-Driven Decisions</p>
@@ -259,11 +264,11 @@
 </div>
 </div>
 <div id="undergraduate-level" class="section level3">
-<h3><span class="header-section-number">1.4.2</span> Undergraduate level</h3>
+<h3><span class="header-section-number">1.5.2</span> Undergraduate level</h3>
 <p><img src="https://s3-us-west-2.amazonaws.com/tuva/BerkeleyX+Data8.1x+Certificate+%7C+edX.png" alt="BerkeleyX Data8.1x Certificate" /> <img src="https://s3-us-west-2.amazonaws.com/tuva/BerkeleyX+Data8.2x+Certificate+%7C+edX.png" alt="Data8.2x: Foundations of Data Science: Inferential Thinking by Resampling" /> Data8.3x: Foundations of Data Science: Prediction and Machine Learning (passing grade, certificate issuance schedule for September 18, 2018)</p>
 </div>
 <div id="prior-analytic-and-programming-experience" class="section level3">
-<h3><span class="header-section-number">1.4.3</span> Prior analytic and programming experience</h3>
+<h3><span class="header-section-number">1.5.3</span> Prior analytic and programming experience</h3>
 <p>My prior analytic education and experience was in geology/geophysics (M.S.) and law (J.D.) I have been on *nix as my own sysadm since 1984, including Venix (a v7 derivative), Irix (SGI), Ubuntu and other Linux versions, and Mac OSx. My orientation is strongly CLI, rather than GUI, but I have used Excel and Word since their early release. I have non-PC experience with the IBM S/34 and implementation of payroll, general ledger and budgeting. During the mid-90s, I installed, configured and operated http, mail, news, proxy, certificate and LDAP servers. I am familiar with many of the important bash tools (which I use on a daily basis) and with C and Perl (which I can still read, but seldom use).</p>
 <blockquote>
 <p>When we got our numbers off of greenbar, no one cared how pretty it looked.</p>

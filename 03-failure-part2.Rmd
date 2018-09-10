@@ -1,6 +1,6 @@
 # The subprime mortgage crisis unfolds in early 2007, part 2
 
-Keywords: logistic regression, unsupervised learning, principal component analysis, k-means clustering, correspondence analysis, chi-squared test, contingency table, pivot, correlation table
+Keywords: logistic regression, confusion matrix
 
 ## The fall of FICO
 
@@ -127,7 +127,7 @@ This results in a training set with `r nrow(y7train)` and a test set with `r nro
 
 ### Using the quantitative variables to predict loan performance with logistic regression
 
-To start, we are going to return to the numeric variables, *fico, dti, cltv, obal and orate*. This time the dependent variable will not be continuous, as was *down* on the linear regression model, but binary, *perf*, with 0 for performing and 1 for non-performing. For this we use a generlized linear model on the sample of our training set.
+To start, we are going to return to the numeric variables, *fico, dti, cltv, obal and orate*. This time the dependent variable will not be continuous, as was *down* on the linear regression model, but binary, *perf*, with 1 for performing and 0 for non-performing. For this we use a generlized linear model on the sample of our training set.
 
 ```{r, results="asis", echo = FALSE, warning=FALSE}
 pander(glm(perf~ fico + dti + cltv + obal + orate, data = samtrain, family = binomial))
@@ -173,7 +173,7 @@ The training model does quite well on the test data. The model classified `r rou
 
 ### Next steps
 
-We have a promising logistic model based on all of the quantitative variables but one, *dti*, that lacked predictive power. You could say, informally, that it has 75% accuracy. In the next installment, we will look at the effects of adding in the qualitative variables.
+We have a promising logistic model based on all of the quantitative variables but one, *dti*, that lacked predictive power. You could say, informally, that it has 75% accuracy. In the next installment, we will look at the effects of adding in the qualitative variables and move on to resampling and other cross validation methods.
 
 
 
