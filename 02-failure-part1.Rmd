@@ -275,3 +275,5 @@ autoplot(all.sam.mod, label.size = 3)
 
 In the following section, we turn to logistic regression, which relaxes the assumption of normality of residuals.
 
+
+

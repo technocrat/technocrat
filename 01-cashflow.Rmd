@@ -1050,3 +1050,5 @@ knitr::include_graphics(rep("images/CPR02dec.png"))
 This is the most complex Python program that I've written. Again, I don't consider it production code, but did find it a useful prototype.
 
 No one else submitted an example program, and the agency ended up dropping the proposal. That's a shame, because in the round trip from the jargon of the trader's desk to the lawyer's chambers and then to the proprietary model, some meaning is lost in translation. On an industry conference call during the comment period, one proprietary modeler admitted that he didn't know how to interpret the legal term *notwithstanding.* That is just as understandable as a lawyer being innocent of a NAND gate, but potentially more harmful.
+
+
