@@ -1,420 +1,317 @@
-c[1][1][1]
-c[[[1]]]
-c[[1]]]
-c[1]
-c[1][1]
-c[1][1][1]
-c[1][1][1][1]
-c[1][1][1][1][1]
-str(c[1][1][1][1][1])
-c[1]$p.value
-c[1]$runs
-c[1]$parameter
-c[0]$parameter
-c[1][1]$statistic
-c[1]
-str(c[1])
-class(c[1])
-c[1]$method
-help(runs.test)
-c <- lapply(b,runs.test(plot=TRUE))
-runs.test(sweepotato$yield,plot=TRUE)
-runs.test(sweetpotato$yield,plot=TRUE)
-??htest
-tidy(c)
-library(tidyverse)
-tidy(c)
-glance(c)
-library(broom)
-tidy(c)
-glance(c)
-tt <- t.test(rnorm(10))#
-tidy(tt)#
-glance(tt)  # same output for all htests
-tt <- t.test(mpg ~ am, data = mtcars)#
-tidy(tt)
-class(tt)
-class(c)
-class(c)[1]
-help(runs.test)
-d <- runs.test(sweetpotato$yield)
-tidy(d)
-d
-d$1
-d$runs
-d <- runs.test(sweetpotato$yield)
-d$runs
-class(d)
-str(c)
-c[10]
-tidy(c[10])
-tidy(c[10][1])
-d <- runs.test(sweetpotato$yield)
-head(b)
-c <- lapply(b,runs.test)
-str(c[0])
-str(c[1])
-c[1]..$runs
-c[1]$runs
-colnames(c)
-head(c)
-c[[1]]
-tidy(c[[1]])
-d <- lapply(c,tidy)
-head(d)
-class(d)
-e <- as.tibble(d)
-d
-e <- unlist(d)
-head(e)
-tail(e)
-e <- as.tibble(e)
-e
-d[0][5]
-d[1][5]
-d[[1]]
-d[[1]]$p.value
-save(d, file = "runs.Rda")
-hquit
 quit()
+suppressPackageStartupMessages(library(tidyverse))#
+suppressPackageStartupMessages(library(lubridate))#
 library(tidyverse)#
+library(lubridate)#
+library(ggfortify)#
 library(DBI)#
 library(RMySQL)#
-library(FacoMineR)#
+library(knitr)#
+library(kableExtra)#
 drv <- dbDriver("MySQL")#
 con <- dbConnect(drv, username="root", password="", dbname ="dlf", host="localhost")#
-res <- dbGetQuery(con, "SELECT fico, cltv, orate, obal, deal FROM loans")#
-cs <- as.tibble(res)
-res <- dbGetQuery(con, "SELECT ctapeno, deal, remit, fico, dti, cltv, orate, obal grade, round(zip/100,0), dtype, fpd,ltype, pmiflag, ppp, otype, purpose, ptype FROM y6c")#
-cs <- as.tibble(res)#
-require(binaryLogic)#
-require(stringi)#
-reports <- cs %>% rowwise %>% mutate(repbin = toString(as.binary(remit))) %>% rowwise %>% mutate(repstr = str_replace_all(repbin,"[, ]",'')) %>% mutate(reports = str_count(repstr)) %>% select(ctapeno, repstr, reports)#
-perf <- reports %>% mutate(category = case_when(str_detect(repstr, '111$') ~ "C", str_count(repstr, '0') <= 9 ~ "B", str_count(repstr, '0') > 9 ~ "A")) %>% select(ctapeno, category)#
-y6rf <- cs %>% inner_join(perf, by = "ctapeno")#
-y6rf <- y6rf %>% mutate(zip = as.character(`round(zip/100,0)`), pmiflag = as.character(pmiflag), ppp = as.character(ppp), perf = category, grade = as.character((grade)))#
-y6rf <- y6rf %>% select(ctapeno, deal,fico,dti,cltv,obal, orate, grade, dtype,fpd,ltype, pmiflag, ppp,  otype, purpose, ptype, zip, perf)#
-dbWriteTable(con, "loans", y6rf) #
-test#
-res <- dbGetQuery(con, "SELECT * from loans limit 25")
-res
-y6rf
-y6rf <- y6rf %>% select(ctapeno, deal,fico,dti,cltv,obal, orate, grade, dtype,fpd,ltype, pmiflag, ppp,  otype, purpose, ptype, zip, perf)
-res <- dbGetQuery(con, "SELECT ctapeno, deal, remit, fico, dti, cltv, orate, obal, grade, round(zip/100,0), dtype, fpd,ltype, pmiflag, ppp, otype, purpose, ptype FROM y6c")#
-cs <- as.tibble(res)#
-require(binaryLogic)#
-require(stringi)#
-reports <- cs %>% rowwise %>% mutate(repbin = toString(as.binary(remit))) %>% rowwise %>% mutate(repstr = str_replace_all(repbin,"[, ]",'')) %>% mutate(reports = str_count(repstr)) %>% select(ctapeno, repstr, reports)#
-perf <- reports %>% mutate(category = case_when(str_detect(repstr, '111$') ~ "C", str_count(repstr, '0') <= 9 ~ "B", str_count(repstr, '0') > 9 ~ "A")) %>% select(ctapeno, category)#
-y6rf <- cs %>% inner_join(perf, by = "ctapeno")#
-y6rf <- y6rf %>% mutate(zip = as.character(`round(zip/100,0)`), pmiflag = as.character(pmiflag), ppp = as.character(ppp), perf = category, grade = as.character((grade)))#
-y6rf <- y6rf %>% select(ctapeno, deal,fico,dti,cltv,obal, orate, grade, dtype,fpd,ltype, pmiflag, ppp,  otype, purpose, ptype, zip, perf)
-y6rf
-dbWriteTable(con, "loans", y6rf) #
-#test#
-res <- dbGetQuery(con, "SELECT * from loans limit 25")
-dbWriteTable(con, "loans", y6rf) #
-#test#
-res <- dbGetQuery(con, "SELECT * from loans limit 25", overwrite = TRUE)
-dbWriteTable(con, "loans", y6rf) #
-#test#
-res <- dbGetQuery(con, "SELECT * from loans limit 25")
-res
+dn <- as.tibble(dbGetQuery(con, "SELECT deal, down from y7"))##
+ggplot(dn, aes(x=down)) + geom_histogram(binwidth=1)#
+zerodown <- dn %>% filter(down < 0) %>% group_by(deal) %>% summarize("count" = n())#
+kable(zerodown, format.args = list(big.mark = ","), caption = "Number of loans with negative values of *down* by transaction")  %>% kable_styling(bootstrap_options = "striped", full_width = F) #
+rm(dn, zerodown)#
+```
+perf <- function(x) {ifelse (x <= 2, 1, 0)}#
+y7pop <- as.tibble(dbGetQuery(con, "SELECT deal, down, fico, dti, cltv, obal, orate, fpd, +#
+grade, purpose, dtype, ltype, otype, ptype, zip, metro FROM y7"))#
+y7pop <- y7pop %>% filter(fico > 1) %>% mutate(fpd = as_date(fpd)) #
+y7pop <- y7pop %>% mutate(down = perf(down), fico = scale(fico))#
+y7pop <- y7pop %>% mutate(dti = scale(dti), cltv = scale(cltv))#
+y7pop <- y7pop %>% mutate(orate = scale(orate), obal = scale(obal))#
+y7pop <- y7pop %>% mutate(zip = as.character(zip), perf = as.integer(down), down = NULL)
+y7
+y7pop
+perf <- function(x) {ifelse (x <= 2, 1, 0)}#
+y7pop <- as.tibble(dbGetQuery(con, "SELECT deal, down, fico, dti, cltv, obal, orate, fpd, +#
+grade, purpose, dtype, ltype, otype, ptype, zip, metro FROM y7"))#
+y7pop <- y7pop %>% filter(fico > 1) %>% mutate(fpd = as_date(fpd)) #
+y7pop <- y7pop %>% mutate(down = perf(down), fico = scale(fico))#
+y7pop <- y7pop %>% mutate(dti = scale(dti), cltv = scale(cltv))#
+y7pop <- y7pop %>% mutate(orate = scale(orate), obal = scale(obal))#
+y7pop <- y7pop %>% mutate(zip = as.character(zip), perf = as.integer(down), down = NULL)
+ls()
+cor(y7train[,2:6])
 quit()
-library(tidyverse)#
-library(DBI)#
-library(RMySQL)#
-library(FacoMineR)#
-drv <- dbDriver("MySQL")#
-con <- dbConnect(drv, username="root", password="", dbname ="dlf", host="localhost")#
-res <- dbGetQuery(con, "SELECT fico, cltv, orate, obal, deal FROM loans")#
-cs <- as.tibble(res)
-cs
-help(PCA)
-??PCA
-PCA(cs)
-rcess
-sessionInfo()
+ls()
+quant.mod
+quant.mod.train
+ls()
+par(mfrow=c(2,2))
+glm.diag.plots(quant.mod.train, glmdiag = glm.diag(glmfit), subset = NULL, iden = TRUE, labels = NULL, ret = FALSE)
+library(boot)
 update.packages()
-library(FactoMineR)
-PCA(cs)
-pca
-cs
-qs <- cs %>% select (fico,cltv,orate)
-res <- dbGetQuery(con, "SELECT fico, cltv, orate, obal, dti, FROM loans")#
-cs <- as.tibble(res)
-res <- dbGetQuery(con, "SELECT fico, cltv, orate, obal, dti FROM loans")#
-cs <- as.tibble(res)
-PCA(cs)
-csp <- PCA(cs)
-summary(csp)
-csp$call
-csp
-csp$cll$esart.type
-csp$call$esart.type
-csp$call$ecart.type
-csp$var
-lapply(dimdesc(csp),lappy,round,2)
-lapply(dimdesc(csp),lapply,round,2)
-?biplot
+glm.diag.plots(quant.mod.train, glmdiag = glm.diag(glmfit), subset = NULL, iden = TRUE, labels = NULL, ret = FALSE)
+glm.diag.plots(quant.mod.train, glmdiag = glm.diag(quant.mod.train), subset = NULL, iden = TRUE, labels = NULL, ret = FALSE)
+data(leuk, package = "MASS")#
+leuk.mod <- glm(time ~ ag-1+log10(wbc), family = Gamma(log), data = leuk)#
+leuk.diag <- glm.diag(leuk.mod)#
+glm.diag.plots(leuk.mod, leuk.diag)
+library(DHARMa)
+simulationOutput <- simulateResiduals(quant.mod.train = quant.mod.train, n = 250)
+simulationOutput <- simulateResiduals(fittedModel = quant.mod.train, n = 250)
+simulationOutput$scaledResiduals
+plot(simulationOutput)
+testUniformity(simulationOutput = simulationOutput)
+testOverdispersion(simulationOutput)#
+testZeroinflation(simulationOutput)#
+testTemporalAutocorrelation(simulationOutput)#
+testSpatialAutocorrelation(simulationOutput)
+testOverdispersion(simulationOutput)
+testZeroinflation(simulationOutput)
+??testZeroinflation
+testZeroInflation(simulationOutput)
+testTemporalAutocorrelation(simulationOutput)
+testSpatialAutocorrelation(simulationOutput)
+simulationOutput$randomState
+testUniformity(simulationOutput = simulationOutput)
+summary(quant.mod.train)
+plot(simulationOutput, asFactor = T)
+ls()
+perf
+rm(leuk)
+rm(leuk.diag,leuk.mod,simulationOutput)
+ls()
+quant.mod.train.lm <- lm(~ perf + fico + cltv + obal + orate, data = samtrain)
+samtrain
+nros(samtrain)
+nrow(samtrain)
+head(samtrain)
+mod.lm <- lm(~ perf + fico + cltv + obal + orate)
+mod.lm <- lm(~ perf + fico + cltv + obal + orate, data = samtrain)
+foo <- cor(samtrain[,2:6])
+foo
+class(foo)
+table(quant.mod.train.pred, samtrain$perf)
+confmat <- table(quant.mod.train.pred, samtrain$perf)
+class(confmat)
+str(table)
+str(confmat)
+confmat[1]
+confmat[2]
+confmat[1,2]
+confmat[,2]
+confmat[,2][1]
+confmat[,2][2]
+sum(confmat)
+pcthit <- funtion(m) {(m[,2][1]+m[,2][2])/sum(m)}
+pcthit <- function(m) = {(m[,2][1]+m[,2][2])/sum(m)}
+pcthit <- function(m) {(m[,2][1]+m[,2][2])/sum(m)}
+pcthit(confmat)
+1 = pcthit(confmat)
+1 - pcthit(confmat)
+pcthit(confmat)
+str(foo)
+class(foo)
+srt(confmat)
+str(confmat)
+confmat
+table(quant.mod.test.pred,samtest$perf)
+table(quant.mod.train.pred,samtest$perf)
+table(quant.mod.train.pred,samtrain$perf)
+(19+4602)/nrow(samtest)
+sum(quant.mod.test.probs > 0.75)/nrow(samtest)
+mean(quant.mod.test.probs > 0.75)/nrow(samtest)
+foo <- table(quant.mod.train.pred,samtrain$perf)
+confmat(foo)
+ls()
+confmat
+pcthit(confmat)
+confmat.train <- confmat
+rm(confmat)
+confmat.test <- table(quant.mod.test.pred, samtest$perf)
+pcthit(confmat.test)
+confmat.test
+(19+4602)/nrow(samtest)
+round(pcthit(confmat.test),2)
+confmat.test[2]
+confmat.test[1]
+confmat.test[,2]
+confmat.test[,2][2]
+confmat.test[,2][,2]
+confmat.test[,2][1]
+confmat.test[,2][1]*confmat.test[,2][2]/sum(confmat.test)
+confmat.test[,2][1]*confmat.test[,2][2]
+confmat.test
+(19+4602)/sum(confmat.test)
+(19+4602)/nrow(samtest)
+pcthit
+confmat.test[,1]
+confmat.test[,1][1]
+confmat.test[,2][2]
+a <- confmat.test[,1][1]
+b <- confmat.test[,2][2]
+a
+b
+pcthit <- function(confusion_matrix) {(confusion_matrix[,1][1] + confusion_matrix[,2][2])/sum(confusion_matrix)}
+pcthit(confmat.train)
+pcthit(confmat.test)
+pcthit <- function(confusion_matrix) {round(confusion_matrix[,1][1] + confusion_matrix[,2][2])/sum(confusion_matrix)),3}
+pcthit <- function(confusion_matrix) {round(confusion_matrix[,1][1] + confusion_matrix[,2][2])/sum(confusion_matrix),3}
+pcthit <- function(confusion_matrix) {round(confusion_matrix[,1][1] + confusion_matrix[,2][2])/sum(confusion_matrix),3)}
+pcthit <- function(confusion_matrix) {round(confusion_matrix[,1][1] + confusion_matrix[,2][2])/sum(confusion_matrix)),3)}
+pcthit <- function(confusion_matrix) {(confusion_matrix[,1][1] + confusion_matrix[,2][2])/sum(confusion_matrix)}
+round(pcthit(confmat.train),3)
+round(pcthit(confmat.test),3)
+round(pcthit(confmat.train),4)
+pcthit(confmat.train)
+pcthit(confmat.test)
+ls()
+rm(a,,b,foo)
+rm(a,b,foo)
+ls()
+quit()
+library(tidyverse)
+ls()
+confmat.test
+pchhit(confmat.test)
+pcthit(confmat.test)
+pcthit(confmat.test)[,]
+pcthit(confmat.test)[,1]
+pcthit(confmat.test)[,0]
+pcthit(confmat.test)[0]
+pcthit(confmat.test)[1]
+pcthit(confmat.test)[1][1]
+pcthit(confmat.test)[1][1][1]
+pcthit(confmat.test)
+class(pcthit(confmat.test))
+str(pcthit(confmat.test))
+str(pcthit(confmat.test$Named))
+pcthit(confmat.test)[1]
+pcthit(confmat.test)[2]
+pcthit(confmat.test)[0]
+help(numeric)
+unname(pcthit(confmat.test))
+unname(pcthit(confmat.test)[1])
+unname(pcthit(confmat.test)[[0]])
+pcthit(confmat.test)[[0]]
+pcthit(confmat.test)[[1]]
+pcthit <- function(confusion_matrix) {((confusion_matrix[,1][1] + confusion_matrix[,2][2])/sum(confusion_matrix))[[1]]}
+pcthit(confmat.test)
+pcthit(confmat.train)
+confmat.test
+nrow(samtest)
+pcthit(confmat.test)
+confmat.test[[1]]
+confmat.test[[2]]
+confmat.test[[,2]]
+confmat.test[,[2]]
+confmat.test[2]
+confmat.test[,2]
+confmat.test[,2][2]
+sum(confmat.test)
+pcthit <- function(confusion_matrix) {((confusion_matrix[[1]] + confusion_matrix[,2][2])/sum(confusion_matrix))[[1]]}
+pcthit(confmat.test)
+pcthit <- function(confusion_matrix) {((confusion_matrix[[1]] + confusion_matrix[,2][2])/sum(confusion_matrix))[[1]]}
+confmat.test
+(19+4602)/5614
+sum(confmat.test)
+(19+4602)/5612
+nrow(samtest)
+samtest
+confmat.test
+19+21+972+4602
+sum(confmat.test)
+nrow(samtest)
+(19+4602)/5614
+pcthit(confmat.test)
 quit()
 library(tidyverse)#
+suppressPackageStartupMessages(tidyverse())#
+library(lubridate)#
 library(DBI)#
 library(RMySQL)#
-#library(FacoMineR)#
+perf <- function(x) {ifelse (x <= 2, 1, 0)}#
+pcthit <- function(confusion_matrix) {((confusion_matrix[[1]] + confusion_matrix[,2][2])/sum(confusion_matrix))[[1]]}#
+#
 drv <- dbDriver("MySQL")#
 con <- dbConnect(drv, username="root", password="", dbname ="dlf", host="localhost")#
-res <- dbGetQuery(con, "SELECT fico, cltv, orate, obal, dti FROM loans")#
-cs <- as.tibble(res)
-cs.pca <- prcomp(cs.pca, scale = TRUE)
-cs.pca
-cs
-cs.pca <- prcomp(cs, scale = TRUE)
-cs.pca
-cs.pca$rotation
-biplot(cs.pca, scale = 0)
-cs.val <- cs.pca$sdev*2
-cs.val
-cs.pve <- cs.var/sum(cs.var)
-cs.var <- cs.pca$sdev*2
-rm(cs.val)
-cs.pre = cs.var/sum(cs.var)
-cs.pre
-plot(cs.pre, xlab = "Principal Component", ylab="Porportion of Variance Explained"), ylim = c(0,1), type ='b')
-plot(cs.pre, xlim = "Principal Component", ylab="Porportion of Variance Explained"), ylim = c(0,1), type ='b')
-plot(cs.pre, xlim = "Principal Component", ylab="Porportion of Variance Explained", ylim = c(0,1), type ='b')
-plot(cs.pre, xlab = "Principal Component", ylab="Porportion of Variance Explained", ylim = c(0,1), type ='b')
-plot(cumsum(cs.pre), xlab = "Principal Component", ylab="Porportion of Variance Explained", ylim = c(0,1), type ='b')
-css <- sample(cs,1000)
-nrow(cs)
-css <- sample(cs,100)
-css <- sample(cs,1000)
-css <- sample(cs,1000, replace = TRUE)
-css <- sample(css,1000, replace = TRUE)#
-css.pca <- prcomp(cs, scale = TRUE)#
-biplot(css.pca, scale = 0)#
-css.val <- css.pca$sdev*2
-css
-cs
-css <- sample_n(cs,1000)
-css
-css.pca <- prcomp(cs, scale = TRUE)
-css.pca
-biplot(css.pca, scale = 0)
-css <- sample_n(cs,100)#
-css.pca <- prcomp(cs, scale = TRUE)#
-css.val <- css.pca$sdev*2#
-css.val <- css.pca$sdev*2#
-css.val#
-css.pve <- css.var/sum(css.var)#
-css.var <- css.pca$sdev*2#
-css.pre = css.var/sum(css.var)#
-plsot(css.pre, xlab = "Principal Component", ylab="Porportion of Variance Explained", ylim = c(0,1), type ='b')#
-plsot(cumsum(css.pre), xlab = "Principal Component", ylab="Porportion of Variance Explained", ylim = c(0,1), type ='b')
-css <- sample_n(cs,100)#
-css.pca <- prcomp(cs, scale = TRUE)#
-css.val <- css.pca$sdev*2
-css.pve <- css.var/sum(css.var)#
-css.var <- css.pca$sdev*2
-css <- sample_n(cs,100)#
-css.pca <- prcomp(cs, scale = TRUE)#
-css.val <- css.pca$sdev*2#
-css.var <- css.pca$sdev*2#
-css.pve <- css.var/sum(css.var)#
-plsot(css.pve, xlab = "Principal Component", ylab="Porportion of Variance Explained", ylim = c(0,1), type ='b')#
-plsot(cumsum(css.pve), xlab = "Principal Component", ylab="Porportion of Variance Explained", ylim = c(0,1), type ='b')
-css <- sample_n(cs,100)#
-css.pca <- prcomp(cs, scale = TRUE)#
-css.val <- css.pca$sdev*2#
-css.var <- css.pca$sdev*2#
-css.pve <- css.var/sum(css.var)#
-plot(css.pve, xlab = "Principal Component", ylab="Porportion of Variance Explained", ylim = c(0,1), type ='b')#
-plot(cumsum(css.pve), xlab = "Principal Component", ylab="Porportion of Variance Explained", ylim = c(0,1), type ='b')
-css <- sample_n(cs,100)#
-css.pca <- prcomp(cs, scale = TRUE)#
-css.val <- css.pca$sdev*2#
-css.var <- css.pca$sdev*2#
-css.pve <- css.var/sum(css.var)#
-plot(css.pve, xlab = "Principal Component", ylab="Porportion of Variance Explained", ylim = c(0,1), type ='b')
-css <- sample_n(cs,100)#
-css.pca <- prcomp(cs, scale = TRUE)#
-css.var <- css.pca$sdev*2#
-css.pve <- css.var/sum(css.var)#
-plot(css.pve, xlab = "Principal Component", ylab="Porportion of Variance Explained", ylim = c(0,1), type ='b')
-biplot(css.pca, scale = 0)
-biplot(css.pve, scale = 0)
-css <- sample_n(cs,100)#
-pr.out <- prcomp(css, scale = TRUE)#
-biplot(pr.out, scale = 0)#
-pr.var <- pr.out$sdev*2#
-pre <- pr.var/sum(pr.var)
-css <- sample_n(cs,1000)#
-pr.out <- prcomp(css, scale = TRUE)#
-biplot(pr.out, scale = 0)#
-pr.var <- pr.out$sdev*2#
-pre <- pr.var/sum(pr.var)
-css <- sample_n(cs,1000, replace = FALSE)#
-pr.out <- prcomp(css, scale = TRUE)#
-biplot(pr.out, scale = 0)#
-pr.var <- pr.out$sdev*2#
-pre <- pr.var/sum(pr.var)
-css <- sample_n(cs,300, replace = FALSE)#
-pr.out <- prcomp(css, scale = TRUE)#
-biplot(pr.out, scale = 0)
-par(mfrow=c(2,2))
-biplot(pr.out, scale = 0)
-plot(pve, xlab = "Principal Component", ylab="Porportion of Variance Explained", ylim = c(0,1), type ='b')#
-#
-plot(cumsum(pve), xlab = "Principal Component", ylab="Porportion of Variance Explained", ylim = c(0,1), type ='b')
-pr.var <- pr.out$sdev*2#
-pve <- pr.var/sum(pr.var)#
-plot(pve, xlab = "Principal Component", ylab="Porportion of Variance Explained", ylim = c(0,1), type ='b')#
-#
-plot(cumsum(pve), xlab = "Principal Component", ylab="Porportion of Variance Explained", ylim = c(0,1), type ='b')
-pve
-cumsum(pve)
-par(mfrow=c(2,2))
-print(pr.out)
-screeplot(pve)
-screeplot(pr.out)
-screeplot(pve)
-pve
-screeplot(pve)
-screeplot(pr.out
-)
-require(graphics)
-screeplot(pr.out)
-screeplot(pr.out, type = "lines")
-library(tidyverse)#
-library(DBI)#
-library(RMySQL)#
-#library(FacoMineR)#
-drv <- dbDriver("MySQL")#
-con <- dbConnect(drv, username="root", password="", dbname ="dlf", host="localhost")#
-res <- dbGetQuery(con, "SELECT fico, cltv, orate, obal, dti FROM loans")#
-cs <- as.tibble(res) # cs contains only the continuous variables#
-css <- sample_n(cs,300, replace = FALSE) # loadings similar with n=nrow(cs), n=1000#
-# naming conventions following James et al. *An Introduction to Statistical Learning*#
-#
-pr.out <- prcomp(css, scale = TRUE)#
-#
-pr.var <- pr.out$sdev*2#
-pve <- pr.var/sum(pr.var)#
-par(mfrow=c(2,2)#
-#
-screeplot(pr.out, type = "lines")#
-#
-biplot(pr.out, scale = 0)#
-#
-plot(pve, xlab = "Principal Component", ylab="Porportion of Variance Explained", ylim = c(0,1), type ='b')#
-#
-plot(cumsum(pve), xlab = "Principal Component", ylab="Porportion of Variance Explained", ylim = c(0,1), type ='b')#
-#
-pve#
-sumsum(pre)
-library(tidyverse)#
-library(DBI)#
-library(RMySQL)#
-#library(FacoMineR)#
-drv <- dbDriver("MySQL")#
-con <- dbConnect(drv, username="root", password="", dbname ="dlf", host="localhost")#
-res <- dbGetQuery(con, "SELECT fico, cltv, orate, obal, dti FROM loans")#
-cs <- as.tibble(res) # cs contains only the continuous variables#
-css <- sample_n(cs,300, replace = FALSE) # loadings similar with n=nrow(cs), n=1000#
-# naming conventions following James et al. *An Introduction to Statistical Learning*#
-#
-pr.out <- prcomp(css, scale = TRUE)#
-#
-pr.var <- pr.out$sdev*2#
-pve <- pr.var/sum(pr.var)#
-par(mfrow=c(2,2)#
-#
-screeplot(pr.out, type = "lines")#
-#
-biplot(pr.out, scale = 0)#
-#
-plot(pve, xlab = "Principal Component", ylab="Porportion of Variance Explained", ylim = c(0,1), type ='b')#
-#
-plot(cumsum(pve), xlab = "Principal Component", ylab="Porportion of Variance Explained", ylim = c(0,1), type ='b')#
-#
-pve#
-cumsum(pre)
-screeplot(pr.out, type = "lines")
-screeplot(pr.out, type = "lines", main = xlab = "Principal Component", title "Screeplot")
-screeplot(pr.out, type = "lines", main(xlab = "Principal Component", title "Screeplot"))
-screeplot(pr.out, type = "lines", main(xlab = "Principal Component", title = "Screeplot"))
-mod <- (cs$scale(orate) ~ cs$scale(obal))
-summary(mod)
-mod <- lm(cs$scale(orate) ~ cs$scale(obal))
-mod <- lm(cs$(scale(orate)) ~ cs$(scale(obal)))
-mod <- lm(cs$(scale(orate)) ~ cs$(scale(obal))
-mod <- lm(cs$(scale(orate)) ~ cs$(scale(obal)))
-orate_s <- cs$orate
-obal_s <- cs$obal
-mod <- lm(orate_s ~ obal_s)
-summary(mod)
-par(mfrow=c(2,2))
-plot(mod)
-cor(cs$obal,cs$orate)
-cor(cs$obal_s,cs$orate_s)
-cor(obal_s, orate_s)
-cov(orate_s,obal_s)
-var(orate_s,obal_s)
-var(obal_s,orate_s)
-var(obal,orate)
-var(cs$obal,cs$orate)
-cor(cs$obal,cs$orate)
-cov(cs$obal,cs$orate)
-cor(cs$obal,cs$orate)
-sumsum(pve)
-cumsum(pve)
-cor(cs$FICO,cs$DTI)
-cor(cs$FICO,cs$dti)
-cor(cs$fico,cs$dti)
-cor(cs$fico,cs$cltv)
-cor(cs$dti,cs$cltv)
-round(cumsum(pve),3)
-round(cor(orate_s,obal_s),3)
-round(cor(cs$fico,cs$cltv).3)
+perf <- function(x) {ifelse (x <= 2, 1, 0)}#
+y7pop <- as.tibble(dbGetQuery(con, "SELECT deal, down, fico, dti, cltv, obal, orate, fpd, +#
+grade, purpose, dtype, ltype, otype, ptype, zip, metro FROM y7"))#
+y7train <- y7pop %>% sample_frac(0.667, replace = TRUE)#
+y7test <- setdiff(y7train, y7pop) #
+rm(y7pop)
+y7train
+y7train <- y7train %>% filter(fico > 1) %>% mutate(fpd = as_date(fpd)) #
+y7train <- y7train %>% mutate(perf = as.integer(perf(down)), down = NULL, fico = scale(fico))#
+y7train<- y7train %>% mutate(dti = scale(dti), cltv = scale(cltv))#
+y7train <- y7train %>% mutate(orate = scale(orate), obal = scale(obal))
+y7train
+library(xtable)
+help(xtable)
+library(texreg)
+install.packages("texreg")
+update.packages()
+print(table(quant.mod.train.pred, samtrain$perf))
+pcthit(table(quant.mod.train.pred, samtrain$perf))
+mean(samtrain$perf)
+sum(quant.mod.train.probs > 0.75)/nrow(samtrain)
+sum(quant.mod.train.probs > 0.80)/nrow(samtrain)
+quant.mod.test.probs=predict(quant.mod.train,samtest,type="response")
+quant.mod.test.pred = rep("0", nrow(samtest))         #
+quant.mod.test.pred[quant.mod.test.probs > 0.5] = "1"#
+print(table(quant.mod.test.pred,samtest$perf)).
+quant.mod.test.pred = rep("0", nrow(samtest))         #
+quant.mod.test.pred[quant.mod.test.probs > 0.5] = "1"#
+print(table(quant.mod.test.pred,samtest$perf))
+library(texreg)
+htmlreg(table(quant.mod.train.pred, samtrain$perf))
+htmlreg(xtable(quant.mod.train.pred, samtrain$perf))
+htmlreg(table(quant.mod.train.pred, samtrain$perf))
+library(pander)
+pander(table(quant.mod.train.pred, samtrain$perf))
 quit()
-library(tidyverse)#
-library(DBI)#
-library(RMySQL)#
-#library(FacoMineR)#
-drv <- dbDriver("MySQL")#
-con <- dbConnect(drv, username="root", password="", dbname ="dlf", host="localhost")#
-res <- dbGetQuery(con, "SELECT fico, cltv, obal, dti FROM loans")#
-cs <- as.tibble(res)#
-#
-pr.out <- prcomp(cs, scale = TRUE)#
-pr.var <- pr.out$sdev*2#
-pve <- pr.var/sum(pr.var)
-pr.out
-pr.var
-pve
-cum(pre)
-cumsum(pre)
-cumsum(pve)
-screeplot(pr.out, type = "lines")
-cs.k <- kmeans(cs, 3, iter.max = 20, nstart = 50)
-plot(css, col=(css.k$cluster+1), main="K-Means Clustering Result with K=3, n = 9,000, nstart = 50, max.iter = 20", pch=20, cex=2)
-plot(cs, col=(cs.k$cluster+1), main="K-Means Clustering Result with K=3, n = all_loans, nstart = 50, max.iter = 20", pch=20, cex=2)
-cs.k <- kmeans(cs, 3, iter.max = 20, nstart = 50)
+ls()
 getwd()
 setwd("/Users/rc/projects/technocrat/data")
-save(cs.k, file = "kmeans_loans.Rda")
-plot(cs, col=(cs.k$cluster+1), main="K-Means Clustering Result with K=3, n = all_loans, nstart = 50, max.iter = 20", pch=20, cex=2)
-table(cs.k)
-cs.k
-table(cs.k$cluster)
-table(cs.k$centers)
-table(cs.k$size)
-table(cs.k$totss)
-?scatterplot
-pairs(cs~fico,cltv,obal,dti)
-pairs(~cs+fico+cltv+obal+dti)
-pairs(~cs+cs$fico+cs$cltv+cs$obal+cs$dti)
-cs
-help(pairs)
-pairs(~ fico + cltv + obal + dti, data = cs)
+save(y7test)
+save(y7test, file = "y7test")
+save(y7train, file = y7train.Rda)
+save(y7train, file = "y7train.Rda")
+save(y7pop, file = "y7pop.Rda")
+save(samtest, file = "y7samtest.Rda")
+save(samtrain, file = "y7samtrain.Rda")
+confmat.test
+confmat.train
+pcthit(confmat.test)
+pcthit(confmat.train)
+ls()
+quant.mod
+quant.mod.no_orate <- glm(formula = perf ~ fico + cltv + obal, family = binomial, #
+    data = samtrain)
+summary(quant.mod.no_orate)
+quant.mod
+quant.mod.train
+quant.mod.no_rate
+quant.mod.no_orate
+samtrain
+head(samtrain)
+y7pop
+head(y7pop)
+library(leaps)
+install.updates()
+update.packages()
+quant.train.bwd <- samtrain %>% select(perf, fico, cltv, obal, orate) %>%  regsubsets(perf ~ . ,nvmax=19,method="backward")
+library(tidyverse)
+quant.train.bwd <- samtrain %>% select(perf, fico, cltv, obal, orate) %>%  regsubsets(perf ~ . ,nvmax=19,method="backward")
+quant.train.bwd <- samtrain %>% select(perf, fico, cltv, obal, orate) %>%  regsubsets(perf ~ + fico + cltv + obal +orate ,nvmax=19,method="backward")
+library(ISLR)#
+fix(Hitters)#
+names(Hitters)#
+dim(Hitters)#
+sum(is.na(Hitters$Salary))#
+Hitters=na.omit(Hitters)#
+dim(Hitters)#
+sum(is.na(Hitters))#
+library(leaps)
+regfit.full=regsubsets(Salary~.,Hitters)
+regfit.full
+quant.train.bwd <- samtrain %>% select(perf, fico, cltv, obal, orate) %>%  regsubsets(perf ~ . ,nvmax=19,method="backward")
+head(samtrain)
+samtrain_num quant.train.bwd <- samtrain %>% select(perf, fico, cltv, obal, orate) %>%  regsubsets(perf ~ . ,nvmax=19,method="backward")
 quit()

@@ -1,0 +1,126 @@
+#### FICO fails again
+
+```{r, fico_by_deal, eval=TRUE, results="asis", echo = FALSE, warning=FALSE}
+fp <- deals %>% mutate(perf = cat2int_d(perf)) %>% filter(fico > 1) %>% mutate(fpd = as_date(fpd)) %>% mutate(fico = scale(fico), dti = scale(dti), cltv = scale(cltv), orate = scale(orate), obal = scale(obal), fpd = scale(fpd))
+colnames(fp) <- c("deal", "fico", "dti", "cltv", "obal", "orate", "fpd", "perf")
+#fico.mod <- glm(perf ~ fico, data = fp, family = "binomial")
+#summary(fico.mod)
+#RMarkdown throws an error here on the call to glm that it doesn't earlier, what follows is a output cut and pasted from console
+``` 
+
+Call:
+    glm(formula = perf ~ fico, family = "binomial", data = fp)
+
+    Deviance Residuals: 
+        Min       1Q   Median       3Q      Max  
+    -2.0923   0.5040   0.5109   0.5159   0.5305  
+
+    Coefficients:
+                Estimate Std. Error z value Pr(>|z|)    
+    (Intercept)  1.96621    0.02116  92.924   <2e-16 ***
+    fico         0.03155    0.02119   1.489    0.137    
+    ---
+    Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+    (Dispersion parameter for binomial family taken to be 1)
+
+        Null deviance: 15455  on 20742  degrees of freedom
+    Residual deviance: 15453  on 20741  degrees of freedom
+    AIC: 15457
+
+    Number of Fisher Scoring iterations: 4
+
+#### Contributions of other quantitative variables are also nil
+
+    Call:
+    glm(formula = perf ~ fico + dti + cltv + obal + orate + fpd, 
+        family = "binomial", data = fp)
+
+    Deviance Residuals: 
+        Min       1Q   Median       3Q      Max  
+    -2.0980   0.5022   0.5096   0.5165   0.5492  
+
+    Coefficients:
+                  Estimate Std. Error z value Pr(>|z|)  
+    (Intercept)  3.384e+00  1.748e+00   1.936   0.0529 .
+    fico         2.849e-02  2.298e-02   1.240   0.2150  
+    dti         -3.695e-03  2.176e-02  -0.170   0.8652  
+    cltv         1.243e-02  2.312e-02   0.538   0.5909  
+    obal        -3.764e-03  2.399e-02  -0.157   0.8753  
+    orate       -7.318e-05  2.487e-02  -0.003   0.9977  
+    fpd         -1.072e-04  1.321e-04  -0.811   0.4174  
+    ---
+    Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+    (Dispersion parameter for binomial family taken to be 1)
+
+        Null deviance: 15455  on 20742  degrees of freedom
+    Residual deviance: 15452  on 20736  degrees of freedom
+    AIC: 15466
+
+We might also consider seeing if we can find an association between one of the independent variables and the others. Can we predict the original loan amount using the other quantitative variables?
+
+    
+    Call:
+    lm(formula = obal ~ fico + dti + cltv + orate + fpd, data = fp)
+
+    Coefficients:
+    (Intercept)         fico          dti         cltv        orate          fpd  
+     -1.306e+01    4.431e-02    1.021e-01   -1.073e-02   -4.330e-01    9.873e-04  
+
+
+    ASSESSMENT OF THE LINEAR MODEL ASSUMPTIONS
+    USING THE GLOBAL TEST ON 4 DEGREES-OF-FREEDOM:
+    Level of Significance =  0.05 
+
+    Call:
+     gvlma::gvlma(x = mod.lm) 
+
+                           Value p-value                   Decision
+    Global Stat        28857.604  0.0000 Assumptions NOT satisfied!
+    Skewness           10457.408  0.0000 Assumptions NOT satisfied!
+    Kurtosis           18125.177  0.0000 Assumptions NOT satisfied!
+    Link Function          5.277  0.0216 Assumptions NOT satisfied!
+    Heteroscedasticity   269.742  0.0000 Assumptions NOT satisfied!
+
+Without stepping through the output, the short answer is no; these data do not satisfy the assumptions needed for a valid linear regression model. As a concrete example, though, let's look at a simplified linear regression model, original loan amount as the dependent variable, FICO as the independent variable. 
+
+```{r, results="asis", echo = FALSE, warning=FALSE}
+res.mod <- lm(obal ~ fico, data = fp)
+#summary(res.mod)
+res.t <- as_tibble(res.mod$residuals)
+ggplot(data = res.t, aes(sample=value)) + geom_qq() + geom_qq_line()
+``` 
+The plot shows the residuals (difference between the observed and predicted values) against a normal distribution (the straight slope). That's a no-no.
+
+The same with balance again debt-to-income ratio, combined debt-to-income ratio, the initial interest rate and first payment date.
+
+These results are from the entire population of the first and last deals in 2006 and one of the third-party deals. What if we sample the approximately approximately a third of 21 thousand loans? 
+
+```{r, results="asis", echo = FALSE, warning=FALSE}
+sam <- sample_n(fp, 7500, replace = TRUE)
+mod <- lm(obal ~ fico, data = sam)
+res <- as_tibble(mod$residuals)
+ggplot(data = res, aes(sample=value)) + geom_qq() + geom_qq_line()
+```
+
+Still no-go. This is why, in Section 3.4.3, above, I was skeptical that linear regression would prove fruitful. (It is also something that I wish I knew in 2007 when I did the original analysis.)
+
+## Where are we left?
+
+If linear regression is off the table, so is a logistic regression that includes the quantitative data. Next we look at logistic regression using only variables independent of perforance.  
+
+### Logistic regression
+
+What we have to work with that is independent of performance:
+
+* K-means clusters
+* Initial interest rates (these aren't continuous and fall into 11 buckets)
+* Loan type
+* Occupancy type
+* Loan documentation type
+* Loan purpose
+* Metropolitan region (although there are quite a few buckets)
+
+
+
