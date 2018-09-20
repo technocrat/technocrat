@@ -35,6 +35,10 @@ Its intent is to provide prospective employers with concrete evidence of my abil
 * 2018-09-07 Major revisions to part 1 and part 2 of subprime dataset
 * 2018-09-08 Completed revisions to part 1 of subprime dataset (linear regression)
 * 2018-09-09 Completed revisions to part 2 of subprime dataset (logistic regression using only quntitative variables)
+* 2018-09-10 corrected keywords in revised part 2 of subprime dataset
+* 2018-09-11 site configuration change
+* 2018-09-19 added section for credits
+
 ## Literate programming: the tight integration of code and text
 
 An analysis can have different audiences, and one of those may be peers, who may want to look under the hood to see exactly how the data were processed to produce the results given. This book is in that style and the RMarkdown files used to produce this portfolio are all available: 
