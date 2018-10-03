@@ -38,6 +38,7 @@ Its intent is to provide prospective employers with concrete evidence of my abil
 * 2018-09-10 corrected keywords in revised part 2 of subprime dataset
 * 2018-09-11 site configuration change
 * 2018-09-19 added section for credits
+* 2018-10-02 Added final certificate for BerkeleyX program
 
 ## Literate programming: the tight integration of code and text
 
@@ -70,24 +71,27 @@ I've completed the following online courses, to consolidate and expand my previo
 
 ### Graduate school level
 
-![MITxPro Data Science and Big Data Analytics: Making Data-Driven Decisions](https://s3-us-west-2.amazonaws.com/tuva/MITxPRO+DSx+Certificate+%7C+MIT+xPro.png)
+[MITxPro Data Science and Big Data Analytics: Making Data-Driven Decisions](https://mitxpro.mit.edu/certificates/33bd4f594691496d80096527f70cb1e0)
 
-!["HarvardX PH125.1x Certificate"](https://s3-us-west-2.amazonaws.com/tuva/HarvardX+PH125.1x+Certificate+%7C+edX.png)
-!["HarvardX PH125.2x Certificat"](https://s3-us-west-2.amazonaws.com/tuva/HarvardX+PH125.2x+Certificate+%7C+edX.png)
-!["HarvardX PH125.3x Certificate"](https://s3-us-west-2.amazonaws.com/tuva/HarvardX+PH125.3x+Certificate+%7C+edX.png)
-!["HarvardX PH125.4x Certificate"](https://s3-us-west-2.amazonaws.com/tuva/HarvardX+PH125.4x+Certificate+%7C+edX.png)
-!["Harvard PH125.5x: Data Science, Productivity Tools"](https://s3-us-west-2.amazonaws.com/tuva/HarvardX+PH125.5x+Certificate+%7C+edX.png )
+[HarvardX: PH559x Causal Diagrams: Draw Your Assumptions Before Your Conclusions](https://courses.edx.org/certificates/95c739300bd04af6ad1edf8ef8de0a75)
 
-![HarvardX PH125.6x: Data Science: Data Wrangling](https://s3-us-west-2.amazonaws.com/tuva/HarvardX+PH125.6x+Certificate+%7C+edX.png)
-![HarvardX PH125.7x: Data Science: Linear Regression Wrangling](https://s3-us-west-2.amazonaws.com/tuva/HarvardX+PH125.7x+Certificate+%7C+edX.png)
+[PH125.1x: Data Science: R Basics](https://courses.edx.org/certificates/7bc00c8dcd3648529116e40236c21bf5)
+
+[PH125.2x: Data Science: Visualization](https://courses.edx.org/certificates/f007769d489143d99000f4a1191cc735)
+
+[PH125.3x: Data Science: Probability](https://courses.edx.org/certificates/b937c23b84184d82892a02e6ff09c63a)
+
+[PH125.4x: Data Science: Inference and Modeling](https://courses.edx.org/certificates/d3253166fb40436597b0dcae0b97e3c4)
+
+[Harvard PH125.5x: Data Science, Productivity Tools](https://courses.edx.org/certificates/09ed2d671d0a43f5bd971f3ee2790b73)
+
+[HarvardX PH125.6x: Data Science: Data Wrangling](https://courses.edx.org/certificates/71941bd7789645018f46c182d544ae9f)
+
+[PH125.7x: Data Science: Linear Regression](https://courses.edx.org/certificates/71941bd7789645018f46c182d544ae9f)
  
-![HarvardX PH559x: Casual Diagrams  Certificate](https://s3-us-west-2.amazonaws.com/tuva/HarvardX+PH559x+Certificate+%7C+edX.png)
-
 ### Undergraduate level
 
-![BerkeleyX Data8.1x Certificate](https://s3-us-west-2.amazonaws.com/tuva/BerkeleyX+Data8.1x+Certificate+%7C+edX.png)
-![Data8.2x: Foundations of Data Science: Inferential Thinking by Resampling](https://s3-us-west-2.amazonaws.com/tuva/BerkeleyX+Data8.2x+Certificate+%7C+edX.png)
-Data8.3x: Foundations of Data Science: Prediction and Machine Learning (passing grade, certificate issuance schedule for September 18, 2018)
+[BerkeleyX Professional Certificate Foundations of Data Science](https://credentials.edx.org/records/programs/shared/dffcc007adf14f019a516cc3147d07a2/)
  
 ### Prior analytic and programming experience
 
