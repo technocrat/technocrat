@@ -4,7 +4,7 @@
 
 ## Case Description
 
-After the financial crisis beginning in 2008, the Securities and Exchange Commission issued a proposed [rulemaking]("https://www.sec.gov/rules/proposed/2010/33-9117.pdf") in 2010 that asked whether it should require whether it should require
+After the financial crisis beginning in 2008, the Securities and Exchange Commission issued a proposed [rulemaking]("https://www.sec.gov/rules/proposed/2010/33-9117.pdf") in 2010 that asked whether it should require
 
 > The asset-level information ... according to proposed standards and in a tagged data format using eXtensible Markup Language (XML)... [and the] filing of a computer program of the contractual cash flow provisions expressed as downloadable source code in Python
 
