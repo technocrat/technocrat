@@ -116,7 +116,7 @@ intervals = function(.df, ...)
 
 ##########################################################
 # Data access for relatively static sources
-thecounted <- read.csv("data/2015.csv", header = TRUE, stringsAsFactors = FALSE)
+thecounted <- read.csv("data/raw/2015.csv", header = TRUE, stringsAsFactors = FALSE)
 counted <- tbl_df(thecounted)
 fields <- tbl_df(colnames(counted))
 fields1 <- slice(fields,1:7)
@@ -134,22 +134,22 @@ addr <- tbl_df(addr)
 # following only need to be done when dataset changes
 #api_key <- "[USER SPECIFIC]" # google
 #coord <- geocode(addr$location, output = "latlon")
-#save(coord, file = "data/coord.Rda")
+#save(coord, file = "data/scrubed/coord.Rda")
 # following only needs to be done when new cartographic boundary file published
 #dsn <- "data"
-#layer <- "data/cb_2015_us_state_5m"
+#layer <- "data/raw/cb_2015_us_state_5m"
 #cb5 <- readOGR(dsn = dsn, layer = layer)
-#save(cb5, file = "data/cb5.Rda")
+#save(cb5, file = "data/scrubbed/cb5.Rda")
 # following only needs to be done when new census estiates published
 #pop_source <- "https://www.census.gov/popest/data/national/totals/2015/files/NST-EST2015-alldata.csv"
 #population <- read.csv(textConnection(getURL(pop_source)))[-(1:5),]
-#save(population, file = "data/population.Rda")
+#save(population, file = "data/scrubbed/population.Rda")
 # add lat/long to dataframe
-load("data/coord.Rda")
+load("data/scrubbed/coord.Rda")
 counted <- bind_cols(counted, coord)
 colnames(counted)[11] <- "id"
 ##########################################################
-load("data/cb5.Rda")
+load("data/scrubbed/cb5.Rda")
 us <- cb5
 # relocate AK & HI and outset RI, DE and DC
 us_aea <- spTransform(us, CRS("+proj=laea +lat_0=45 +lon_0=-100 +x_0=0 +y_0=0 +a=6370997 +b=6370997 +units=m +no_defs"))
@@ -193,9 +193,9 @@ centroids['MA',]$clat = 100000
 centroids['NJ',]$clong = 2130000
 centroids['NJ',]$clat = -255000
 # load population data
-load("data/population.Rda")
+load("data/scrubbed/population.Rda")
 # load convenience data frame cross indexing state, id, fips
-load("data/converter.Rda")
+load("data/scrubbed/converter.Rda")
 converter$state <- cdefactor(converter$state)
 converter$id <- cdefactor(converter$id)
 converter <- tbl_df(converter)
@@ -243,8 +243,8 @@ colnames(day) <- c("day")
 monthday <- bind_cols(month,day)
 dateinput <- paste(monthday$mon,monthday$day)
 monthday <- transmute(monthday, date = paste(mon,day))
-datefile <- (cat(system("bin/datify | bin/datify2 | bin/stripblanks > data/dates.csv", input = dateinput, intern = TRUE)))
-dated <- read.csv("data/dates.csv", header = FALSE, stringsAsFactors = FALSE)
+datefile <- (cat(system("bin/datify | bin/datify2 | bin/stripblanks > data/raw/dates.csv", input = dateinput, intern = TRUE)))
+dated <- read.csv("data/raw/dates.csv", header = FALSE, stringsAsFactors = FALSE)
 colnames(dated) = c("date")
 dated <- tbl_df(dated)
 dated$date <- as.Date(dated$date)

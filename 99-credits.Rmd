@@ -33,5 +33,3 @@
 31. Hadley Wickham (2017). tidyverse: Easily Install and Load the 'Tidyverse'. R package version 1.2.1. https://CRAN.R-project.org/package=tidyverse
 32. Kurt Hornik (2018). Unicode: Unicode Data and Utilities. R package version 11.0.0-1. https://CRAN.R-project.org/package=Unicode
 33. David B. Dahl, David Scott, Charles Roosen, Arni Magnusson and Jonathan Swinton (2018). xtable: Export Tables to LaTeX or HTML. R package version 1.8-3. https://CRAN.R-project.org/package=xtable
-
-

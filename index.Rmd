@@ -39,6 +39,7 @@ Its intent is to provide prospective employers with concrete evidence of my abil
 * 2018-09-11 site configuration change
 * 2018-09-19 added section for credits
 * 2018-10-02 Added final certificate for BerkeleyX program
+* 2018-10-09 fixed broken links
 
 ## Literate programming: the tight integration of code and text
 

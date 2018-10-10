@@ -37,7 +37,7 @@ and then apply a short Python program
     import itertools
     import textwrap
 
-    data  = "/Users/rc/Desktop/MITx8/ccrescentus.fa" # your path here
+    data  = "/data/raw/ccrescentus.fa" # your path here
     # Desired length of genome fragments
     fraglen = 300
     OBJECT = [] # empty bucket

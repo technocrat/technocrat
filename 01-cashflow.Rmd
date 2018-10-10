@@ -4,17 +4,17 @@
 
 ## Case Description
 
-After the financial crisis beginning in 2008, the Securities and Exchange Commission issued a proposed [rulemaking]("https://www.sec.gov/rules/proposed/2010/33-9117.pdf") in 2010 that asked whether it should require
+After the financial crisis beginning in 2008, the Securities and Exchange Commission issued a proposed [rulemaking](https://www.sec.gov/rules/proposed/2010/33-9117.pdf) in 2010 that asked whether it should require
 
 > The asset-level information ... according to proposed standards and in a tagged data format using eXtensible Markup Language (XML)... [and the] filing of a computer program of the contractual cash flow provisions expressed as downloadable source code in Python
 
 in offerings of residential mortgage backed securities and other asset types. In the trade, the asset-level information is called *the tape.*
 
-In my [comment letter]("https://www.sec.gov/comments/s7-08-10/s70810-41.pdf"), I supported both requirements and provided a demonstration of how they would work based on an [actual transaction]("https://www.sec.gov/Archives/edgar/data/1176320/000114420410022414/v182145_424b5.htm").
+In my [comment letter](https://www.sec.gov/comments/s7-08-10/s70810-41.pdf), I supported both requirements and provided a demonstration of how they would work based on an [actual transaction](https://www.sec.gov/Archives/edgar/data/1176320/000114420410022414/v182145_424b5.htm).
 
 ## XML Conversion
 
-The [asset data]("https://www.sec.gov/Archives/edgar/data/1490028/000114420410022348/v182018_fwp.htm") for this transaction was filed in HTML format in particularly ugly form in multiple tables.
+The [asset data](https://www.sec.gov/Archives/edgar/data/1490028/000114420410022348/v182018_fwp.htm) for this transaction was filed in HTML format in particularly ugly form in multiple tables.
 
 
         </font></td>
@@ -355,7 +355,7 @@ This is a stem and leaf plot, which is quite useful. For the top line, read 701,
 
 ## The Cash Flow Model
 
-The purpose of the next program is to replicate the results of pages S-84 and S-85 in the [actual transaction]("https://www.sec.gov/Archives/edgar/data/1176320/000114420410022414/v182145_424b5.htm"). The trade name for these tables is *decrement table* and they show for each class of security when it will be retired, given certain assumptions.
+The purpose of the next program is to replicate the results of pages S-84 and S-85 in the [actual transaction](https://www.sec.gov/Archives/edgar/data/1176320/000114420410022414/v182145_424b5.htm). The trade name for these tables is *decrement table* and they show for each class of security when it will be retired, given certain assumptions.
 
     """
     demonstration.py
