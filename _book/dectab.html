@@ -197,16 +197,16 @@
 <p><em>Keywords: fintec, data wrangling, Python</em></p>
 <div id="case-description" class="section level2">
 <h2><span class="header-section-number">2.1</span> Case Description</h2>
-<p>After the financial crisis beginning in 2008, the Securities and Exchange Commission issued a proposed <a href="%22https://www.sec.gov/rules/proposed/2010/33-9117.pdf%22">rulemaking</a> in 2010 that asked whether it should require</p>
+<p>After the financial crisis beginning in 2008, the Securities and Exchange Commission issued a proposed <a href="https://www.sec.gov/rules/proposed/2010/33-9117.pdf">rulemaking</a> in 2010 that asked whether it should require</p>
 <blockquote>
 <p>The asset-level information … according to proposed standards and in a tagged data format using eXtensible Markup Language (XML)… [and the] filing of a computer program of the contractual cash flow provisions expressed as downloadable source code in Python</p>
 </blockquote>
 <p>in offerings of residential mortgage backed securities and other asset types. In the trade, the asset-level information is called <em>the tape.</em></p>
-<p>In my <a href="%22https://www.sec.gov/comments/s7-08-10/s70810-41.pdf%22">comment letter</a>, I supported both requirements and provided a demonstration of how they would work based on an <a href="%22https://www.sec.gov/Archives/edgar/data/1176320/000114420410022414/v182145_424b5.htm%22">actual transaction</a>.</p>
+<p>In my <a href="https://www.sec.gov/comments/s7-08-10/s70810-41.pdf">comment letter</a>, I supported both requirements and provided a demonstration of how they would work based on an <a href="https://www.sec.gov/Archives/edgar/data/1176320/000114420410022414/v182145_424b5.htm">actual transaction</a>.</p>
 </div>
 <div id="xml-conversion" class="section level2">
 <h2><span class="header-section-number">2.2</span> XML Conversion</h2>
-<p>The <a href="%22https://www.sec.gov/Archives/edgar/data/1490028/000114420410022348/v182018_fwp.htm%22">asset data</a> for this transaction was filed in HTML format in particularly ugly form in multiple tables.</p>
+<p>The <a href="https://www.sec.gov/Archives/edgar/data/1490028/000114420410022348/v182018_fwp.htm">asset data</a> for this transaction was filed in HTML format in particularly ugly form in multiple tables.</p>
 <pre><code>    &lt;/font&gt;&lt;/td&gt;
               &lt;/tr&gt;
               &lt;tr bgcolor=&quot;white&quot;&gt;
@@ -525,7 +525,7 @@ print stemplot(data0)
 </div>
 <div id="the-cash-flow-model" class="section level2">
 <h2><span class="header-section-number">2.5</span> The Cash Flow Model</h2>
-<p>The purpose of the next program is to replicate the results of pages S-84 and S-85 in the <a href="%22https://www.sec.gov/Archives/edgar/data/1176320/000114420410022414/v182145_424b5.htm%22">actual transaction</a>. The trade name for these tables is <em>decrement table</em> and they show for each class of security when it will be retired, given certain assumptions.</p>
+<p>The purpose of the next program is to replicate the results of pages S-84 and S-85 in the <a href="https://www.sec.gov/Archives/edgar/data/1176320/000114420410022414/v182145_424b5.htm">actual transaction</a>. The trade name for these tables is <em>decrement table</em> and they show for each class of security when it will be retired, given certain assumptions.</p>
 <pre><code>&quot;&quot;&quot;
 demonstration.py
 Created on 2010-07-07
