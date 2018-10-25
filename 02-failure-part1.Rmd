@@ -1,37 +1,29 @@
-# The subprime mortgage crisis unfolds in early 2007, part 1
+# The 2007 subprime mortgage crisis, part 1
 
-Keywords: large database, MySQL, Python, data wrangling, exploratory data analysis, data mining, linear regression, normality of residuals
+Keywords: large database, MySQL, Python, R, data wrangling, exploratory data analysis, ordinary least squares linear regression, diagnostics
 
 ## Case Description
 
-Washington Mutual Bank originated subprime loans as one of its home loan mortgage types. The term *subprime* has always been hard to pin down precisely. Generally, though, they represented higher-interest rate loans to less creditworthy borrowers. In competition with other lenders, the risk types, such as the borrower's debt-to-income ratio, the combined loan-to-value ratio (considering both the first and any second lien loan), the level of income and asset verification, and the purpose of the loan began to become *layered.* That is, the cumulative risk increased. And too much reliance, perhaps, was being placed on ever-increasing home values.
+This is a residential mortgage credit underwriting review of 125,000 subprime mortgage loans sold in mortgage-backed securities form in 2006 by a single issuer, Washington Mutual Bank, whose assets JPMorgan Chase acquired in 2008.
 
-In early 2007, a marketing specialist from Washington Mutual Bank's Wall Street subsidiary, called me to say that investors were complaining about the performance of our subprime securities issued in 2006. I was the principal lawyer in-house dealing with mortgage backed securities, and he wanted to know what kinds of written materials he could provide to investors.
+No single definition of what made a loan *subprime* is universally accepted. The market, however, distinquishes subprime loans from other loans based on the cash flow features of the related mortgage backed security. In particular subprime transactions often feature a credit enhancement known as *over collateralization*, which means that the dollar volume of loans in the pool is greater than the dollar volume of securities issued, providing a cushion against loss.
 
-I had some questions that had no ready answers:
+Each loan has a handful of associated quantitative variables and a few dozen qualitative variables. The characteristics of the dataset help illustrate many of the challenges of data science
 
-* How did our pools of mortgage loans differ?
-* What do we mean by performance?
-
-We could begin, I suggested, by looking at the tape for the January 2006 deal to see how the origination characteristics differed from competing deals. We could also pull the monthly report that showed last payment date, delinquency status and other data. He said that he'd try to get that together, but it wasn't really his job.
-
-This is the case that Donald Rumsfelt (*known knowns, known unknowns and unknown unknowns*) missed: **unknown knowns,** information we had that was scattered throughout the organization.
-
-It became apparent that I wasn't going to get any help dealing with my rising sense of unease that the company faced potential liabilities as a result of these transactions. I was senior enough to set my own priorities so I decided to assemble the data to see what I could make of it.
-
-## Lessons Learned
-
-Successes included data wrangling, learning how to build, query and modify SQL tables, picking up enough R and Python to do some useful descriptive work and exploratory data analysis and realizing that tens of thousands of high-dimensional records are no piece of cake.
-
-Abysmal failures included first and foremost complete ignorance of when you should **not** apply linear or logistic regression, which is the subject of this part 1.
+* Correctly classifying problems as confirmatory or observational
+* Data wrangling
+* Treating a problem as a predictive or classification
+* Exploratory data analysis, knowing what you have to work with
+* Keeping an open mind on methods
+* Carefully checking the assumptions that the methods require
+* Worrying over diagnostics
+* Finding domain knowledge 
 
 ## Data Wrangling 
 
 ### The pool dataset
 
-When the problem landed on my desk in early 2007, I had access to the origination characteristics and delinquency history of the pool of loans remaining at the beginning of 2006.
-
-The table with all the $25 billion in mortgage loans securitized in 2006:
+Washington Mutual sold $25 billion of subprime mortgage securities in 2006.
 
     +----------+-------------+
     | count(*) | sum(obal)   |
@@ -39,7 +31,7 @@ The table with all the $25 billion in mortgage loans securitized in 2006:
     |   124645 | 25542466576 |
     +----------+-------------+
 
-During 2006, however, the pool shrank to
+During 2006, however, the pool shrank to just under 100,000 loans with an aggregate original principal balance of just over $19 billion.
 
     +----------+-------------+
     | count(*) | sum(obal)   |
@@ -47,7 +39,7 @@ During 2006, however, the pool shrank to
     |    96271 | 19148472600 |
     +----------+-------------+
     
-This diminished pool, as it existed as of the last date in early 2007 for which I had data, I will refer to as *the pool.* Here is its layout.
+This diminished pool, as it existed as of the last date in early 2007 for which I had data, I will refer to as *the pool.* Here is its layout after assembly and the addition of some calculated fields. The name of the database, *dlf* stands for *delinquency, loss and foreclosure,* a business term. The table name *y7* stands for 2007 to distinguish it from the original pool *y6.* The original version was done under the MySQL open source database, and converted to MariaDB, which was created to maintain the software as open source following Oracle's acquisition of the MySQL organization.
 
     MariaDB [dlf]> describe y7;
     +----------+---------------+------+-----+---------+-------+
@@ -103,37 +95,44 @@ This diminished pool, as it existed as of the last date in early 2007 for which 
     | dfpd     | int(7)        | YES  |     | NULL    |       |
     +----------+---------------+------+-----+---------+-------+
     48 rows in set (0.00 sec)
-    
-Some new fields will be important. As of the end of the first quarter 2007 *down* is the number of months that a loan has been delinquent. A value of down greater than 3 generally indicates a loan in foreclosure or a loan that has been foreclosed and is in the process of being sold. 
 
-Fortunately the origination tapes, while wrapped in HTML, were tagged with
+The field names are mostly standard abbreviations in the business, although practice varied.
+
+As of the end of the first quarter 2007 *down* is the number of months that a loan has missed payment. A value greater than 3 generally indicates a loan in foreclosure or a loan that has been foreclosed and is in the process of being sold. However, a borrower in many jurisdictions may reinstate the loan by paying past due amounts with interest and fees.
+
+### Creating the data set
+
+Data came from public and semi-public sources. The loan level data at origination came from 14 HTML files. The performance data came from spreadsheets posted to a password protected website available to institutional investors, the only customers for mortgage backed securities not issued by a non-governmental sponsored issuer. I describe the reasons why the in-house systems were bypassed in [this sidenote](/assets/datasources.html).
+
+The HTML data was easy to extract. The header and each record was tagged as preformatted
 
     <pre>payload</pre> 
-    
-pairs, making their extraction easy. One of the typical tasks was converting dates into ISO form -- from 3/6/2006, say, to 2006-03-06, for which I turned to Python.
 
-    """
-    function to convert dates into date objects
+where *payload* represents the data fields. An [example source document](https://www.sec.gov/Archives/edgar/data/1119605/000114420406002461/v033798_fwp.htm) comes from a filing with the Securities and Exchange Commission for the first transaction in 2006. This type of file was processed with a bash command line script, the separate tables imported into temporary databases that were joined on the loan number key.
 
-    """
-    from datetime import datetime
-    import re
+One of the typical data scrubbing tasks was converting dates into ISO form -- from 3/6/2006, say, to 2006-03-06, for which I wrote a version 2 [Python script](https://gist.github.com/technocrat/d02e2c703001a9a0ba54111bdcea87b6).
 
-    def canonize_date(slashdate):
-        """convert date strings from 3/1/2009 to 2009-03-01"""
-        dateString = re.compile(r'(\d{1,2})/(\d{1,2})/(\d{4})') # match 3/1/2009
-        dash = '-'
-        parts = dateString.search(slashdate).groups()
-        composed = parts[-1] + dash + parts[-3] + dash + parts[-2]
-        return composed
+The performance data was available only in spreadsheet form, by month and transaction, which  required considerable scrubbing to bring into the database. (For example, some dollar values were entered as character strings; when these problems cropped up, I wrote small bash, Perl or Python scripts.) I combined the spreadsheets into a single plaintext file to import to the database, used a supplemental zipcode lookup table to identify the metropolitan area (for possible use with the Case Shiller Index of Home Prices) and added the longitude/latitude coordinates of centroid of the Census version of the zipcode (the *ZCTA*) for possible mapping.
 
-    def make_date(entry):
-        """
-        Convert string in form 2011-10-25 to a date object
-        """
-        return datetime.date(datetime.strptime(entry, "%Y-%m-%d"))
-        
-The performance data was available only in spreadsheet form, by month and transaction, which also required considerable scrubbing to bring into the database. I combined them into a single file, used a supplemental zipcode lookup table to identify the metropolitan area (for possible use with the Case Shiller Index of Home Prices).
+## Choosing the outcome measure
+
+A mortgage payment is delinquent when a payment due on the first of the month has not been received by the first business day of the following month. (For some government sponsored programs, not included here, the convention is receipt by the last business day of the month in which due.) 
+
+The first decision is whether to measure outcome on the number of loans or on the weighted principal balance of each loan. Investors generally look at *pool performance* in terms of the scheduled aggregate principal balance due versus the amount received each month. Because each class of investor has a different perspective depending on where it falls in the priority of payment (the *waterfall*), no single measure of balance weighted delinquency will be relevant to all investors. Therefore, I begin the analysis with the unweighted number of delinquencies.
+
+## Defining the outcome measure
+
+The simplest measure is the percentage of loans that are current in any given month, regardless of past payment history. For the July 1, 2007 due date, out of 96,271 loans, 87,369 were current, or approximately 90.8%. Of the remainder 4,844, approximately 5.0% were down one payment, and 3,015, approximately 3.1% were in default (three payments down) or in the process of foreclosure.
+
+The delinquency *rate* is often defined as the percentage of loans 60 or more days delinquent, meaning that a payment due in month one was not receive in month two or three. Under that measure, the delinquency rate for the pool at July 1, 2007 was approximtely 8.1%.
+
+A [retrospective](https://goo.gl/dwisgH) study found that the median delinquency rate for **all** subprime loans, including those originated in earlier years, to be 12.2%, with a range of 3% to 25%. The mid-year performance of the pool at mid-2007 was, accordingly, below the median.
+
+The most complex measure of delinquency would be the pattern over a period of, say, 12 months of payment versus non-payment. A loan, for example, could be delinquent every other month but happen to be current on the measurement date. Unfortunately there are 4,096 payment patterns in a year. Also, many of the payment patterns consist of a long string of defaulted loans in foreclosure.
+
+Other alternatives would the number of months since the last payment, whether the loan had missed two or more payments at the measurement date or three or more payments, and the percentage of payments made before entering the foreclosure process, 
+
+![Payment status at June 1, 2007](images/DLF.svg)
 
 ## Preliminary analysis, based on FICO scores, using linear regression
 
@@ -141,7 +140,7 @@ The performance data was available only in spreadsheet form, by month and transa
 
 In 1995, Freddie Mac advised lenders that it had found that consumer credit scores developed by Fair, Issac and Company, Inc. (**FICO** scores) strongly predicted the likelihood of default on mortgage loans. Freddie Mac's communication is reproduced as Attachment 2 in testimony before the U.S. House Committee on Oversight and Government Reform, the [Pinto testimony], beginning at page 28 of the pdf.
 
-A traditional description of the limitations of credit score is similar to the following:
+A traditional description of the limitations of credit scores is similar to the following:
 
 > Third-party credit reporting organizations provide credit scores as an aid to lenders in evaluating the creditworthiness of borrowers. Although different credit reporting organizations use different methodologies, higher credit scores indicate greater creditworthiness. Credit scores do not necessarily correspond to the probability of default over the life of the related mortgage loan because they reflect past credit history, rather than an assessment of future payment performance. In addition, the credit scores shown were collected from a variety of sources over a period of weeks, months or longer, and the credit scores do not necessarily reflect the credit scores that would be reported as of the date of this prospectus supplement. Credit scores also only indicate general consumer creditworthiness, and credit scores are not intended to specifically apply to mortgage debt. Therefore, credit scores should not be considered as an accurate predictor of the likelihood of repayment of the related mortgage loans.
 
@@ -152,16 +151,39 @@ The rating agencies and buyers involved in residential mortgage backed securitie
 ```{r setup4, echo = FALSE, warning=FALSE, message=FALSE}
 library(tidyverse)
 library(lubridate)
-library(DBI)
+library(ggfortify)
+library(GGally)
 library(knitr)
 library(kableExtra)
-library(RMySQL)
-drv <- dbDriver("MySQL")
-con <- dbConnect(drv, username="root", password="", dbname ="dlf", host="localhost")
-cs <- as.tibble(dbGetQuery(con, "SELECT deal, down, fico, dti, cltv, obal, orate, fpd FROM y7"))  %>% filter(fico > 1) 
-colnames(cs) <- c("deal", "down", "fico", "dti", "cltv", "obal", "orate", "fpd")
-p <- ggplot(cs, aes(x=fico)) + geom_histogram(binwidth = 5) + coord_cartesian(xlim = c(300,850))
-p + ggtitle("FICO scores for transactions in pool in increments of 5") + labs(x = "FICO", y = "Number of Loans")
+#### Note: The following code is surpressed in the RMD file in favor of saving the output as Rda objects for reuse
+#library(DBI)
+#library(RMySQL)
+#drv <- dbDriver("MySQL")
+#con <- dbConnect(drv, username="root", password="", dbname ="dlf", host="localhost")
+#y7pop <- as.tibble(dbGetQuery(con, "SELECT deal, down, fico, dti, cltv, obal, orate, fpd, ptd, grade, purpose, dtype, ltype, otype, ptype, zip, metro FROM y7"))
+#set.seed(137)
+#y7train <- y7pop %>% sample_frac(0.667, replace = TRUE)
+#y7test <- setdiff(y7train, y7pop)
+#y7train_scaled <- y7train %>% filter(fico > 1) %>% mutate(fpd = as_date(fpd), ptd = as_date(ptd))  %>% mutate(perf = as.integer(perf(down)), fico = scale(fico)) %>% mutate(dti = scale(dti), cltv = scale(cltv)) %>% mutate(orate = scale(orate), obal = scale(obal))
+#y7test_scaled <- y7test %>% filter(fico > 1) %>% mutate(fpd = as_date(fpd), ptd = as_date(ptd))  %>% mutate(perf = as.integer(perf(down)), fico = scale(fico)) %>% mutate(dti = scale(dti), cltv = scale(cltv)) %>% mutate(orate = scale(orate), obal = scale(obal))
+#samtrain <- sample_frac(y7train, 0.12)
+#samtest <- sample_frac(y7test, 0.12)
+#samtrain_scaled <- sample_frac(y7train_scaled, 0.12)
+#samtest_scaled <- sample_frac(y7test_scaled, 0.12)
+#save(y7pop = "data/scrubbed/split/y7pop.Rda")
+#save(y7train = "data/scrubbed/split/y7train.Rda")
+#save(y7test =  "data/scrubbed/split/y7tests.Rda")
+#save(y7train_scaled = "data/scrubbed/split/y7train.Rda")
+#save(y7test_scaled) = "data/scrubbed/split/y7test.Rda")
+#save(y7samtrain_scaled = "data/scrubbed/split/y7samtrain_scaled.Rda")
+#save(y7samtest_scaled) = "data/scrubbed/split/y7samtest_scaled.Rda")
+load('data/scrubbed/split/y7pop.Rda')
+load('data/scrubbed/split/y7train.Rda')
+load('data/scrubbed/split/y7test.Rda')
+load('data/scrubbed/split/y7train_scaled.Rda')
+load('data/scrubbed/split/y7test_scaled.Rda')
+load('data/scrubbed/split/y7samtrain_scaled.Rda')
+load('data/scrubbed/split/y7samtest_scaled.Rda')
 ``` 
 
 ### Performance outcome measure
@@ -173,16 +195,16 @@ p + ggtitle("FICO scores for transactions in pool in increments of 5") + labs(x 
 FICO scores have a minimum value of 300, and a maximum value of 850. Foreign borrowers have a FICO score of 0. The summary statistics are:
 
 ```{r, echo = FALSE, warning=FALSE, message=FALSE}
-summary(cs$fico)
+summary(y7pop$fico)
 getmode <- function(v) {
    uniqv <- unique(v)
    uniqv[which.max(tabulate(match(v, uniqv)))]
 }
-nofico <-  filter(cs, fico < 300)
-lowfico <- filter(cs, fico < 500 & fico > 0)
+nofico <-  filter(y7pop, fico < 300)
+lowfico <- filter(y7pop, fico < 500 & fico > 0)
 ```
 
-and the mode is `r getmode(cs$fico)`. The pool included two loans with FICO scores of 0, indicating that they were foreign buyers.
+and the mode is `r getmode(y7pop$fico)`. The pool included two loans with FICO scores of 0, indicating that they were foreign buyers.
 
 Sixteen other loans had scores below 500:
 
@@ -193,7 +215,7 @@ kable(lowfico, format.args = list(big.mark = ","), caption = "Number of low-FICO
 The *cliffs* around 500 (below which only the small number of loans in the tables above are included), 600, 630 and 635 represent the cumulative segmentation of the pools to obtain favorable ratings. Not all deals followed this approach, however.
 
 ```{r, results="asis", echo = FALSE}
-p + ggtitle("FICO scores for 2006 transactions in increments") + labs(x = "FICO", y = "Number of Loans") + facet_wrap(~deal)
+ggplot(y7pop) + geom_histogram(aes(x=fico)) + ggtitle("FICO scores for 2006 transactions in increments") + labs(x = "FICO", y = "Number of Loans") + facet_wrap(~deal)
 ```
 
 The variability among transactions suggest that *if* FICO scores have an influence on default rates, it may be necessary to stratify of otherwise transform the data to obtain useful results.
@@ -201,7 +223,7 @@ The variability among transactions suggest that *if* FICO scores have an influen
 ### The FICO scores are not normally distributed
 
 ```{r, results="asis", echo = FALSE, warning=FALSE}
-ggplot(cs) + aes(sample=fico) + stat_qq(distribution=qnorm) + stat_qq_line() + ylab("FICO") + labs(title = "QQ Plot of Raw FICO Scores of the Pool")
+ggplot(y7pop) + aes(sample=fico) + stat_qq(distribution=qnorm) + stat_qq_line() + ylab("FICO") + labs(title = "QQ Plot of Raw FICO Scores of the Pool")
 ``` 
 
 As a group, FICO scores have *fat tails,* a trait that is present in each of the deals to some degree. There are more loans with very low FICO scores than you would expect if score were randomly distributed plus more loans with high score. We also see a dip in the 500-600 range (loans that may only have been originated due to compensating factors), which are fewer than the sub-500 FICO loans.
@@ -209,19 +231,13 @@ As a group, FICO scores have *fat tails,* a trait that is present in each of the
 An approximately 12% random sample with replacement of normalized scores shows a similar pattern.
 
 ```{r, results="asis", echo = FALSE, warning=FALSE}
-fp <- cs %>% filter(fico > 1) %>% mutate(down = scale(down), fico = scale(fico), dti = scale(dti), cltv = scale(cltv), orate = scale(orate), obal = scale(obal))
-colnames(fp) <- c("deal", "down", "fico", "dti", "cltv", "obal", "orate")
-rm(cs)
-train <- fp %>% sample_frac(0.667, replace = TRUE)
-test <- setdiff(train, fp)
-sam <- sample_frac(train, 0.12)
-ggplot(sam) + aes(sample=fico) + stat_qq(distribution=qnorm) + stat_qq_line() + ylab("FICO") + labs(title = "QQ Plot of Normalized FICO Scores from a Sample")
+ggplot(y7samtrain_scaled) + aes(sample=fico) + stat_qq(distribution=qnorm) + stat_qq_line() + ylab("FICO") + labs(title = "QQ Plot of Normalized FICO Scores from a 12.5% Sample of the Training Data")
 ```
 
 With variations, all the deals in the sample of normalized FICO scores have similiar distributions. 
 
 ```{r, results="asis", echo = FALSE, warning=FALSE}
-ggplot(sam) + aes(sample=fico) + stat_qq(distribution=qnorm) + stat_qq_line() + ylab("FICO") + labs(title = "QQ Plot of FICO Scores") + facet_wrap(~ deal)
+ggplot(y7samtrain_scaled) + aes(sample=fico) + stat_qq(distribution=qnorm) + stat_qq_line() + ylab("FICO") + labs(title = "QQ Plot of Normalized FICO Scores from 12.5% Sample of the Training Data") + facet_wrap(~ deal)
 ``` 
 
 A candidate variable that is not normally distributed, even when sampled, raises a red flag. Can it be used as part of a regression model? Let's find out.
@@ -229,9 +245,9 @@ A candidate variable that is not normally distributed, even when sampled, raises
 ### None of the quantitative variables can be used in linear regression for the pool as a whole
 
 ```{r, results="asis", echo = TRUE, warning=FALSE}
-fico.sam.mod <- lm(down ~ fico, data = sam)
+fico_sam_mod <- lm(down ~ fico, data = y7samtrain_scaled)
 library(ggfortify)
-autoplot(fico.sam.mod, label.size = 3)
+autoplot(fico_sam_mod, label.size = 3)
 ``` 
 
 The diagnostic on the upper right corner shows the distribution of the residuals (differences between the data point and the best fit line) compared to the expected difference, represented by the dashed line, a normal distribution.
@@ -241,39 +257,59 @@ This eliminates *fico* as a candidate independent variable in any ordinary least
 We see the same problem with the debt-to-income ratio, *dti*,
 
 ```{r, results="asis", echo = FALSE, warning=FALSE}
-dti.sam.mod <- lm(down ~ dti, data = sam)
-autoplot(dti.sam.mod, label.size = 3)
+dti_sam_mod <- lm(down ~ dti, data = y7samtrain_scaled)
+autoplot(dti_sam_mod, label.size = 3)
 ```
 
 combined loan-to-value ratio, *cltv*,
 
 ```{r, results="asis", echo = FALSE, warning=FALSE}
-cltv.sam.mod <- lm(down ~ cltv, data = sam)
-autoplot(cltv.sam.mod, label.size = 3)
+cltv_sam_mod <- lm(down ~ cltv, data = y7samtrain_scaled)
+autoplot(cltv_sam_mod, label.size = 3)
 ```
 
 original balance, *obal*,
 
 ```{r, results="asis", echo = FALSE, warning=FALSE}
-obal.sam.mod <- lm(down ~ obal, data = sam)
-autoplot(obal.sam.mod, label.size = 3)
+obal_sam_mod <- lm(down ~ obal, data = y7samtrain_scaled)
+autoplot(obal_sam_mod, label.size = 3)
 ```
 
 original rate, *orate*,
 
 ```{r, results="asis", echo = FALSE, warning=FALSE}
-orate.sam.mod <- lm(down ~ orate, data = sam)
-autoplot(orate.sam.mod, label.size = 3)
+orate_sam_mod <- lm(down ~ orate, data = y7samtrain_scaled)
+autoplot(orate_sam_mod, label.size = 3)
 ```
 
-and all the quantitative variables taken together
+and all the quantitative variables taken together, dipping our toes into *multiple* linear regression.
 
 ```{r, results="asis", echo = FALSE, warning=FALSE}
-all.sam.mod <- lm(down ~ dti + cltv + obal + orate , data = sam)
-autoplot(all.sam.mod, label.size = 3)
+all_sam_mod <- lm(down ~ dti + cltv + obal + orate , data = y7samtrain_scaled)
+autoplot(all_sam_mod, label.size = 3)
 ```
 
-In the following section, we turn to logistic regression, which relaxes the assumption of normality of residuals.
+Clearly something is amiss. It's time to test whether the model assumptions are sane:
 
+<pre>
+```{r, results="asis", echo = FALSE, warning=FALSE}
+library(gvlma)
+gvmodel <- gvlma(lm(down ~ dti + cltv + obal + orate, data = y7samtrain_scaled))
 
+gvmodel
+``` 
+</pre>
 
+In short, a test of the model residuals highlights numerically what we can see in the diagnostic plots, that they are not normally distributed, but markedly skewed with a high kurtosis (many extreme outliers). The *Global Stats* measure provided by the **gvlma** package tests for linearity of each predictor variable, holding the others constant, that the slopes bear no interdependence and the effects of each are additive. The failure of the Link Function is just another indication of the non-normality of the residuals
+
+Heteroscedasticity is absent, none of the residuals have different variability from the others, which is the only assumption satisfied.
+
+Had we relied solely on the summary output of the model and failed to look at either the diagnostic plots or the output of *gvlma,* we might have fooled ourselves into thinking that we had at least accounted for a small proportion of the variance in the response variable.
+
+<pre>
+```{r, results="asis", echo = FALSE, warning=FALSE}
+summary(lm(down ~ dti + cltv + obal + orate, data = y7samtrain_scaled))
+``` 
+</pre>
+
+In the following sections, we will reconsider outcome measures and turn to logistic regression and use the categorical variables available in the data.

@@ -1,0 +1,270 @@
+install.packages("littler")
+install.packages("keras")
+install.packages("tokenizers")
+install.packages(Comparedf)
+install.packages("Comparedf")
+install.packages("compareDF")
+update.packages()
+quit()
+?dlogis
+?rbinom
+update.packages()
+install.packages('av')
+install.packages("here")
+update.packages()
+library(person)
+update.packages()
+install.packages("person")
+devtools::install_github("ntguardian/MCHT"
+)
+install.packages("whoami")
+library(whoami)
+help(whoami)
+whoami()
+whoami("technocrat")
+whoami()
+help(whoami)
+ls()
+y
+x
+samtest
+ls()
+getwd()
+pcthit
+preman
+ls()
+ansc
+ls()
+perf
+Sonar
+head(Sonar)
+rm(Sonar)
+ls()
+env
+envs
+rm(env, envs)
+ls()
+following
+fit
+rm(fit)
+ls()
+i
+rm(i)
+d
+rm(d)
+ls()
+mod1
+ls()
+patient
+rm(mtcars)
+op
+rm(op)
+ls()
+lm.velo
+rm(lm.velo)
+lmi
+rm(lmi)
+ff
+rm(ff)
+ls()
+head(mancon)
+rm(mancon)
+plsFit
+rm(plsFit)
+ls()
+conman
+rm(conman)
+ls()
+head(df)
+rm(df)
+preman
+rm(preman)
+ls()
+stepper
+stepper.mod
+rm(stepper)
+rm(stepper.mod)
+ls()
+quant.mod
+rm(quant.mod)
+rm(quant.mod.pred,quant.mod.probs, quant.mod.test.pred, quant.mod.test.probs,quant.mod.train, quant.mod.trail.pred, quant.mod.train.probs)
+ls()
+rm(stepper.mod.full, stepper.sumary.full, patient, quant.mod.train.pred)
+ls()
+rm(confmat.train, inTrain, stepper.summary.full)
+ls()
+ansc
+anscombe
+rm(ansc, anscombe)
+ls()
+rm(Auto)
+rm(confmat.test)
+mod
+mod1
+mod2
+mod3
+mod4
+ls()
+rm(mod, mod1, mod2, mod3, mod4, mods)
+x
+rm(x,y)
+testing
+head(training)
+rm(testing, training)
+ls()
+rm(con,drv)
+ls()
+pcthit
+perf
+rm(pcthit)
+ls()
+rm(perf)
+samtest
+samtrain
+ls()
+y7pop
+y7test
+y7train
+rm(list = ls())
+ls()
+quit()
+setwd("/Users/rc/projects/technocrat")
+library(here)
+here()
+load("data/scrubbed/y7samtest.Rda")
+y7samtest.Rda
+y7samtest
+ls()
+samtest
+library(tidyverse)
+samtest <- as.tibble(samtest)
+samtest
+desc.samtest <- samtest(sample_n = 300)
+desc.samtest <- samtest %>% sample_n(300)
+desc.samtest
+summary(samtest)
+summary(desc.samtest)
+?scatter
+??scatter
+library(plotly)#
+#
+d <- highlight_key(mtcars)#
+s <- subplot(#
+  qplot(data = d, x = mpg, y = wt),#
+  qplot(data = d, x = mpg, y = vs)#
+)#
+#
+highlight(s, "plotly_selected")
+??scatter
+ls()
+s
+rm(d)
+s
+rm(s)
+plot(desc.samtest, las = 2)
+warnings()
+summary(desc.samtest)
+desc.scatter <- desc.samtest %>% select(perf, fico, dti, cltv, obal, orate)
+plot(desc.scatter, las = 2)
+desc.scatter <- desc.samtest %>% select(fico,dti,cltv,obal)
+plot(desc.scatter, las = 2)
+desc.scatter <- desc.samtest %>% select(fico,dti,obal)
+plot(desc.scatter, las = 2)
+desc.scatter <- desc.samtest %>% select(perf, fico, dti, cltv, obal, orate)
+desc.mod <- lm(perf ~ fico + dti + cltv + obal + orate)
+desc.mod <- lm(perf ~ fico + dti + cltv + obal + orate, data = desc.scatter)
+summary(desc.mod)
+par(mfrow=c(2,2))
+plot(desc.mod)
+anova(desc.mod)
+cov(desc.samp)
+ls()
+cov(des.samtest)
+cov(desc.samtest)
+str(desc.samtest)
+cov(desc.scatter)
+anova(desc.scatter)
+anova(desc.mod)
+confint(desc.mod)
+summary(desc.mod)
+histogram(desc.samtest$purpose)
+boxplot(desc.samtest$purpose)
+hist(desc.samtest$purpose)
+ggplot(desc.samtest, aes(x = purpose)) + geom_bar()
+ggplot(desc.samtest, aes(x = purpose)) + geom_density()
+ggplot(desc.samtest, aes(x = purpose)) + geom_boxplot()
+ggplot(desc.samtest, aes(x = purpose, y = count)) + geom_boxplot()
+ggplot(desc.samtest, aes(x = purpose, y = count())) + geom_boxplot()
+ggplot(desc.samtest, aes(x = purpose)) + geom_histogram()
+ggplot(desc.samtest, aes(x = purpose)) + geom_bar()
+ggplot(desc.samtest, aes(x = dtype)) + geom_bar()
+ggplot(desc.samtest, aes(x = ptype)) + geom_bar()
+ggplot(desc.samtest, aes(x = oo)) + geom_bar()
+desc.samtest
+ggplot(desc.samtest, aes(x = otype)) + geom_bar()
+ggplot(desc.samtest, aes(x = perf)) + geom_bar()
+ggplot(desc.samtest, aes(x = grade)) + geom_bar()
+ggplot(desc.samtest, aes(x = fpd)) + geom_bar()
+ggplot(desc.samtest, aes(x = orate)) + geom_bar()
+ggplot(desc.samtest, aes(x = obal)) + geom_bar()
+ggplot(desc.samtest, aes(x = fico)) + geom_bar()
+ggplot(desc.samtest, aes(x = dti)) + geom_bar()
+ggplot(desc.samtest, aes(x = cltv)) + geom_bar()
+ggplot(desc.samtest, aes(x = ltype)) + geom_bar()
+ggplot(desc.samtest, aes(x = perf, y = ltype)) + geom_point()
+ggplot(desc.samtest, aes(x = perf, y = ltype)) + geom_point() + jitter(width=0.25)
+ggplot(desc.samtest, aes(x = perf, y = ltype)) + geom_point() + geom_jitter(width=0.25)
+ggplot(desc.samtest, aes(x = perf, y = ltype)) + geom_point() + geom_jitter(width=0.05)
+ggplot(desc.samtest, aes(x = perf, y = ltype)) + geom_point() + geom_jitter(width=0.01)
+ggplot(desc.samtest, aes(x = perf, y = fico)) + geom_point() + geom_jitter(width=0.01)
+ls()
+samtest
+load("data/scrubbed/y7.Rda")
+load("data/scrubbed/y7pop.Rda")
+y7pop
+library(lubridate)#
+library(DBI)#
+library(RMySQL)
+y7raw <- as.tibble(dbGetQuery(con, "SELECT deal, down, fico, dti, cltv, obal, orate, fpd, +#
+grade, purpose, dtype, ltype, otype, ptype, zip, metro FROM y7"))
+con <- dbConnect(drv, username="root", password="", dbname ="dlf", host="localhost")
+drv <- dbDriver("MySQL")#
+con <- dbConnect(drv, username="root", password="", dbname ="dlf", host="localhost")
+y7raw <- as.tibble(dbGetQuery(con, "SELECT deal, down, fico, dti, cltv, obal, orate, fpd, +#
+grade, purpose, dtype, ltype, otype, ptype, zip, metro FROM y7"))
+y7raw
+save(y7raw,'data/raw/y7raw.Rda')
+save(y7raw,'data/raw/y7raw.Rda')
+getwd()
+save(y7raw, "/data/raw/y7raw.Rda")
+list.files()
+setwd("data")
+list.files()
+setwd(raw)
+setwd("raw")
+save(y7raw, y7raw.Rda)
+save(y7raw, 'y7raw.Rda')
+save(y7raw, file = 'y7raw.Rda')
+setwd(home)
+library(home)
+install.packages("home")
+library(tidyverse)
+home()
+install.packages("usethis")
+help(reprex)
+library(reprex)
+help(reprex)
+reprex({#
+  #' # A Big Heading#
+  #'#
+  #' Look at my cute example. I love the#
+  #' [reprex](https://github.com/tidyverse/reprex#readme) package!#
+  y <- 1:4#
+  mean(y)#
+}, advertise = FALSE)
+library(here)
+here()
+now()
+here::here()
+update.packages()
+quit()

@@ -9,9 +9,11 @@
 7. R Special Interest Group on Databases (R-SIG-DB), Hadley Wickham and Kirill Müller (2018). DBI: R Database Interface. R package version 1.0.0. https://CRAN.R-project.org/package=DBI
 8. Hadley Wickham, Romain François, Lionel Henry and Kirill Müller (2018). dplyr: A Grammar of Data Manipulation. R package version 0.7.6. https://CRAN.R-project.org/package=dplyr
 9. Yuan Tang, Masaaki Horikoshi, and Wenxuan Li. "ggfortify: Unified Interface to Visualize Statistical Result of Popular R Packages." The R Journal 8.2 (2016): 478-489. Masaaki Horikoshi and Yuan Tang (2016). ggfortify: Data Visualization Tools for Statistical Analysis Results. https://CRAN.R-project.org/package=ggfortify
+10. Barret Schloerke, Jason Crowley, Di Cook, Francois Briatte, Moritz Marbach, Edwin Thoen, Amos Elberg and Joseph Larmarange (2018). GGally: Extension to 'ggplot2'. R package version 1.4.0. https://CRAN.R-project.org/package=GGally
 10. D. Kahle and H. Wickham. ggmap: Spatial Visualization with ggplot2. The R Journal, 5(1), 144-161. URL http://journal.r-project.org/archive/2013-1/kahle-wickham.pdf
 11. H. Wickham. ggplot2: Elegant Graphics for Data Analysis. Springer-Verlag New York, 2016
 12. Hao Zhu (2018). kableExtra: Construct Complex Table with 'kable' and Pipe Syntax. R package version 0.9.0. https://CRAN.R-project.org/package=kableExtra
+12. Edsel A. Pena and Elizabeth H. Slate (2014). gvlma: Global Validation of Linear Models Assumptions. R package version 1.0.0.2. https://CRAN.R-project.org/package=gvlma
 13. Yihui Xie (2018). knitr: A General-Purpose Package for Dynamic Report Generation in R. R package version 1.20. Yihui Xie (2015) Dynamic Documents with R and knitr. 2nd edition. Chapman and Hall/CRC. ISBN 978-1498716963 Yihui Xie (2014) knitr: A Comprehensive Tool for Reproducible Research in R. In Victoria Stodden, Friedrich Leisch and Roger D. Peng, editors, Implementing Reproducible Computational Research. Chapman and Hall/CRC. ISBN 978-1466561595
 14. Garrett Grolemund, Hadley Wickham (2011). Dates and Times Made Easy with lubridate. Journal of Statistical Software, 40(3), 1-25. URL http://www.jstatsoft.org/v40/i03/
 15. Lazaridis, E. (2014). lunar: Lunar Phase & Distance, Seasons and Other Environmental Factors (Version 0.1-04). Available from http://statistics.lazaridis.eu
@@ -33,3 +35,4 @@
 31. Hadley Wickham (2017). tidyverse: Easily Install and Load the 'Tidyverse'. R package version 1.2.1. https://CRAN.R-project.org/package=tidyverse
 32. Kurt Hornik (2018). Unicode: Unicode Data and Utilities. R package version 11.0.0-1. https://CRAN.R-project.org/package=Unicode
 33. David B. Dahl, David Scott, Charles Roosen, Arni Magnusson and Jonathan Swinton (2018). xtable: Export Tables to LaTeX or HTML. R package version 1.8-3. https://CRAN.R-project.org/package=xtable
+

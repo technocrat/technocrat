@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html >
+
+<head>
+
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Data Science Portfolio</title>
+  <meta name="description" content="Landing site">
+  <meta name="generator" content="bookdown  and GitBook 2.6.7">
+
+  <meta property="og:title" content="Data Science Portfolio" />
+  <meta property="og:type" content="book" />
+  
+  
+  <meta property="og:description" content="Landing site" />
+  <meta name="github-repo" content="github/technocrat/technocrat.github.io" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Data Science Portfolio" />
+  
+  <meta name="twitter:description" content="Landing site" />
+  
+
+<meta name="author" content="Richard Careaga">
+
+
+<meta name="date" content="2018-10-25">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  
+  
+<link rel="prev" href="dectab.html">
+<link rel="next" href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html">
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+
+
+
+
+
+
+
+<script src="libs/kePrint-0.0.1/kePrint.js"></script>
+
+
+<style type="text/css">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(data-line-number);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Purpose</a><ul>
+<li class="chapter" data-level="1.1" data-path="index.html"><a href="index.html#updates"><i class="fa fa-check"></i><b>1.1</b> Updates</a></li>
+<li class="chapter" data-level="1.2" data-path="index.html"><a href="index.html#literate-programming-the-tight-integration-of-code-and-text"><i class="fa fa-check"></i><b>1.2</b> Literate programming: the tight integration of code and text</a></li>
+<li class="chapter" data-level="1.3" data-path="index.html"><a href="index.html#background"><i class="fa fa-check"></i><b>1.3</b> Background</a></li>
+<li class="chapter" data-level="1.4" data-path="index.html"><a href="index.html#the-cases"><i class="fa fa-check"></i><b>1.4</b> The Cases</a></li>
+<li class="chapter" data-level="1.5" data-path="index.html"><a href="index.html#current-credentials"><i class="fa fa-check"></i><b>1.5</b> Current Credentials</a><ul>
+<li class="chapter" data-level="1.5.1" data-path="index.html"><a href="index.html#graduate-school-level"><i class="fa fa-check"></i><b>1.5.1</b> Graduate school level</a></li>
+<li class="chapter" data-level="1.5.2" data-path="index.html"><a href="index.html#undergraduate-level"><i class="fa fa-check"></i><b>1.5.2</b> Undergraduate level</a></li>
+<li class="chapter" data-level="1.5.3" data-path="index.html"><a href="index.html#prior-analytic-and-programming-experience"><i class="fa fa-check"></i><b>1.5.3</b> Prior analytic and programming experience</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="dectab.html"><a href="dectab.html"><i class="fa fa-check"></i><b>2</b> The Financial Cash Flow Model: Python on Wall Street</a><ul>
+<li class="chapter" data-level="2.1" data-path="dectab.html"><a href="dectab.html#case-description"><i class="fa fa-check"></i><b>2.1</b> Case Description</a></li>
+<li class="chapter" data-level="2.2" data-path="dectab.html"><a href="dectab.html#xml-conversion"><i class="fa fa-check"></i><b>2.2</b> XML Conversion</a></li>
+<li class="chapter" data-level="2.3" data-path="dectab.html"><a href="dectab.html#from-xml-to-plain-text"><i class="fa fa-check"></i><b>2.3</b> From XML to Plain Text</a></li>
+<li class="chapter" data-level="2.4" data-path="dectab.html"><a href="dectab.html#proof-of-concept-summary-fico-statistics"><i class="fa fa-check"></i><b>2.4</b> Proof of Concept, Summary FICO Statistics</a></li>
+<li class="chapter" data-level="2.5" data-path="dectab.html"><a href="dectab.html#the-cash-flow-model"><i class="fa fa-check"></i><b>2.5</b> The Cash Flow Model</a></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="the-2007-subprime-mortgage-crisis-part-1.html"><a href="the-2007-subprime-mortgage-crisis-part-1.html"><i class="fa fa-check"></i><b>3</b> The 2007 subprime mortgage crisis, part 1</a><ul>
+<li class="chapter" data-level="3.1" data-path="the-2007-subprime-mortgage-crisis-part-1.html"><a href="the-2007-subprime-mortgage-crisis-part-1.html#case-description-1"><i class="fa fa-check"></i><b>3.1</b> Case Description</a></li>
+<li class="chapter" data-level="3.2" data-path="the-2007-subprime-mortgage-crisis-part-1.html"><a href="the-2007-subprime-mortgage-crisis-part-1.html#data-wrangling"><i class="fa fa-check"></i><b>3.2</b> Data Wrangling</a><ul>
+<li class="chapter" data-level="3.2.1" data-path="the-2007-subprime-mortgage-crisis-part-1.html"><a href="the-2007-subprime-mortgage-crisis-part-1.html#the-pool-dataset"><i class="fa fa-check"></i><b>3.2.1</b> The pool dataset</a></li>
+<li class="chapter" data-level="3.2.2" data-path="the-2007-subprime-mortgage-crisis-part-1.html"><a href="the-2007-subprime-mortgage-crisis-part-1.html#creating-the-data-set"><i class="fa fa-check"></i><b>3.2.2</b> Creating the data set</a></li>
+</ul></li>
+<li class="chapter" data-level="3.3" data-path="the-2007-subprime-mortgage-crisis-part-1.html"><a href="the-2007-subprime-mortgage-crisis-part-1.html#choosing-the-outcome-measure"><i class="fa fa-check"></i><b>3.3</b> Choosing the outcome measure</a></li>
+<li class="chapter" data-level="3.4" data-path="the-2007-subprime-mortgage-crisis-part-1.html"><a href="the-2007-subprime-mortgage-crisis-part-1.html#defining-the-outcome-measure"><i class="fa fa-check"></i><b>3.4</b> Defining the outcome measure</a></li>
+<li class="chapter" data-level="3.5" data-path="the-2007-subprime-mortgage-crisis-part-1.html"><a href="the-2007-subprime-mortgage-crisis-part-1.html#preliminary-analysis-based-on-fico-scores-using-linear-regression"><i class="fa fa-check"></i><b>3.5</b> Preliminary analysis, based on FICO scores, using linear regression</a><ul>
+<li class="chapter" data-level="3.5.1" data-path="the-2007-subprime-mortgage-crisis-part-1.html"><a href="the-2007-subprime-mortgage-crisis-part-1.html#ficos-importance"><i class="fa fa-check"></i><b>3.5.1</b> FICO’s importance</a></li>
+<li class="chapter" data-level="3.5.2" data-path="the-2007-subprime-mortgage-crisis-part-1.html"><a href="the-2007-subprime-mortgage-crisis-part-1.html#performance-outcome-measure"><i class="fa fa-check"></i><b>3.5.2</b> Performance outcome measure</a></li>
+<li class="chapter" data-level="3.5.3" data-path="the-2007-subprime-mortgage-crisis-part-1.html"><a href="the-2007-subprime-mortgage-crisis-part-1.html#fico-scores-in-the-pool"><i class="fa fa-check"></i><b>3.5.3</b> FICO scores in the pool</a></li>
+<li class="chapter" data-level="3.5.4" data-path="the-2007-subprime-mortgage-crisis-part-1.html"><a href="the-2007-subprime-mortgage-crisis-part-1.html#the-fico-scores-are-not-normally-distributed"><i class="fa fa-check"></i><b>3.5.4</b> The FICO scores are not normally distributed</a></li>
+<li class="chapter" data-level="3.5.5" data-path="the-2007-subprime-mortgage-crisis-part-1.html"><a href="the-2007-subprime-mortgage-crisis-part-1.html#none-of-the-quantitative-variables-can-be-used-in-linear-regression-for-the-pool-as-a-whole"><i class="fa fa-check"></i><b>3.5.5</b> None of the quantitative variables can be used in linear regression for the pool as a whole</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html"><i class="fa fa-check"></i><b>4</b> The subprime mortgage crisis unfolds in early 2007, part 2</a><ul>
+<li class="chapter" data-level="4.1" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html#the-fall-of-fico"><i class="fa fa-check"></i><b>4.1</b> The fall of FICO</a></li>
+<li class="chapter" data-level="4.2" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html#overview-of-the-down-dependent-variable"><i class="fa fa-check"></i><b>4.2</b> Overview of the <em>down</em> dependent variable</a></li>
+<li class="chapter" data-level="4.3" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html#logistic-regression"><i class="fa fa-check"></i><b>4.3</b> Logistic Regression</a><ul>
+<li class="chapter" data-level="4.3.1" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html#restructuring-the-data"><i class="fa fa-check"></i><b>4.3.1</b> Restructuring the data</a></li>
+<li class="chapter" data-level="4.3.2" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html#creating-training-and-testing-subsets-and-their-subsamples"><i class="fa fa-check"></i><b>4.3.2</b> Creating training and testing subsets and their subsamples</a></li>
+<li class="chapter" data-level="4.3.3" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html#using-the-quantitative-variables-to-predict-loan-performance-with-logistic-regression"><i class="fa fa-check"></i><b>4.3.3</b> Using the quantitative variables to predict loan performance with logistic regression</a></li>
+<li class="chapter" data-level="4.3.4" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html#intepreting-the-results"><i class="fa fa-check"></i><b>4.3.4</b> Intepreting the results</a></li>
+<li class="chapter" data-level="4.3.5" data-path="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html"><a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html#next-steps"><i class="fa fa-check"></i><b>4.3.5</b> Next steps</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="daycare.html"><a href="daycare.html"><i class="fa fa-check"></i><b>5</b> Daycare Costs and Unexamined Assumptions</a><ul>
+<li class="chapter" data-level="5.1" data-path="daycare.html"><a href="daycare.html#case-description-2"><i class="fa fa-check"></i><b>5.1</b> Case Description</a></li>
+<li class="chapter" data-level="5.2" data-path="daycare.html"><a href="daycare.html#with-the-right-metrics"><i class="fa fa-check"></i><b>5.2</b> With the right metrics</a></li>
+<li class="chapter" data-level="5.3" data-path="daycare.html"><a href="daycare.html#takeaway"><i class="fa fa-check"></i><b>5.3</b> Takeaway</a></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="the-enron-email-corpus.html"><a href="the-enron-email-corpus.html"><i class="fa fa-check"></i><b>6</b> The Enron Email Corpus</a><ul>
+<li class="chapter" data-level="6.1" data-path="the-enron-email-corpus.html"><a href="the-enron-email-corpus.html#case-description-3"><i class="fa fa-check"></i><b>6.1</b> Case Description</a></li>
+<li class="chapter" data-level="6.2" data-path="the-enron-email-corpus.html"><a href="the-enron-email-corpus.html#data-preparation"><i class="fa fa-check"></i><b>6.2</b> Data preparation</a><ul>
+<li class="chapter" data-level="6.2.1" data-path="the-enron-email-corpus.html"><a href="the-enron-email-corpus.html#preparation"><i class="fa fa-check"></i><b>6.2.1</b> Preparation</a></li>
+</ul></li>
+<li class="chapter" data-level="6.3" data-path="the-enron-email-corpus.html"><a href="the-enron-email-corpus.html#strategy-for-exploration"><i class="fa fa-check"></i><b>6.3</b> Strategy for exploration</a><ul>
+<li class="chapter" data-level="6.3.1" data-path="the-enron-email-corpus.html"><a href="the-enron-email-corpus.html#dont-look-for-much-from-the-big-shots"><i class="fa fa-check"></i><b>6.3.1</b> Don’t look for much from the big shots</a></li>
+<li class="chapter" data-level="6.3.2" data-path="the-enron-email-corpus.html"><a href="the-enron-email-corpus.html#volume-is-not-evenly-distributed-among-users"><i class="fa fa-check"></i><b>6.3.2</b> Volume is not evenly distributed among users</a></li>
+<li class="chapter" data-level="6.3.3" data-path="the-enron-email-corpus.html"><a href="the-enron-email-corpus.html#keywords-may-not-help-much"><i class="fa fa-check"></i><b>6.3.3</b> Keywords may not help much</a></li>
+<li class="chapter" data-level="6.3.4" data-path="the-enron-email-corpus.html"><a href="the-enron-email-corpus.html#dont-neglect-time-series"><i class="fa fa-check"></i><b>6.3.4</b> Don’t neglect time series</a></li>
+<li class="chapter" data-level="6.3.5" data-path="the-enron-email-corpus.html"><a href="the-enron-email-corpus.html#avoid-the-echo-chamber"><i class="fa fa-check"></i><b>6.3.5</b> Avoid the echo chamber</a></li>
+<li class="chapter" data-level="6.3.6" data-path="the-enron-email-corpus.html"><a href="the-enron-email-corpus.html#the-real-value-proposition"><i class="fa fa-check"></i><b>6.3.6</b> The REAL value proposition</a></li>
+</ul></li>
+<li class="chapter" data-level="6.4" data-path="the-enron-email-corpus.html"><a href="the-enron-email-corpus.html#some-preliminary-results"><i class="fa fa-check"></i><b>6.4</b> Some preliminary results</a><ul>
+<li class="chapter" data-level="6.4.1" data-path="the-enron-email-corpus.html"><a href="the-enron-email-corpus.html#unique-senders"><i class="fa fa-check"></i><b>6.4.1</b> Unique senders</a></li>
+<li class="chapter" data-level="6.4.2" data-path="the-enron-email-corpus.html"><a href="the-enron-email-corpus.html#unique-receivers"><i class="fa fa-check"></i><b>6.4.2</b> Unique receivers</a></li>
+<li class="chapter" data-level="6.4.3" data-path="the-enron-email-corpus.html"><a href="the-enron-email-corpus.html#senders-who-are-also-receivers"><i class="fa fa-check"></i><b>6.4.3</b> Senders who are also receivers</a></li>
+<li class="chapter" data-level="6.4.4" data-path="the-enron-email-corpus.html"><a href="the-enron-email-corpus.html#senderreceivers-with-enron-addresses"><i class="fa fa-check"></i><b>6.4.4</b> Sender/receivers with Enron addresses</a></li>
+<li class="chapter" data-level="6.4.5" data-path="the-enron-email-corpus.html"><a href="the-enron-email-corpus.html#subject-line-words"><i class="fa fa-check"></i><b>6.4.5</b> Subject line words</a></li>
+<li class="chapter" data-level="6.4.6" data-path="the-enron-email-corpus.html"><a href="the-enron-email-corpus.html#places-mentioned"><i class="fa fa-check"></i><b>6.4.6</b> Places mentioned</a></li>
+<li class="chapter" data-level="6.4.7" data-path="the-enron-email-corpus.html"><a href="the-enron-email-corpus.html#periodicity"><i class="fa fa-check"></i><b>6.4.7</b> Periodicity</a></li>
+<li class="chapter" data-level="6.4.8" data-path="the-enron-email-corpus.html"><a href="the-enron-email-corpus.html#social-networks"><i class="fa fa-check"></i><b>6.4.8</b> Social Networks</a></li>
+</ul></li>
+<li class="chapter" data-level="6.5" data-path="the-enron-email-corpus.html"><a href="the-enron-email-corpus.html#future-work"><i class="fa fa-check"></i><b>6.5</b> Future work</a></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="counted.html"><a href="counted.html"><i class="fa fa-check"></i><b>7</b> 2015 Police Involved Homicides</a><ul>
+<li class="chapter" data-level="7.1" data-path="counted.html"><a href="counted.html#introduction"><i class="fa fa-check"></i><b>7.1</b> Introduction</a></li>
+<li class="chapter" data-level="7.2" data-path="counted.html"><a href="counted.html#the-data"><i class="fa fa-check"></i><b>7.2</b> The Data</a></li>
+<li class="chapter" data-level="7.3" data-path="counted.html"><a href="counted.html#tabular-summary-of-the-data"><i class="fa fa-check"></i><b>7.3</b> Tabular summary of the data</a><ul>
+<li class="chapter" data-level="7.3.1" data-path="counted.html"><a href="counted.html#gender"><i class="fa fa-check"></i><b>7.3.1</b> Gender</a></li>
+<li class="chapter" data-level="7.3.2" data-path="counted.html"><a href="counted.html#raceethnicity"><i class="fa fa-check"></i><b>7.3.2</b> Race/Ethnicity</a></li>
+<li class="chapter" data-level="7.3.3" data-path="counted.html"><a href="counted.html#age"><i class="fa fa-check"></i><b>7.3.3</b> Age</a></li>
+<li class="chapter" data-level="7.3.4" data-path="counted.html"><a href="counted.html#cause-of-death"><i class="fa fa-check"></i><b>7.3.4</b> Cause of Death</a></li>
+<li class="chapter" data-level="7.3.5" data-path="counted.html"><a href="counted.html#whether-and-how-civilians-were-armed"><i class="fa fa-check"></i><b>7.3.5</b> Whether and how civilians were armed</a></li>
+<li class="chapter" data-level="7.3.6" data-path="counted.html"><a href="counted.html#location"><i class="fa fa-check"></i><b>7.3.6</b> Location</a></li>
+<li class="chapter" data-level="7.3.7" data-path="counted.html"><a href="counted.html#months-and-days-of-death"><i class="fa fa-check"></i><b>7.3.7</b> Months and Days of Death</a></li>
+<li class="chapter" data-level="7.3.8" data-path="counted.html"><a href="counted.html#cause-of-death-and-civilian-armed-status"><i class="fa fa-check"></i><b>7.3.8</b> Cause of Death and Civilian Armed Status</a></li>
+</ul></li>
+<li class="chapter" data-level="7.4" data-path="counted.html"><a href="counted.html#geographic-analysis-of-the-data"><i class="fa fa-check"></i><b>7.4</b> Geographic Analysis of the Data</a><ul>
+<li class="chapter" data-level="7.4.1" data-path="counted.html"><a href="counted.html#many-datasets-are-distributed-similarly-to-population"><i class="fa fa-check"></i><b>7.4.1</b> Many Datasets are Distributed Similarly to Population</a></li>
+</ul></li>
+<li class="chapter" data-level="7.5" data-path="counted.html"><a href="counted.html#what-conclusions-can-we-draw-from-the-short-national-summary"><i class="fa fa-check"></i><b>7.5</b> What conclusions can we draw from the short, national summary?</a><ul>
+<li class="chapter" data-level="7.5.1" data-path="counted.html"><a href="counted.html#detail-underlying-deaths-of-women"><i class="fa fa-check"></i><b>7.5.1</b> Detail underlying deaths of women</a></li>
+<li class="chapter" data-level="7.5.2" data-path="counted.html"><a href="counted.html#cautionary-example"><i class="fa fa-check"></i><b>7.5.2</b> Cautionary Example</a></li>
+</ul></li>
+<li class="chapter" data-level="7.6" data-path="counted.html"><a href="counted.html#next-steps-1"><i class="fa fa-check"></i><b>7.6</b> Next steps</a><ul>
+<li class="chapter" data-level="7.6.1" data-path="counted.html"><a href="counted.html#finer-geographic-detail"><i class="fa fa-check"></i><b>7.6.1</b> Finer geographic detail</a></li>
+<li class="chapter" data-level="7.6.2" data-path="counted.html"><a href="counted.html#testing-hypotheses"><i class="fa fa-check"></i><b>7.6.2</b> Testing hypotheses</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="8" data-path="assorted-examples-of-toolmaking.html"><a href="assorted-examples-of-toolmaking.html"><i class="fa fa-check"></i><b>8</b> Assorted Examples of Toolmaking</a><ul>
+<li class="chapter" data-level="8.1" data-path="assorted-examples-of-toolmaking.html"><a href="assorted-examples-of-toolmaking.html#diy-r-packages"><i class="fa fa-check"></i><b>8.1</b> DIY R Packages</a></li>
+<li class="chapter" data-level="8.2" data-path="assorted-examples-of-toolmaking.html"><a href="assorted-examples-of-toolmaking.html#the-short-genome-file-day-to-day-python"><i class="fa fa-check"></i><b>8.2</b> The Short Genome File: Day-to-Day Python</a><ul>
+<li class="chapter" data-level="8.2.1" data-path="assorted-examples-of-toolmaking.html"><a href="assorted-examples-of-toolmaking.html#case-description-4"><i class="fa fa-check"></i><b>8.2.1</b> Case Description</a></li>
+<li class="chapter" data-level="8.2.2" data-path="assorted-examples-of-toolmaking.html"><a href="assorted-examples-of-toolmaking.html#conversion-problem"><i class="fa fa-check"></i><b>8.2.2</b> Conversion Problem</a></li>
+<li class="chapter" data-level="8.2.3" data-path="assorted-examples-of-toolmaking.html"><a href="assorted-examples-of-toolmaking.html#everyday-solution"><i class="fa fa-check"></i><b>8.2.3</b> Everyday Solution</a></li>
+</ul></li>
+<li class="chapter" data-level="8.3" data-path="assorted-examples-of-toolmaking.html"><a href="assorted-examples-of-toolmaking.html#hard-but-simple-parsing-yaml-files-in-haskell"><i class="fa fa-check"></i><b>8.3</b> Hard but simple – parsing YAML files in Haskell</a></li>
+<li class="chapter" data-level="8.4" data-path="assorted-examples-of-toolmaking.html"><a href="assorted-examples-of-toolmaking.html#contextual-awareness"><i class="fa fa-check"></i><b>8.4</b> Contextual Awareness</a></li>
+<li class="chapter" data-level="8.5" data-path="assorted-examples-of-toolmaking.html"><a href="assorted-examples-of-toolmaking.html#minimalism-throws-you-into-the-pool"><i class="fa fa-check"></i><b>8.5</b> Minimalism Throws You into the Pool</a></li>
+<li class="chapter" data-level="8.6" data-path="assorted-examples-of-toolmaking.html"><a href="assorted-examples-of-toolmaking.html#parsing-system-date-strings-into-python-datetime-objects"><i class="fa fa-check"></i><b>8.6</b> Parsing system date strings into Python datetime objects</a></li>
+<li class="chapter" data-level="8.7" data-path="assorted-examples-of-toolmaking.html"><a href="assorted-examples-of-toolmaking.html#combination-of-k-items-taken-n-at-a-time"><i class="fa fa-check"></i><b>8.7</b> Combination of k items, taken n at a time</a></li>
+<li class="chapter" data-level="8.8" data-path="assorted-examples-of-toolmaking.html"><a href="assorted-examples-of-toolmaking.html#flexbison-to-compile-data-parser-for-june-20-2018-form"><i class="fa fa-check"></i><b>8.8</b> Flex/Bison to compile data parser for June 20, 2018 form</a></li>
+</ul></li>
+<li class="chapter" data-level="9" data-path="credits.html"><a href="credits.html"><i class="fa fa-check"></i><b>9</b> Credits</a></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Data Science Portfolio</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="the-2007-subprime-mortgage-crisis-part-1" class="section level1">
+<h1><span class="header-section-number">3</span> The 2007 subprime mortgage crisis, part 1</h1>
+<p>Keywords: large database, MySQL, Python, R, data wrangling, exploratory data analysis, ordinary least squares linear regression, diagnostics</p>
+<div id="case-description-1" class="section level2">
+<h2><span class="header-section-number">3.1</span> Case Description</h2>
+<p>This is a residential mortgage credit underwriting review of 125,000 subprime mortgage loans sold in mortgage-backed securities form in 2006 by a single issuer, Washington Mutual Bank, whose assets JPMorgan Chase acquired in 2008.</p>
+<p>No single definition of what made a loan <em>subprime</em> is universally accepted. The market, however, distinquishes subprime loans from other loans based on the cash flow features of the related mortgage backed security. In particular subprime transactions often feature a credit enhancement known as <em>over collateralization</em>, which means that the dollar volume of loans in the pool is greater than the dollar volume of securities issued, providing a cushion against loss.</p>
+<p>Each loan has a handful of associated quantitative variables and a few dozen qualitative variables. The characteristics of the dataset help illustrate many of the challenges of data science</p>
+<ul>
+<li>Correctly classifying problems as confirmatory or observational</li>
+<li>Data wrangling</li>
+<li>Treating a problem as a predictive or classification</li>
+<li>Exploratory data analysis, knowing what you have to work with</li>
+<li>Keeping an open mind on methods</li>
+<li>Carefully checking the assumptions that the methods require</li>
+<li>Worrying over diagnostics</li>
+<li>Finding domain knowledge</li>
+</ul>
+</div>
+<div id="data-wrangling" class="section level2">
+<h2><span class="header-section-number">3.2</span> Data Wrangling</h2>
+<div id="the-pool-dataset" class="section level3">
+<h3><span class="header-section-number">3.2.1</span> The pool dataset</h3>
+<p>Washington Mutual sold $25 billion of subprime mortgage securities in 2006.</p>
+<pre><code>+----------+-------------+
+| count(*) | sum(obal)   |
++----------+-------------+
+|   124645 | 25542466576 |
++----------+-------------+</code></pre>
+<p>During 2006, however, the pool shrank to just under 100,000 loans with an aggregate original principal balance of just over $19 billion.</p>
+<pre><code>+----------+-------------+
+| count(*) | sum(obal)   |
++----------+-------------+
+|    96271 | 19148472600 |
++----------+-------------+</code></pre>
+<p>This diminished pool, as it existed as of the last date in early 2007 for which I had data, I will refer to as <em>the pool.</em> Here is its layout after assembly and the addition of some calculated fields. The name of the database, <em>dlf</em> stands for <em>delinquency, loss and foreclosure,</em> a business term. The table name <em>y7</em> stands for 2007 to distinguish it from the original pool <em>y6.</em> The original version was done under the MySQL open source database, and converted to MariaDB, which was created to maintain the software as open source following Oracle’s acquisition of the MySQL organization.</p>
+<pre><code>MariaDB [dlf]&gt; describe y7;
++----------+---------------+------+-----+---------+-------+
+| Field    | Type          | Null | Key | Default | Extra |
++----------+---------------+------+-----+---------+-------+
+| city     | varchar(25)   | YES  |     | NULL    |       |
+| cltv     | decimal(10,0) | YES  |     | NULL    |       |
+| ctapeno  | decimal(10,0) | YES  |     | NULL    |       |
+| deal     | varchar(25)   | YES  |     | NULL    |       |
+| down     | int(11)       | YES  |     | NULL    |       |
+| dti      | decimal(10,0) | YES  |     | NULL    |       |
+| dtype    | varchar(25)   | YES  |     | NULL    |       |
+| ebal     | decimal(10,0) | YES  |     | NULL    |       |
+| fico     | decimal(10,0) | YES  |     | NULL    |       |
+| fpd      | date          | YES  |     | NULL    |       |
+| gainloss | decimal(10,0) | YES  |     | NULL    |       |
+| grade    | varchar(5)    | YES  |     | NULL    |       |
+| irate    | decimal(10,0) | YES  |     | NULL    |       |
+| issuer   | varchar(10)   | YES  |     | NULL    |       |
+| lat      | decimal(10,0) | YES  |     | NULL    |       |
+| lien     | int(11)       | YES  |     | NULL    |       |
+| liq      | decimal(10,0) | YES  |     | NULL    |       |
+| lng      | decimal(10,0) | YES  |     | NULL    |       |
+| lstatus  | int(11)       | YES  |     | NULL    |       |
+| ltype    | varchar(25)   | YES  |     | NULL    |       |
+| margin   | decimal(10,0) | YES  |     | NULL    |       |
+| metro    | varchar(25)   | YES  |     | NULL    |       |
+| nrate    | decimal(10,0) | YES  |     | NULL    |       |
+| obal     | decimal(10,0) | YES  |     | NULL    |       |
+| odate    | date          | YES  |     | NULL    |       |
+| oltv     | decimal(10,0) | YES  |     | NULL    |       |
+| orate    | decimal(10,0) | YES  |     | NULL    |       |
+| oterm    | int(11)       | YES  |     | NULL    |       |
+| payments | int(11)       | YES  |     | NULL    |       |
+| pmiflag  | int(11)       | YES  |     | NULL    |       |
+| pocode   | int(11)       | YES  |     | NULL    |       |
+| pod      | date          | YES  |     | NULL    |       |
+| ppp      | int(11)       | YES  |     | NULL    |       |
+| ptd      | date          | YES  |     | NULL    |       |
+| purpose  | varchar(25)   | YES  |     | NULL    |       |
+| remit    | decimal(10,0) | YES  |     | NULL    |       |
+| sbal     | decimal(10,0) | YES  |     | NULL    |       |
+| servno   | decimal(10,0) | YES  |     | NULL    |       |
+| sint     | decimal(10,0) | YES  |     | NULL    |       |
+| sprin    | decimal(10,0) | YES  |     | NULL    |       |
+| spymt    | decimal(10,0) | YES  |     | NULL    |       |
+| st       | varchar(4)    | YES  |     | NULL    |       |
+| zip      | int(11)       | YES  |     | NULL    |       |
+| otype    | varchar(25)   | YES  |     | NULL    |       |
+| rdate    | date          | YES  |     | NULL    |       |
+| ptype    | varchar(15)   | YES  |     | NULL    |       |
+| dptd     | int(7)        | YES  |     | NULL    |       |
+| dfpd     | int(7)        | YES  |     | NULL    |       |
++----------+---------------+------+-----+---------+-------+
+48 rows in set (0.00 sec)</code></pre>
+<p>The field names are mostly standard abbreviations in the business, although practice varied.</p>
+<p>As of the end of the first quarter 2007 <em>down</em> is the number of months that a loan has missed payment. A value greater than 3 generally indicates a loan in foreclosure or a loan that has been foreclosed and is in the process of being sold. However, a borrower in many jurisdictions may reinstate the loan by paying past due amounts with interest and fees.</p>
+</div>
+<div id="creating-the-data-set" class="section level3">
+<h3><span class="header-section-number">3.2.2</span> Creating the data set</h3>
+<p>Data came from public and semi-public sources. The loan level data at origination came from 14 HTML files. The performance data came from spreadsheets posted to a password protected website available to institutional investors, the only customers for mortgage backed securities not issued by a non-governmental sponsored issuer. I describe the reasons why the in-house systems were bypassed in <a href="/assets/datasources.html">this sidenote</a>.</p>
+<p>The HTML data was easy to extract. The header and each record was tagged as preformatted</p>
+<pre><code>&lt;pre&gt;payload&lt;/pre&gt; </code></pre>
+<p>where <em>payload</em> represents the data fields. An <a href="https://www.sec.gov/Archives/edgar/data/1119605/000114420406002461/v033798_fwp.htm">example source document</a> comes from a filing with the Securities and Exchange Commission for the first transaction in 2006. This type of file was processed with a bash command line script, the separate tables imported into temporary databases that were joined on the loan number key.</p>
+<p>One of the typical data scrubbing tasks was converting dates into ISO form – from 3/6/2006, say, to 2006-03-06, for which I wrote a version 2 <a href="https://gist.github.com/technocrat/d02e2c703001a9a0ba54111bdcea87b6">Python script</a>.</p>
+<p>The performance data was available only in spreadsheet form, by month and transaction, which required considerable scrubbing to bring into the database. (For example, some dollar values were entered as character strings; when these problems cropped up, I wrote small bash, Perl or Python scripts.) I combined the spreadsheets into a single plaintext file to import to the database, used a supplemental zipcode lookup table to identify the metropolitan area (for possible use with the Case Shiller Index of Home Prices) and added the longitude/latitude coordinates of centroid of the Census version of the zipcode (the <em>ZCTA</em>) for possible mapping.</p>
+</div>
+</div>
+<div id="choosing-the-outcome-measure" class="section level2">
+<h2><span class="header-section-number">3.3</span> Choosing the outcome measure</h2>
+<p>A mortgage payment is delinquent when a payment due on the first of the month has not been received by the first business day of the following month. (For some government sponsored programs, not included here, the convention is receipt by the last business day of the month in which due.)</p>
+<p>The first decision is whether to measure outcome on the number of loans or on the weighted principal balance of each loan. Investors generally look at <em>pool performance</em> in terms of the scheduled aggregate principal balance due versus the amount received each month. Because each class of investor has a different perspective depending on where it falls in the priority of payment (the <em>waterfall</em>), no single measure of balance weighted delinquency will be relevant to all investors. Therefore, I begin the analysis with the unweighted number of delinquencies.</p>
+</div>
+<div id="defining-the-outcome-measure" class="section level2">
+<h2><span class="header-section-number">3.4</span> Defining the outcome measure</h2>
+<p>The simplest measure is the percentage of loans that are current in any given month, regardless of past payment history. For the July 1, 2007 due date, out of 96,271 loans, 87,369 were current, or approximately 90.8%. Of the remainder 4,844, approximately 5.0% were down one payment, and 3,015, approximately 3.1% were in default (three payments down) or in the process of foreclosure.</p>
+<p>The delinquency <em>rate</em> is often defined as the percentage of loans 60 or more days delinquent, meaning that a payment due in month one was not receive in month two or three. Under that measure, the delinquency rate for the pool at July 1, 2007 was approximtely 8.1%.</p>
+<p>A <a href="https://goo.gl/dwisgH">retrospective</a> study found that the median delinquency rate for <strong>all</strong> subprime loans, including those originated in earlier years, to be 12.2%, with a range of 3% to 25%. The mid-year performance of the pool at mid-2007 was, accordingly, below the median.</p>
+<p>The most complex measure of delinquency would be the pattern over a period of, say, 12 months of payment versus non-payment. A loan, for example, could be delinquent every other month but happen to be current on the measurement date. Unfortunately there are 4,096 payment patterns in a year. Also, many of the payment patterns consist of a long string of defaulted loans in foreclosure.</p>
+<p>Other alternatives would the number of months since the last payment, whether the loan had missed two or more payments at the measurement date or three or more payments, and the percentage of payments made before entering the foreclosure process,</p>
+<div class="figure">
+<img src="images/DLF.svg" alt="Payment status at June 1, 2007" />
+<p class="caption">Payment status at June 1, 2007</p>
+</div>
+</div>
+<div id="preliminary-analysis-based-on-fico-scores-using-linear-regression" class="section level2">
+<h2><span class="header-section-number">3.5</span> Preliminary analysis, based on FICO scores, using linear regression</h2>
+<div id="ficos-importance" class="section level3">
+<h3><span class="header-section-number">3.5.1</span> FICO’s importance</h3>
+<p>In 1995, Freddie Mac advised lenders that it had found that consumer credit scores developed by Fair, Issac and Company, Inc. (<strong>FICO</strong> scores) strongly predicted the likelihood of default on mortgage loans. Freddie Mac’s communication is reproduced as Attachment 2 in testimony before the U.S. House Committee on Oversight and Government Reform, the [Pinto testimony], beginning at page 28 of the pdf.</p>
+<p>A traditional description of the limitations of credit scores is similar to the following:</p>
+<blockquote>
+<p>Third-party credit reporting organizations provide credit scores as an aid to lenders in evaluating the creditworthiness of borrowers. Although different credit reporting organizations use different methodologies, higher credit scores indicate greater creditworthiness. Credit scores do not necessarily correspond to the probability of default over the life of the related mortgage loan because they reflect past credit history, rather than an assessment of future payment performance. In addition, the credit scores shown were collected from a variety of sources over a period of weeks, months or longer, and the credit scores do not necessarily reflect the credit scores that would be reported as of the date of this prospectus supplement. Credit scores also only indicate general consumer creditworthiness, and credit scores are not intended to specifically apply to mortgage debt. Therefore, credit scores should not be considered as an accurate predictor of the likelihood of repayment of the related mortgage loans.</p>
+</blockquote>
+<p>(From a 2002 transaction.)</p>
+<p>The rating agencies and buyers involved in residential mortgage backed securities, however, attached considerable importance to credit scores, generically referred to as FICOs. Therefore, the FICO composition was an obvious starting point.</p>
+</div>
+<div id="performance-outcome-measure" class="section level3">
+<h3><span class="header-section-number">3.5.2</span> Performance outcome measure</h3>
+<p><em>Down</em> is the number of missed payments as of the latest date. If a borrower misses three consequtive payments, foreclosure is triggered, which may be a relatively quick process in states that do not require a court proceeding or relatively lengthy in those that do. It is what we are trying to predict with the data at hand. It will be the dependent variable.</p>
+</div>
+<div id="fico-scores-in-the-pool" class="section level3">
+<h3><span class="header-section-number">3.5.3</span> FICO scores in the pool</h3>
+<p>FICO scores have a minimum value of 300, and a maximum value of 850. Foreign borrowers have a FICO score of 0. The summary statistics are:</p>
+<pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##     0.0   603.0   632.0   633.6   665.0   821.0</code></pre>
+<p>and the mode is 620. The pool included two loans with FICO scores of 0, indicating that they were foreign buyers.</p>
+<p>Sixteen other loans had scores below 500:</p>
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+<span id="tab:unnamed-chunk-2">Table 3.1: </span>Number of low-FICO loans by deal
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+deal
+</th>
+<th style="text-align:right;">
+down
+</th>
+<th style="text-align:right;">
+fico
+</th>
+<th style="text-align:right;">
+dti
+</th>
+<th style="text-align:right;">
+cltv
+</th>
+<th style="text-align:right;">
+obal
+</th>
+<th style="text-align:right;">
+orate
+</th>
+<th style="text-align:left;">
+fpd
+</th>
+<th style="text-align:left;">
+ptd
+</th>
+<th style="text-align:left;">
+grade
+</th>
+<th style="text-align:left;">
+purpose
+</th>
+<th style="text-align:left;">
+dtype
+</th>
+<th style="text-align:left;">
+ltype
+</th>
+<th style="text-align:left;">
+otype
+</th>
+<th style="text-align:left;">
+ptype
+</th>
+<th style="text-align:right;">
+zip
+</th>
+<th style="text-align:left;">
+metro
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+LBMLT 2006-WL1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+497
+</td>
+<td style="text-align:right;">
+32
+</td>
+<td style="text-align:right;">
+100
+</td>
+<td style="text-align:right;">
+58,000
+</td>
+<td style="text-align:right;">
+9
+</td>
+<td style="text-align:left;">
+2005-06-01
+</td>
+<td style="text-align:left;">
+2007-06-01
+</td>
+<td style="text-align:left;">
+AP
+</td>
+<td style="text-align:left;">
+Purchase
+</td>
+<td style="text-align:left;">
+Full
+</td>
+<td style="text-align:left;">
+2/28 LIBOR
+</td>
+<td style="text-align:left;">
+OO
+</td>
+<td style="text-align:left;">
+SFR
+</td>
+<td style="text-align:right;">
+29,301
+</td>
+<td style="text-align:left;">
+Greenville-Spartanburg-An
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LBMLT 2006-WL1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+494
+</td>
+<td style="text-align:right;">
+51
+</td>
+<td style="text-align:right;">
+80
+</td>
+<td style="text-align:right;">
+52,800
+</td>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:left;">
+2005-10-01
+</td>
+<td style="text-align:left;">
+2007-06-01
+</td>
+<td style="text-align:left;">
+B
+</td>
+<td style="text-align:left;">
+Refi - Cashout
+</td>
+<td style="text-align:left;">
+Full
+</td>
+<td style="text-align:left;">
+3/27 LIBOR
+</td>
+<td style="text-align:left;">
+OO
+</td>
+<td style="text-align:left;">
+SFR
+</td>
+<td style="text-align:right;">
+77,021
+</td>
+<td style="text-align:left;">
+Houston-Galveston-Brazori
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LBMLT 2006-WL1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+473
+</td>
+<td style="text-align:right;">
+29
+</td>
+<td style="text-align:right;">
+43
+</td>
+<td style="text-align:right;">
+50,000
+</td>
+<td style="text-align:right;">
+9
+</td>
+<td style="text-align:left;">
+2005-10-01
+</td>
+<td style="text-align:left;">
+2007-05-01
+</td>
+<td style="text-align:left;">
+B
+</td>
+<td style="text-align:left;">
+Refi - Cashout
+</td>
+<td style="text-align:left;">
+Stated
+</td>
+<td style="text-align:left;">
+2/28 LIBOR
+</td>
+<td style="text-align:left;">
+OO
+</td>
+<td style="text-align:left;">
+SFR
+</td>
+<td style="text-align:right;">
+49,461
+</td>
+<td style="text-align:left;">
+Grand Rapids-Muskegon-Hol
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LBMLT 2006-WL1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+497
+</td>
+<td style="text-align:right;">
+51
+</td>
+<td style="text-align:right;">
+80
+</td>
+<td style="text-align:right;">
+388,000
+</td>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:left;">
+2005-06-01
+</td>
+<td style="text-align:left;">
+2007-06-01
+</td>
+<td style="text-align:left;">
+B+
+</td>
+<td style="text-align:left;">
+Refi - Cashout
+</td>
+<td style="text-align:left;">
+Full
+</td>
+<td style="text-align:left;">
+2/28 LIBOR
+</td>
+<td style="text-align:left;">
+OO
+</td>
+<td style="text-align:left;">
+SFR
+</td>
+<td style="text-align:right;">
+93,635
+</td>
+<td style="text-align:left;">
+Merced, CA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LBMLT 2006-WL3
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+498
+</td>
+<td style="text-align:right;">
+52
+</td>
+<td style="text-align:right;">
+100
+</td>
+<td style="text-align:right;">
+67,500
+</td>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:left;">
+2005-11-01
+</td>
+<td style="text-align:left;">
+2007-05-01
+</td>
+<td style="text-align:left;">
+A
+</td>
+<td style="text-align:left;">
+Purchase
+</td>
+<td style="text-align:left;">
+Full
+</td>
+<td style="text-align:left;">
+2/28 LIBOR
+</td>
+<td style="text-align:left;">
+OO
+</td>
+<td style="text-align:left;">
+SFR
+</td>
+<td style="text-align:right;">
+61,603
+</td>
+<td style="text-align:left;">
+Peoria-Pekin, IL
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LBMLT 2006-2
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+470
+</td>
+<td style="text-align:right;">
+33
+</td>
+<td style="text-align:right;">
+80
+</td>
+<td style="text-align:right;">
+327,975
+</td>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:left;">
+2005-09-01
+</td>
+<td style="text-align:left;">
+2007-06-01
+</td>
+<td style="text-align:left;">
+AP
+</td>
+<td style="text-align:left;">
+Refi - Cashout
+</td>
+<td style="text-align:left;">
+Full
+</td>
+<td style="text-align:left;">
+2/28 LIBOR
+</td>
+<td style="text-align:left;">
+OO
+</td>
+<td style="text-align:left;">
+SFR
+</td>
+<td style="text-align:right;">
+19,341
+</td>
+<td style="text-align:left;">
+Philadelphia-Wilmington-A
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LBMLT 2006-2
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+481
+</td>
+<td style="text-align:right;">
+42
+</td>
+<td style="text-align:right;">
+77
+</td>
+<td style="text-align:right;">
+195,194
+</td>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:left;">
+2005-11-01
+</td>
+<td style="text-align:left;">
+2007-04-01
+</td>
+<td style="text-align:left;">
+B
+</td>
+<td style="text-align:left;">
+Refi - Cashout
+</td>
+<td style="text-align:left;">
+Full
+</td>
+<td style="text-align:left;">
+2/28 LIBOR
+</td>
+<td style="text-align:left;">
+OO
+</td>
+<td style="text-align:left;">
+SFR
+</td>
+<td style="text-align:right;">
+20,019
+</td>
+<td style="text-align:left;">
+Washington-Baltimore, DC-
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LBMLT 2006-2
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+493
+</td>
+<td style="text-align:right;">
+39
+</td>
+<td style="text-align:right;">
+80
+</td>
+<td style="text-align:right;">
+148,000
+</td>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:left;">
+2006-01-01
+</td>
+<td style="text-align:left;">
+2007-06-01
+</td>
+<td style="text-align:left;">
+C
+</td>
+<td style="text-align:left;">
+Refi - No Cashout
+</td>
+<td style="text-align:left;">
+Full
+</td>
+<td style="text-align:left;">
+2/28 LIBOR
+</td>
+<td style="text-align:left;">
+OO
+</td>
+<td style="text-align:left;">
+SFR
+</td>
+<td style="text-align:right;">
+30,115
+</td>
+<td style="text-align:left;">
+Atlanta, GA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LBMLT 2006-2
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+491
+</td>
+<td style="text-align:right;">
+37
+</td>
+<td style="text-align:right;">
+95
+</td>
+<td style="text-align:right;">
+142,500
+</td>
+<td style="text-align:right;">
+9
+</td>
+<td style="text-align:left;">
+2005-07-01
+</td>
+<td style="text-align:left;">
+2007-06-01
+</td>
+<td style="text-align:left;">
+AP
+</td>
+<td style="text-align:left;">
+Purchase
+</td>
+<td style="text-align:left;">
+Full
+</td>
+<td style="text-align:left;">
+2/28 LIBOR
+</td>
+<td style="text-align:left;">
+OO
+</td>
+<td style="text-align:left;">
+SFR
+</td>
+<td style="text-align:right;">
+75,052
+</td>
+<td style="text-align:left;">
+Dallas-Fort Worth, TX (C)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LBMLT 2006-2
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+465
+</td>
+<td style="text-align:right;">
+39
+</td>
+<td style="text-align:right;">
+75
+</td>
+<td style="text-align:right;">
+93,750
+</td>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:left;">
+2005-07-01
+</td>
+<td style="text-align:left;">
+2007-06-01
+</td>
+<td style="text-align:left;">
+AP
+</td>
+<td style="text-align:left;">
+Refi - Cashout
+</td>
+<td style="text-align:left;">
+Full
+</td>
+<td style="text-align:left;">
+2/28 LIBOR
+</td>
+<td style="text-align:left;">
+NOO
+</td>
+<td style="text-align:left;">
+2-4 Units
+</td>
+<td style="text-align:right;">
+27,406
+</td>
+<td style="text-align:left;">
+Greensboro–Winston Salem
+</td>
+</tr>
+</tbody>
+</table>
+<p>The <em>cliffs</em> around 500 (below which only the small number of loans in the tables above are included), 600, 630 and 635 represent the cumulative segmentation of the pools to obtain favorable ratings. Not all deals followed this approach, however.</p>
+<pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+<p><img src="_main_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<p>The variability among transactions suggest that <em>if</em> FICO scores have an influence on default rates, it may be necessary to stratify of otherwise transform the data to obtain useful results.</p>
+</div>
+<div id="the-fico-scores-are-not-normally-distributed" class="section level3">
+<h3><span class="header-section-number">3.5.4</span> The FICO scores are not normally distributed</h3>
+<p><img src="_main_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<p>As a group, FICO scores have <em>fat tails,</em> a trait that is present in each of the deals to some degree. There are more loans with very low FICO scores than you would expect if score were randomly distributed plus more loans with high score. We also see a dip in the 500-600 range (loans that may only have been originated due to compensating factors), which are fewer than the sub-500 FICO loans.</p>
+<p>An approximately 12% random sample with replacement of normalized scores shows a similar pattern.</p>
+<p><img src="_main_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+<p>With variations, all the deals in the sample of normalized FICO scores have similiar distributions.</p>
+<p><img src="_main_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<p>A candidate variable that is not normally distributed, even when sampled, raises a red flag. Can it be used as part of a regression model? Let’s find out.</p>
+</div>
+<div id="none-of-the-quantitative-variables-can-be-used-in-linear-regression-for-the-pool-as-a-whole" class="section level3">
+<h3><span class="header-section-number">3.5.5</span> None of the quantitative variables can be used in linear regression for the pool as a whole</h3>
+<pre class="sourceCode r"><code class="sourceCode r">fico_sam_mod &lt;-<span class="st"> </span><span class="kw">lm</span>(down <span class="op">~</span><span class="st"> </span>fico, <span class="dt">data =</span> y7samtrain_scaled)
+<span class="kw">library</span>(ggfortify)
+<span class="kw">autoplot</span>(fico_sam_mod, <span class="dt">label.size =</span> <span class="dv">3</span>)</code></pre>
+<p><img src="_main_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+<p>The diagnostic on the upper right corner shows the distribution of the residuals (differences between the data point and the best fit line) compared to the expected difference, represented by the dashed line, a normal distribution.</p>
+<p>This eliminates <em>fico</em> as a candidate independent variable in any ordinary least square linear regression model.</p>
+<p>We see the same problem with the debt-to-income ratio, <em>dti</em>,</p>
+<p><img src="_main_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+<p>combined loan-to-value ratio, <em>cltv</em>,</p>
+<p><img src="_main_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+<p>original balance, <em>obal</em>,</p>
+<p><img src="_main_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<p>original rate, <em>orate</em>,</p>
+<p><img src="_main_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+<p>and all the quantitative variables taken together, dipping our toes into <em>multiple</em> linear regression.</p>
+<p><img src="_main_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
+<p>Clearly something is amiss. It’s time to test whether the model assumptions are sane:</p>
+<pre>
+
+Call:
+lm(formula = down ~ dti + cltv + obal + orate, data = y7samtrain_scaled)
+
+Coefficients:
+(Intercept)          dti         cltv         obal        orate  
+    1.47369      0.01819      0.32053      0.47700      0.52147  
+
+
+ASSESSMENT OF THE LINEAR MODEL ASSUMPTIONS
+USING THE GLOBAL TEST ON 4 DEGREES-OF-FREEDOM:
+Level of Significance =  0.05 
+
+Call:
+ gvlma(x = lm(down ~ dti + cltv + obal + orate, data = y7samtrain_scaled)) 
+
+                       Value   p-value                   Decision
+Global Stat        2.019e+04 0.000e+00 Assumptions NOT satisfied!
+Skewness           7.879e+03 0.000e+00 Assumptions NOT satisfied!
+Kurtosis           1.230e+04 0.000e+00 Assumptions NOT satisfied!
+Link Function      1.618e+01 5.752e-05 Assumptions NOT satisfied!
+Heteroscedasticity 5.138e-01 4.735e-01    Assumptions acceptable.
+</pre>
+<p>In short, a test of the model residuals highlights numerically what we can see in the diagnostic plots, that they are not normally distributed, but markedly skewed with a high kurtosis (many extreme outliers). The <em>Global Stats</em> measure provided by the <strong>gvlma</strong> package tests for linearity of each predictor variable, holding the others constant, that the slopes bear no interdependence and the effects of each are additive. The failure of the Link Function is just another indication of the non-normality of the residuals</p>
+<p>Heteroscedasticity is absent, none of the residuals have different variability from the others, which is the only assumption satisfied.</p>
+<p>Had we relied solely on the summary output of the model and failed to look at either the diagnostic plots or the output of <em>gvlma,</em> we might have fooled ourselves into thinking that we had at least accounted for a small proportion of the variance in the response variable.</p>
+<pre>
+
+Call:
+lm(formula = down ~ dti + cltv + obal + orate, data = y7samtrain_scaled)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-5.9930 -1.6141 -1.0718  0.0088 16.4915 
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept)  1.47369    0.03484  42.295   <2e-16 ***
+dti          0.01819    0.03549   0.513    0.608    
+cltv         0.32053    0.03565   8.990   <2e-16 ***
+obal         0.47700    0.03919  12.173   <2e-16 ***
+orate        0.52147    0.03908  13.344   <2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 3.058 on 7701 degrees of freedom
+Multiple R-squared:  0.04327,   Adjusted R-squared:  0.04277 
+F-statistic: 87.07 on 4 and 7701 DF,  p-value: < 2.2e-16
+</pre>
+<p>In the following sections, we will reconsider outcome measures and turn to logistic regression and use the categorical variables available in the data.</p>
+
+</div>
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="dectab.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="the-subprime-mortgage-crisis-unfolds-in-early-2007-part-2.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"google": false,
+"linkedin": false,
+"weibo": false,
+"instapper": false,
+"vk": false,
+"all": ["facebook", "google", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"download": null,
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+</body>
+
+</html>
