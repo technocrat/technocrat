@@ -10,36 +10,39 @@ description: "Landing site"
 ---
 # Purpose  {#preface}
 
-This site shows where Richard Careaga's data science skills stand in mid-2018. 
+This notebook previews where Richard Careaga's data science skills stand in late-2018. 
 
 Its intent is to provide prospective employers with concrete evidence of my abilities to do the work of a data sciencist. The content is all my own work, and none of the cases are based on classroom assignments, except where indicated. The style of these pages is directed to that purpose. They are not academic papers, industry conference papers, nor reports to management. They are designed to show you my thought processes and methods.
 
 ## Updates
 
-* 2018-06-23 added qqnorm tests to FICO example in Failure Analysis chapter, part 1
-* 2018-06-26 stratified Failure Analysis 125K dataset to censor loan dropouts during 2006, classified remaining loans into performance categories based on monthly payment/nonpayment data and compared FICO distributions in the categories
-* 2018-06-28 illustrated non-normality of FICO distributions with Shapiro-Wilks test; refactored database for principal component analysis
-* 2018-07-01 performed PCA on sample
-* 2018-07-02 performed K-means clustering
-* 2018-07-06 Correspondence analysis performance x clusters
-* 2018-07-08 Correspondence analysis of categorical variables
-* 2018-07-11 Revised qq plots to take advantage of new ggplot2 v 3.0.0 
-  feature, added R package to tools chapter, new credential on this page
-* 2018-07-14 Logistic regression of FICO on performance
-* 2018-07-21 added PH125.6x: Data Science: Wrangling certificate
-* 2018-08-04 added PH125.5x: Data Science: Productivity certificate
-* 2018-08-04 new blog at http://technocrat.rbind.io
-* 2018-08-14 added PH125.7x: Data Science: Linear Regression certificate
-* 2018-08-15 Stratified suprime data set
-* 2018-09-01 Exhuasted linear regression on subprime loan dataset
-* 2018-09-07 Major revisions to part 1 and part 2 of subprime dataset
-* 2018-09-08 Completed revisions to part 1 of subprime dataset (linear regression)
-* 2018-09-09 Completed revisions to part 2 of subprime dataset (logistic regression using only quntitative variables)
-* 2018-09-10 corrected keywords in revised part 2 of subprime dataset
-* 2018-09-11 site configuration change
-* 2018-09-19 added section for credits
-* 2018-10-02 Added final certificate for BerkeleyX program
+* 2018-11-06 In process of conversion from gitbook to another format to bring the flow of narrative forward and isolate the implementation to their own pages
+* 2018-10-25 revised linear regression discussion in subprime dataset part 1
 * 2018-10-09 fixed broken links
+* 2018-10-02 Added final certificate for BerkeleyX program
+* 2018-09-19 added section for credits
+* 2018-09-11 site configuration change
+* 2018-09-10 corrected keywords in revised part 2 of subprime dataset
+* 2018-09-09 Completed revisions to part 2 of subprime dataset (logistic regression using only quntitative variables)
+* 2018-09-08 Completed revisions to part 1 of subprime dataset (linear regression)
+* 2018-09-07 Major revisions to part 1 and part 2 of subprime dataset
+* 2018-09-01 Exhuasted linear regression on subprime loan dataset
+* 2018-08-15 Stratified suprime data set
+* 2018-08-14 added PH125.7x: Data Science: Linear Regression certificate
+* 2018-08-04 new blog at http://technocrat.rbind.io
+* 2018-08-04 added PH125.5x: Data Science: Productivity certificate
+* 2018-07-21 added PH125.6x: Data Science: Wrangling certificate
+* 2018-07-14 Logistic regression of FICO on performance
+* 2018-07-11 Revised qq plots to take advantage of new ggplot2 v 3.0.0 
+* 2018-07-08 Correspondence analysis of categorical variables
+* 2018-07-06 Correspondence analysis performance x clusters
+* 2018-07-02 performed K-means clustering
+* 2018-07-01 performed PCA on sample
+* 2018-06-28 illustrated non-normality of FICO distributions with Shapiro-Wilks test; refactored database for principal component analysis
+* 2018-06-26 stratified Failure Analysis 125K dataset to censor loan dropouts during 2006, classified remaining loans into performance categories based on monthly payment/nonpayment data and compared FICO distributions in the categories
+* 2018-06-23 added qqnorm tests to FICO example in Failure Analysis chapter, part 1
+  feature, added R package to tools chapter, new credential on this page
+
 
 ## Literate programming: the tight integration of code and text
 
